@@ -1,3 +1,5 @@
+# FAQ
+
 ### A contract
 
 ```
