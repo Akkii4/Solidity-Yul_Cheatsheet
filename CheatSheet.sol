@@ -2,6 +2,10 @@
 // ^ Tells that source code is licensed under the GPL version 3.0. Machine-readable license
 // It is included as string in the bytecode metadata.
 
+// "pragma" keyword is used to enable certain compiler features or checks
+// Source code is written for Solidity version 0.4.16, or a newer version of the language up to, but not including version 0.9.0
+// another eg. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and `^` represnts it neither compiles on compiler 0.x.0(where x > 4).
+// Versioning is to ensure that the contract is not compilable with a new (breaking) compiler version, where it could behave differently
 pragma solidity >=0.4.16 <0.9.0;
 
 //^ Source code is written for Solidity version 0.4.16, or a newer version of the language up to, but not including version 0.9.0
