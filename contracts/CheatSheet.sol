@@ -124,6 +124,19 @@ i.e they are always copied when used as function arguments or in assignments.
         return x && (y || z);
     }
 
+    // access the minimum and maximum value representable by the integer type
+    function integersRange() external pure returns(uint ,uint ,int , int) {
+        return (
+                //uintX range
+                type(uint8).max, // 2**8 - 1
+                type(uint16).min, // 0
+
+                // int : Signed Integer
+                // intX range
+                type(int32).max, // (2**32)/2 - 1
+                type(int64).min  // (2**64)/2 - 1
+        );
+    }
 }
 
 /*
