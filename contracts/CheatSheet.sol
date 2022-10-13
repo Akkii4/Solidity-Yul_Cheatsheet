@@ -54,6 +54,13 @@ contract CheatSheet {
     // maps addresses to unsigned integers.
     mapping(address => uint256) public balances;
 
+    //Structs are group of multiple related variables 
+    struct Voter {
+        uint weight;
+        bool voted;
+        address delegate;
+        uint vote;
+    }
     /* 
     Modifiers can be used to change the behaviour of functions 
     in a declarative way(abstract away control flow for logic)
