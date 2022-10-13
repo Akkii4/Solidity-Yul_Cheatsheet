@@ -43,6 +43,11 @@ contract CheatSheet {
 /* 
 Value Types : These variables are always be passed by value, 
 i.e they are always copied when used as function arguments or in assignments.
+*/
+    // Integers exists in sizes(from 8 up to 256 bits) in steps of 8
+    // uint and int are aliases for uint256 and int256, respectively
+
+    // unsigned integer of 256 bits
     // Variable is private by default if access modifier is not mentioned
     uint256 storedData;
 
