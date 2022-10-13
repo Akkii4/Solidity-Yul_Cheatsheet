@@ -56,6 +56,9 @@ i.e they are always copied when used as function arguments or in assignments.
     // The address type is a 160-bit value and is suitable for storing addresses of contracts, or external accounts.
     address public owner;
 
+    // Boolean possible values are true and false
+    bool public isEven;
+
     //  Mappings are like hash tables which are virtually initialised such that every possible key is mapped to a value whose byte-representation is all zeros.
     // Not possible to obtain a list of all keys or all values of a mapping
     // maps addresses to unsigned integers.
@@ -114,6 +117,13 @@ i.e they are always copied when used as function arguments or in assignments.
         //Stored event emitted
         emit Stored(msg.sender, x);
     }
+
+    function boolTesting(bool x, bool y, bool z) public pure returns (bool) {
+        // Short-circuiting rule: full expression will not be evaluated
+        // if the result is already been determined by previous variable
+        return x && (y || z);
+    }
+
 }
 
 /*
