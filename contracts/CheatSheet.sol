@@ -54,6 +54,18 @@ contract CheatSheet {
     // maps addresses to unsigned integers.
     mapping(address => uint256) public balances;
 
+    /* 
+    Modifiers can be used to change the behaviour of functions 
+    in a declarative way(abstract away control flow for logic)
+    */
+    // Overloading (same modifier name with different parameters) is not possible.
+    // Like functions, modifiers can be overridden.
+    modifier onlyOwner() {
+        // The require defines that reverts all changes if defined condition not met.
+        require(msg.sender == owner, "Not Owner");
+        _;
+    }
+
     // Events allow clients to react to specific state change
     // Web app can listen for these events, the listener receives the arguments sender and value, to track transactions.
     // Eg. Listeners using web3js :
@@ -72,10 +84,8 @@ contract CheatSheet {
         owner = msg.sender;
     }
 
-    // only the creator of the contract "owner" can call this function.
-    function set(uint256 x) public {
-        // The require defines that reverts all changes if defined condition not met.
-        require(msg.sender == owner);
+    // Modifier usage let only the creator of the contract "owner" can call this function
+    function set(uint256 x) public onlyOwner {
         storedData = x;
 
         //Stored event emitted
