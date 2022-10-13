@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // ^ Tells that source code is licensed under the GPL version 3.0. Machine-readable license
+// It is included as string in the bytecode metadata.
 
 pragma solidity >=0.4.16 <0.9.0;
 
