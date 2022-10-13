@@ -26,8 +26,12 @@ import {divide2 as div, name} from "./Div.sol";
 
 //All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
 contract CheatSheet {
+    /*
+    State Variable is like a single slot in a database that are accessible by functions
+    and there values are permanently stored in contract storage.
+    */
+
     //Declares a state variable called storedData of type (unsigned integer of 256 bits).
-    // State Variable is as a single slot in a database that you can query and alter by calling functions of the code that manages the database
     // Variable is private by default if access modifier is not mentioned
     uint256 storedData;
 
