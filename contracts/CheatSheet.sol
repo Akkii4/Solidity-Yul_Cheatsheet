@@ -77,6 +77,10 @@ contract CheatSheet {
     // })
     event Stored(address sender, uint256 value);
 
+    // Errors allow custom names and data for failure situations.
+    // Are used in revert statement & are cheaper than using string in revert
+    error invalidValue(uint value);
+
     // Constructor code only runs when the contract is created
     constructor() {
         // "msg" is a special global variable that contains allow access to the blockchain.
@@ -86,6 +90,7 @@ contract CheatSheet {
 
     // Modifier usage let only the creator of the contract "owner" can call this function
     function set(uint256 x) public onlyOwner {
+        if(x < 10) revert invalidValue();
         storedData = x;
 
         //Stored event emitted
