@@ -40,7 +40,9 @@ contract CheatSheet {
     and there values are permanently stored in contract storage.
     */
 
-    //Declares a state variable called storedData of type (unsigned integer of 256 bits).
+/* 
+Value Types : These variables are always be passed by value, 
+i.e they are always copied when used as function arguments or in assignments.
     // Variable is private by default if access modifier is not mentioned
     uint256 storedData;
 
