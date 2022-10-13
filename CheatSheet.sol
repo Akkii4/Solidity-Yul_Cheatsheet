@@ -58,3 +58,12 @@ contract CheatSheet {
         emit Stored(msg.sender, x);
     }
 }
+
+// Comments in Solidity :
+
+// This is a single-line comment.
+
+/*
+This is a
+multi-line comment.
+*/
