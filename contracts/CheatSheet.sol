@@ -24,6 +24,15 @@ import {divide2 as div, name} from "./Div.sol";
 
 //External imports are also allowed from github -> import "github/filepath/url"
 
+/*
+Functions are the executable units of code. 
+They are usually defined inside a contract, 
+but they can also be defined outside of contracts.
+*/
+function outsider(uint256 x) pure returns (uint256) {
+    return x * 2;
+}
+
 //All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
 contract CheatSheet {
     /*
