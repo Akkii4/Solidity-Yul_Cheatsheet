@@ -61,6 +61,10 @@ contract CheatSheet {
         address delegate;
         uint vote;
     }
+
+    // Enums are special set of predefined constants 
+    enum State { Created, Locked, Inactive }
+
     /* 
     Modifiers can be used to change the behaviour of functions 
     in a declarative way(abstract away control flow for logic)
