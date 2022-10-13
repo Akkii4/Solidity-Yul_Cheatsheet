@@ -93,6 +93,7 @@ contract CheatSheet {
     }
 }
 
+/*
 // Comments in Solidity :
 
 // This is a single-line comment.
@@ -101,3 +102,4 @@ contract CheatSheet {
 This is a
 multi-line comment.
 */
+/*
