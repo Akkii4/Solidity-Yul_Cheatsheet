@@ -58,6 +58,9 @@ i.e they are always copied when used as function arguments or in assignments.
         Equivalent to -> function owner() external view returns (address) { return owner; }
     */ 
 
+    //address with transfer and send functionality to recieve Ether
+    address payable public treasury;
+
     // Boolean possible values are true and false
     bool public isEven;
 
@@ -142,6 +145,19 @@ i.e they are always copied when used as function arguments or in assignments.
                 type(int32).max, // (2**32)/2 - 1
                 type(int64).min  // (2**64)/2 * -1
         );
+    }
+
+    function sendFunds() external {
+        // querying this contract ether balance 
+        require(address(this).balance > 2 wei,"Insufficeint funds");
+        //transferring funds to payable address
+        treasury.transfer(1 wei);
+
+        // Sending eth to burn address 0x0000000000000000000000000000000000000000
+        payable(0).transfer(1 wei);
+
+        // Explicit conversion allowed from address to address payable  
+        payable(owner).transfer(address(this).balance);
     }
 }
 
