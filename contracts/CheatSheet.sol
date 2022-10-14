@@ -174,17 +174,33 @@ i.e they are always copied when used as function arguments or in assignments.
         );
     }
 
-    function sendFunds() external {
-        // querying this contract ether balance 
-        require(address(this).balance > 2 wei,"Insufficeint funds");
-        //transferring funds to payable address
+    // Payable Function requires Calling this function along with some Ether (as msg.value)
+    function transferringFunds(address payable _to) external payable{
+        /*
+        'transfer' fails if sender don't have enough balance or trx rejected by reciever 
+        reverts on failure & stops execution
+        transfer/send has 2300 gas limit
+        */
         treasury.transfer(1 wei);
 
-        // Sending eth to burn address 0x0000000000000000000000000000000000000000
-        payable(0).transfer(1 wei);
+        /*
+        'send' returns a boolean value indicating success or failure.
+        doesn't stops execution
+        */
+        bool sent = payable(0).send(1 wei); // payable(0) -> 0x0000000000000000000000000000000000000000
+        require(sent, "Send failed");
+
+        /*
+        Call returns a boolean value indicating success or failure.
+        is possible to adjust gas supplied
+        recommended method to transfer funds.
+        */
+        (bool sent, bytes memory data) = _to.call{gas: 5000, value: msg.value}("");
+        // do something with data...
+        require(sent, "Failed to send Ether");
 
         // Explicit conversion allowed from address to address payable  
-        payable(owner).transfer(address(this).balance);
+        payable(owner).transfer(address(this).balance); //querying this contract ether balance 
     }
 }
 
