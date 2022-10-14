@@ -51,7 +51,7 @@ i.e they are always copied when used as function arguments or in assignments.
     // Variable is private by default if access modifier is not mentioned
     uint256 storedData;
 
-    // The address type is a 160-bit value and is suitable for storing addresses of contracts, or external accounts.
+    // address holds 20 byte value and is suitable for storing addresses of contracts, or external accounts.
     address public owner;
     /*  
         ^ "public" autom generates a function that allows to access the state variable from other contracts
