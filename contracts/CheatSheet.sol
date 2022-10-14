@@ -210,6 +210,45 @@ i.e they are always copied when used as function arguments or in assignments.
             _contractAddr.codehash  // Keccak-256 hash of that code
         );
     }
+
+    function literals() external pure returns (address, uint, uint, uint, uint, string calldata, string memory){
+        returns(
+        // Also Hexadecimal literals that pass the address checksum test are considered as address
+        0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
+
+        //decimals fractional formed by . with at least one number after decimal point
+        // .1, 1.3 but not 1. 
+        .1,
+
+        /*
+        Division on integer literals eg. 5/2
+        prior to version 0.4.0 is equal to  2
+        but now it's rational number 2.5
+        */
+        5/2 + 1 + 0.5,  //  = 4
+        // whereas uint x = 1;
+        //         uint y = 5/2 + x + 0.5  returns compiler error, as no common type in 5/2 & x(uint128)
+
+        //Scientific notation of type MeE ~= M * 10**E (M & E can be negative as well)
+        -2e-10,
+
+        //Underscores have no meaning(just eases humman readibility)
+        1_2e3_00 // = 12*10**300
+
+        /*
+        string literal represented in " " OR ' '
+        */
+        "yo" "lo", // can be splitted = "yolo"
+        'abc\\def' // also supports various escape characters
+
+        //unicode
+        unicode"Hi there 👋";
+
+        //Random Hexadecimal literal behve just like string literal
+        hex"00112233_44556677"
+        )
+
+    }
 }
 
 /*
