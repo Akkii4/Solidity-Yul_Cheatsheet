@@ -107,8 +107,13 @@ i.e they are always copied when used as function arguments or in assignments.
         uint vote;
     }
 
-    // Enums are special set of predefined constants 
-    enum State { Created, Locked, Inactive }
+    /* 
+    Enums are user-defined type of predefined constants 
+    First values is default & starts from uint 0
+    They can be stored even outside of Contract & in libraries as well
+    */
+    enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
+    Status public status;
 
     /* 
     Modifiers can be used to change the behaviour of functions 
@@ -247,7 +252,22 @@ i.e they are always copied when used as function arguments or in assignments.
         //Random Hexadecimal literal behve just like string literal
         hex"00112233_44556677"
         )
+    }
 
+    /* 
+    As enums are not stored in ABI
+    thus in ABI 'updateStatus()' will have its input type as uint8 
+    */
+    function updateStatus(Status _status) public {
+        status = _status;
+    }
+
+    //Accessing boundaries range values of an enum
+    function enumsRange() public pure returns(Status, Status) {
+        return (
+                type(Status).max,   // return 3 indicating 'User'
+                type(Status).min    // return 0 indicating 'Manufacturer'
+        );
     }
 }
 
