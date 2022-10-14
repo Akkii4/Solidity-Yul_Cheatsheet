@@ -193,7 +193,7 @@ i.e they are always copied when used as function arguments or in assignments.
         /*
         Call returns a boolean value indicating success or failure.
         is possible to adjust gas supplied
-        recommended method to transfer funds.
+        most recommended method to transfer funds.
         */
         (bool sent, bytes memory data) = _to.call{gas: 5000, value: msg.value}("");
         // do something with data...
@@ -201,6 +201,14 @@ i.e they are always copied when used as function arguments or in assignments.
 
         // Explicit conversion allowed from address to address payable  
         payable(owner).transfer(address(this).balance); //querying this contract ether balance 
+    }
+
+    //query the deployed code for any smart contract
+    function accessCode(address _contractAddr) external view returns(bytes memory, bytes32){
+        return (
+            _contractAddr.code,     // gets the EVM bytecode of code
+            _contractAddr.codehash  // Keccak-256 hash of that code
+        );
     }
 }
 
