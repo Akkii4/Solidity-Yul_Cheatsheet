@@ -134,7 +134,7 @@ i.e they are always copied when used as function arguments or in assignments.
                 // int : Signed Integer
                 // intX range
                 type(int32).max, // (2**32)/2 - 1
-                type(int64).min  // (2**64)/2 - 1
+                type(int64).min  // (2**64)/2 * -1
         );
     }
 }
