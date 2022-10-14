@@ -35,6 +35,32 @@ function outsider(uint256 x) pure returns (uint256) {
 
 //All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
 contract CheatSheet {
+
+/*
+    fallback() or receive ()?
+
+    Ether is sent to contract
+            |
+    is msg. data empty?
+            /  \
+          yes   no
+          /       \
+receive() exists?  fallback()
+        /  \
+      yes   no
+      /      \
+receive()   fallback()
+*/
+    // Fallback & recieve functions must be external.
+    fallback() external payable {
+        //returns remaining gas
+        emit Log("fallback", gasleft());
+    }
+
+    receive() external payable {
+        emit Log("receive", gasleft());
+    }
+     
     /*
     State Variable is like a single slot in a database that are accessible by functions
     and there values are permanently stored in contract storage.
@@ -106,6 +132,7 @@ i.e they are always copied when used as function arguments or in assignments.
     //     }
     // })
     event Stored(address sender, uint256 value);
+    event Log(string func, uint gas);
 
     // Errors allow custom names and data for failure situations.
     // Are used in revert statement & are cheaper than using string in revert
