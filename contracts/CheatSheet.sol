@@ -59,6 +59,10 @@ i.e they are always copied when used as function arguments or in assignments.
     // Boolean possible values are true and false
     bool public isEven;
 
+    // Fixed point numbers aren't yet supported and thus can only be declared
+    fixed x;
+    ufixed y;
+
     //  Mappings are like hash tables which are virtually initialised such that every possible key is mapped to a value whose byte-representation is all zeros.
     // Not possible to obtain a list of all keys or all values of a mapping
     // maps addresses to unsigned integers.
