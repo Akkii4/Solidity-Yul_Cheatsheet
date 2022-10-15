@@ -102,6 +102,12 @@ i.e they are always copied when used as function arguments or in assignments.
     enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
     Status public status;
 
+    /* User Defined Value Types allows creating a zero cost abstraction over an elementary value type
+    type C is V , C is new type & V is elementary type
+    type conversion , operators aren't allowed 
+    */
+    type UFixed256x18 is uint256;   // Represent a 18 decimal, 256 bit wide fixed point.
+
     //  Mappings are like hash tables which are virtually initialised such that every possible key is mapped to a value whose byte-representation is all zeros.
     // Not possible to obtain a list of all keys or all values of a mapping
     // maps addresses to unsigned integers.
@@ -269,6 +275,11 @@ i.e they are always copied when used as function arguments or in assignments.
                 type(Status).min    // return 0, indicating 'Manufacturer'
         );
     }
+
+    /// Custom types only allows wrap and unwrap
+    function customMul(UFixed256x18 x, uint256 y) internal pure returns (UFixed256x18) {
+        return UFixed256x18.wrap(               // wrap (convert underlying type -> custom type)
+                UFixed256x18.unwrap(x) * y      // unwrap (convert custom type -> underlying type)
         );
     }
 }
