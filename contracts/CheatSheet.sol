@@ -94,6 +94,14 @@ i.e they are always copied when used as function arguments or in assignments.
     fixed x;
     ufixed y;
 
+    /* 
+    Enums are user-defined type of predefined constants 
+    First values is default & starts from uint 0
+    They can be stored even outside of Contract & in libraries as well
+    */
+    enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
+    Status public status;
+
     //  Mappings are like hash tables which are virtually initialised such that every possible key is mapped to a value whose byte-representation is all zeros.
     // Not possible to obtain a list of all keys or all values of a mapping
     // maps addresses to unsigned integers.
@@ -106,14 +114,6 @@ i.e they are always copied when used as function arguments or in assignments.
         address delegate;
         uint vote;
     }
-
-    /* 
-    Enums are user-defined type of predefined constants 
-    First values is default & starts from uint 0
-    They can be stored even outside of Contract & in libraries as well
-    */
-    enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
-    Status public status;
 
     /* 
     Modifiers can be used to change the behaviour of functions 
@@ -232,7 +232,7 @@ i.e they are always copied when used as function arguments or in assignments.
         */
         5/2 + 1 + 0.5,  //  = 4
         // whereas uint x = 1;
-        //         uint y = 5/2 + x + 0.5  returns compiler error, as no common type in 5/2 & x(uint128)
+        //         uint y = 5/2 + x + 0.5  returns compiler error, as operators works only on common value types
 
         //Scientific notation of type MeE ~= M * 10**E (M & E can be negative as well)
         -2e-10,
@@ -265,8 +265,10 @@ i.e they are always copied when used as function arguments or in assignments.
     //Accessing boundaries range values of an enum
     function enumsRange() public pure returns(Status, Status) {
         return (
-                type(Status).max,   // return 3 indicating 'User'
-                type(Status).min    // return 0 indicating 'Manufacturer'
+                type(Status).max,   // return 3, indicating 'User'
+                type(Status).min    // return 0, indicating 'Manufacturer'
+        );
+    }
         );
     }
 }
