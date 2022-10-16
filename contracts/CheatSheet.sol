@@ -282,6 +282,27 @@ i.e they are always copied when used as function arguments or in assignments.
                 UFixed256x18.unwrap(x) * y      // unwrap (convert custom type -> underlying type)
         );
     }
+
+    // Solidity stores data as storage, memory or calldata
+    function dataLocations(uint[] memory memoryArray) public {
+        x = memoryArray; // Assignments betweem storage, memory & calldata always creates independent copies
+        uint[] storage y = x; // Assignments to a local storage from storage ,creates reference.
+        y.pop(); // modifies x through y
+        delete x; // clears the array x & y
+
+        /*  
+        Assigning memory to local storage doesn't work as
+        it would need to create a new temporary / unnamed array in storage, 
+        but storage is "statically" allocated
+        // y = memoryArray;
+        /*
+
+        /* 
+        Cannot "delete y" as
+        referencing global storage objects can only be made from existing local storage objects.
+        // delete y
+        */
+    }
 }
 
 /*
