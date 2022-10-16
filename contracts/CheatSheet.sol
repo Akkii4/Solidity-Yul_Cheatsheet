@@ -283,7 +283,12 @@ i.e they are always copied when used as function arguments or in assignments.
         );
     }
 
-    // Solidity stores data as storage, memory or calldata
+    /* Solidity stores data as :
+    storage - stored on blockchain
+    memory - it is modifiable & exists while a function is being called
+    calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
+    Prior to v0.6.9 data location was limited to calldata in external functions
+    */
     function dataLocations(uint[] memory memoryArray) public {
         x = memoryArray; // Assignments betweem storage, memory & calldata always creates independent copies
         uint[] storage y = x; // Assignments to a local storage from storage ,creates reference.
