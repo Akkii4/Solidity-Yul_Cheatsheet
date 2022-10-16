@@ -77,6 +77,20 @@ i.e they are always copied when used as function arguments or in assignments.
     // Variable is private by default if access modifier is not mentioned
     uint256 storedData;
 
+    // access the minimum and maximum value representable by the integer type
+    function integersRange() external pure returns(uint ,uint ,int , int) {
+        return (
+                //uintX range
+                type(uint8).max, // 2**8 - 1
+                type(uint16).min, // 0
+
+                // int : Signed Integer
+                // intX range
+                type(int32).max, // (2**32)/2 - 1
+                type(int64).min  // (2**64)/2 * -1
+        );
+    }
+
     // address holds 20 byte value and is suitable for storing addresses of contracts, or external accounts.
     address public owner;
     /*  
@@ -89,10 +103,54 @@ i.e they are always copied when used as function arguments or in assignments.
 
     // Boolean possible values are true and false
     bool public isEven;
+    
+    function boolTesting(bool _x, bool _y, bool _z) public pure returns (bool) {
+        // Short-circuiting rule: full expression will not be evaluated
+        // if the result is already been determined by previous variable
+        return _x && (_y || _z);
+    }
+    
 
     // Fixed point numbers aren't yet supported and thus can only be declared
     fixed x;
     ufixed y;
+
+
+    function literals() external pure returns (address, uint, int, uint, string memory, string memory, string memory, bytes20){
+        return(
+        // Also Hexadecimal literals that pass the address checksum test are considered as address
+        0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
+
+        /*
+        Division on integer literals eg. 5/2
+        prior to version 0.4.0 is equal to  2
+        but now it's rational number 2.5
+        */
+        5/2 + 1 + 0.5,  //  = 4
+        // whereas uint x = 1;
+        //         uint y = 5/2 + x + 0.5  returns compiler error, as operators works only on common value types
+
+        //decimals fractional formed by . with at least one number after decimal point
+        // .1, 1.3 but not 1. 
+        -.2e10, //Scientific notation of type MeE ~= M * 10**E
+
+        //Underscores have no meaning(just eases humman readibility)
+        1_2e3_0, // = 12*10**30
+
+        /*
+        string literal represented in " " OR ' '
+        */
+        "yo" "lo", // can be splitted = "yolo"
+        'abc\\def', // also supports various escape characters
+
+        //unicode
+        unicode"Hi there 👋",
+
+        //Random Hexadecimal literal behve just like string literal
+        hex"00112233_44556677"
+        );
+    }
+
 
     /* 
     Enums are user-defined type of predefined constants 
@@ -102,11 +160,73 @@ i.e they are always copied when used as function arguments or in assignments.
     enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
     Status public status;
 
+    /* 
+    As enums are not stored in ABI
+    thus in ABI 'updateStatus()' will have its input type as uint8 
+    */
+    function updateStatus(Status _status) public {
+        status = _status;
+    }
+
+    //Accessing boundaries range values of an enum
+    function enumsRange() public pure returns(Status, Status) {
+        return (
+                type(Status).max,   // return 3, indicating 'User'
+                type(Status).min    // return 0, indicating 'Manufacturer'
+        );
+    }
+
+
     /* User Defined Value Types allows creating a zero cost abstraction over an elementary value type
     type C is V , C is new type & V is elementary type
     type conversion , operators aren't allowed 
     */
     type UFixed256x18 is uint256;   // Represent a 18 decimal, 256 bit wide fixed point.
+
+    /// custom types only allows wrap and unwrap
+    function customMul(UFixed256x18 _x, uint256 _y) internal pure returns (UFixed256x18) {
+        return UFixed256x18.wrap(               // wrap (convert underlying type -> custom type)
+                UFixed256x18.unwrap(_x) * _y      // unwrap (convert custom type -> underlying type)
+        );
+    }
+
+
+/* 
+Reference Types : Values can be modified through multiple different names unlike Value type
+always have to define the data locations for the variables
+*/
+    
+    /* Solidity stores data as :
+    storage - stored on blockchain
+    memory - it is modifiable & exists while a function is being called
+    calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
+    Prior to v0.6.9 data location was limited to calldata in external functions
+    */
+    function dataLocations(uint[] memory memoryArray) public {
+        dynamicSized = memoryArray; // Assignments betweem storage, memory & calldata always creates independent copies
+        uint[] storage z = dynamicSized; // Assignments to a local storage from storage ,creates reference.
+        z.pop(); // modifies array dynamicSized through y
+        delete dynamicSized; // clears the array dynamicSized & y
+
+        /*  
+        Assigning memory to local storage doesn't work as
+        it would need to create a new temporary / unnamed array in storage, 
+        but storage is "statically" allocated
+        // z = memoryArray;
+        /*
+
+        /* 
+        Cannot "delete z" as
+        referencing global storage objects can only be made from existing local storage objects.
+        // delete z
+        */
+    }
+
+
+    // Arrays
+    uint[] dynamicSized;
+    uint[3] fixedSized; 
+
 
     //  Mappings are like hash tables which are virtually initialised such that every possible key is mapped to a value whose byte-representation is all zeros.
     // Not possible to obtain a list of all keys or all values of a mapping
@@ -120,6 +240,8 @@ i.e they are always copied when used as function arguments or in assignments.
         address delegate;
         uint vote;
     }
+
+
 
     /* 
     Modifiers can be used to change the behaviour of functions 
@@ -157,32 +279,12 @@ i.e they are always copied when used as function arguments or in assignments.
     }
 
     // Modifier usage let only the creator of the contract "owner" can call this function
-    function set(uint256 x) public onlyOwner {
-        if(x < 10) revert invalidValue();
-        storedData = x;
+    function set(uint256 _value) public onlyOwner {
+        if(_value < 10) revert invalidValue(_value);
+        storedData = _value;
 
         //Stored event emitted
-        emit Stored(msg.sender, x);
-    }
-
-    function boolTesting(bool x, bool y, bool z) public pure returns (bool) {
-        // Short-circuiting rule: full expression will not be evaluated
-        // if the result is already been determined by previous variable
-        return x && (y || z);
-    }
-
-    // access the minimum and maximum value representable by the integer type
-    function integersRange() external pure returns(uint ,uint ,int , int) {
-        return (
-                //uintX range
-                type(uint8).max, // 2**8 - 1
-                type(uint16).min, // 0
-
-                // int : Signed Integer
-                // intX range
-                type(int32).max, // (2**32)/2 - 1
-                type(int64).min  // (2**64)/2 * -1
-        );
+        emit Stored(msg.sender, _value);
     }
 
     // Payable Function requires Calling this function along with some Ether (as msg.value)
@@ -206,9 +308,9 @@ i.e they are always copied when used as function arguments or in assignments.
         is possible to adjust gas supplied
         most recommended method to transfer funds.
         */
-        (bool sent, bytes memory data) = _to.call{gas: 5000, value: msg.value}("");
+        (bool res, bytes memory data) = _to.call{gas: 5000, value: msg.value}("");
         // do something with data...
-        require(sent, "Failed to send Ether");
+        require(res, "Failed to send Ether");
 
         // Explicit conversion allowed from address to address payable  
         payable(owner).transfer(address(this).balance); //querying this contract ether balance 
@@ -221,96 +323,8 @@ i.e they are always copied when used as function arguments or in assignments.
             _contractAddr.codehash  // Keccak-256 hash of that code
         );
     }
-
-    function literals() external pure returns (address, uint, uint, uint, uint, string calldata, string memory){
-        returns(
-        // Also Hexadecimal literals that pass the address checksum test are considered as address
-        0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
-
-        //decimals fractional formed by . with at least one number after decimal point
-        // .1, 1.3 but not 1. 
-        .1,
-
-        /*
-        Division on integer literals eg. 5/2
-        prior to version 0.4.0 is equal to  2
-        but now it's rational number 2.5
-        */
-        5/2 + 1 + 0.5,  //  = 4
-        // whereas uint x = 1;
-        //         uint y = 5/2 + x + 0.5  returns compiler error, as operators works only on common value types
-
-        //Scientific notation of type MeE ~= M * 10**E (M & E can be negative as well)
-        -2e-10,
-
-        //Underscores have no meaning(just eases humman readibility)
-        1_2e3_00 // = 12*10**300
-
-        /*
-        string literal represented in " " OR ' '
-        */
-        "yo" "lo", // can be splitted = "yolo"
-        'abc\\def' // also supports various escape characters
-
-        //unicode
-        unicode"Hi there 👋";
-
-        //Random Hexadecimal literal behve just like string literal
-        hex"00112233_44556677"
-        )
-    }
-
-    /* 
-    As enums are not stored in ABI
-    thus in ABI 'updateStatus()' will have its input type as uint8 
-    */
-    function updateStatus(Status _status) public {
-        status = _status;
-    }
-
-    //Accessing boundaries range values of an enum
-    function enumsRange() public pure returns(Status, Status) {
-        return (
-                type(Status).max,   // return 3, indicating 'User'
-                type(Status).min    // return 0, indicating 'Manufacturer'
-        );
-    }
-
-    /// Custom types only allows wrap and unwrap
-    function customMul(UFixed256x18 x, uint256 y) internal pure returns (UFixed256x18) {
-        return UFixed256x18.wrap(               // wrap (convert underlying type -> custom type)
-                UFixed256x18.unwrap(x) * y      // unwrap (convert custom type -> underlying type)
-        );
-    }
-
-    /* Solidity stores data as :
-    storage - stored on blockchain
-    memory - it is modifiable & exists while a function is being called
-    calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
-    Prior to v0.6.9 data location was limited to calldata in external functions
-    */
-    function dataLocations(uint[] memory memoryArray) public {
-        x = memoryArray; // Assignments betweem storage, memory & calldata always creates independent copies
-        uint[] storage y = x; // Assignments to a local storage from storage ,creates reference.
-        y.pop(); // modifies x through y
-        delete x; // clears the array x & y
-
-        /*  
-        Assigning memory to local storage doesn't work as
-        it would need to create a new temporary / unnamed array in storage, 
-        but storage is "statically" allocated
-        // y = memoryArray;
-        /*
-
-        /* 
-        Cannot "delete y" as
-        referencing global storage objects can only be made from existing local storage objects.
-        // delete y
-        */
-    }
 }
 
-/*
 // Comments in Solidity :
 
 // This is a single-line comment.
@@ -319,4 +333,3 @@ i.e they are always copied when used as function arguments or in assignments.
 This is a
 multi-line comment.
 */
-/*
