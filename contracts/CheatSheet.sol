@@ -72,11 +72,7 @@ i.e they are always copied when used as function arguments or in assignments.
 */
     // Integers exists in sizes(from 8 up to 256 bits) in steps of 8
     // uint and int are aliases for uint256 and int256, respectively
-
-    // unsigned integer of 256 bits
-    // Variable is private by default if access modifier is not mentioned
-    uint256 storedData;
-
+    uint256 storedData; // unsigned integer of 256 bits
     // access the minimum and maximum value representable by the integer type
     function integersRange() external pure returns(uint ,uint ,int , int) {
         return (
@@ -97,13 +93,11 @@ i.e they are always copied when used as function arguments or in assignments.
         ^ "public" autom generates a function that allows to access the state variable from other contracts
         Equivalent to -> function owner() external view returns (address) { return owner; }
     */ 
-
     //address with transfer and send functionality to recieve Ether
     address payable public treasury;
 
     // Boolean possible values are true and false
     bool public isEven;
-    
     function boolTesting(bool _x, bool _y, bool _z) public pure returns (bool) {
         // Short-circuiting rule: full expression will not be evaluated
         // if the result is already been determined by previous variable
@@ -159,7 +153,6 @@ i.e they are always copied when used as function arguments or in assignments.
     */
     enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
     Status public status;
-
     /* 
     As enums are not stored in ABI
     thus in ABI 'updateStatus()' will have its input type as uint8 
@@ -167,7 +160,6 @@ i.e they are always copied when used as function arguments or in assignments.
     function updateStatus(Status _status) public {
         status = _status;
     }
-
     //Accessing boundaries range values of an enum
     function enumsRange() public pure returns(Status, Status) {
         return (
@@ -182,7 +174,6 @@ i.e they are always copied when used as function arguments or in assignments.
     type conversion , operators aren't allowed 
     */
     type UFixed256x18 is uint256;   // Represent a 18 decimal, 256 bit wide fixed point.
-
     /// custom types only allows wrap and unwrap
     function customMul(UFixed256x18 _x, uint256 _y) internal pure returns (UFixed256x18) {
         return UFixed256x18.wrap(               // wrap (convert underlying type -> custom type)
@@ -224,8 +215,20 @@ always have to define the data locations for the variables
 
 
     // Arrays
-    uint[] dynamicSized;
-    uint[3] fixedSized; 
+    uint[] public dynamicSized;
+    uint[3] fixedSized;
+    uint[][4] nested; // An array of 5 dynamizc arrays
+    function aboutArrays(uint _x, uint _y, uint _value) external {
+        //Accessing array's elemnts
+        nested[_x][_y]; //returns the element at index 'y' in the 'x' array
+        nested[_x];     //returns the array at index 'x'
+
+        // Only dynamic storage arrays are resizable
+
+        //Adding elements 
+        dynamicSized.push(_value);  // appends new element at end of array
+        dynamicSized.push();        // appends zero-initialized element
+    }
 
 
     //  Mappings are like hash tables which are virtually initialised such that every possible key is mapped to a value whose byte-representation is all zeros.
