@@ -223,7 +223,9 @@ always have to define the data locations for the variables
         */
     }
 
-    // Structs is a group of multiple related variables 
+    /* Structs is a group of multiple related variables ,
+    can be passed as parameters only for library functions 
+    */
      struct Todo {
         uint[] steps;
         bool initialized;
@@ -333,6 +335,8 @@ always have to define the data locations for the variables
 
     Not possible to obtain a list of all keys or values of a mapping, 
     as keecak256 hash of keys is used to look up value
+
+    only allowed as state variables but can be passed as parameters only for library functions 
 
     Key Type can be inbuilt value types , bytes, string , enum but not user-defined, mappings, arrays or struct
     Value can of any type
