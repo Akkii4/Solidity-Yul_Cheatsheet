@@ -260,6 +260,18 @@ always have to define the data locations for the variables
     function slice(uint[] calldata _arr, uint start, uint end) public pure returns(uint[] memory){
         return _arr[start:end];
     }
+
+    //string
+    function bytesOperations(string calldata _str) public pure returns (uint, bytes1, bool, string memory) {
+        return (
+                // access byte-representation of string
+                bytes(_str).length,    // length of bytes of UTF-8 representation
+                bytes(_str)[2],        // access element of  UTF-8 representation
+
+                keccak256(abi.encodePacked("foo")) == keccak256(abi.encodePacked("Foo")),   //compare two strings
+
+                string.concat("foo","bar")  // concatenate strings
+        );
     }
 
 
