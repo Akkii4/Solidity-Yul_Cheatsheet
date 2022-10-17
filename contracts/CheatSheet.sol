@@ -328,9 +328,15 @@ always have to define the data locations for the variables
     }
 
 
-    //  Mappings are like hash tables which are virtually initialised such that every possible key is mapped to a value whose byte-representation is all zeros.
-    // Not possible to obtain a list of all keys or all values of a mapping
-    // maps addresses to unsigned integers.
+    /* Mappings are like hash tables which are virtually initialised such that 
+    every possible key is mapped to a value whose byte-representation is all zeros,
+
+    Not possible to obtain a list of all keys or values of a mapping, 
+    as keecak256 hash of keys is used to look up value
+
+    Key Type can be inbuilt value types , bytes, string , enum but not user-defined, mappings, arrays or struct
+    Value can of any type
+    */
     mapping(address => uint256) public balances;
 
     // Constructor code only runs when the contract is created
@@ -338,6 +344,7 @@ always have to define the data locations for the variables
         // "msg" is a special global variable that contains allow access to the blockchain.
         // msg.sender is always the address where the current (external) function call came from.
         owner = msg.sender;
+        balances[owner] = 100;  //assigning value to mapping "balances"
     }
 
     /* 
