@@ -220,18 +220,46 @@ always have to define the data locations for the variables
 
     // Arrays
     uint[] public dynamicSized;
-    uint[3] fixedSized;
-    uint[][4] nested; // An array of 5 dynamizc arrays
-    function aboutArrays(uint _x, uint _y, uint _value) external {
+    uint[2**3] fixedSized; // array of 8 elements all initialized to 0
+    uint[][4] nestedDynamic; // An array of 4 dynamic arrays
+    bool[3][] triDynamic; // Dynamic Array of arrays of length 3
+    uint[] public arr = [1, 2, 3]; // pre assigned array
+    uint[][] freeArr; //Dynaic arrays of dynamic array
+    function aboutArrays(uint _x, uint _y, uint _value, bool[3] memory _newArr, uint size) external {
+        //Creating memeory arrays
+        uint[] memory a = new uint[](7);          // Fixed size memory array
+        uint[2][] memory b = new uint[2][](size); // Dynamic memory array 
+        // fixed size array can't be converted/assigned to dynamic memory array
+        // uint[] memory x = [uint(1), 3, 4]; // gives Error
+        
+        //assigning to arrays
+        for(uint i =0; i<=7; i++){
+            a[i] = i;               //assigning elements individually
+        }
+        triDynamic.push(_newArr);   //pushes array of 3 element to a Dynamic array
+
         //Accessing array's elemnts
-        nested[_x][_y]; //returns the element at index 'y' in the 'x' array
-        nested[_x];     //returns the array at index 'x'
+        nestedDynamic[_x][_y]; //returns the element at index 'y' in the 'x' array
+        nestedDynamic[_x];     //returns the array at index 'x'
+        arr.length;     // number of elements in array
 
         // Only dynamic storage arrays are resizable
-
         //Adding elements 
         dynamicSized.push(_value);  // appends new element at end of array
         dynamicSized.push();        // appends zero-initialized element
+
+        //Removing elements
+        dynamicSized.pop();         // remove end of array element
+        delete arr;                 // resets all values to default value w/o changing length
+        triDynamic = new bool[3][](0); //similar to delete array
+    }
+    /*slicing of array[start:end] 
+    start default is 0 & end is array's length 
+    only works with calldata array as input
+    */
+    function slice(uint[] calldata _arr, uint start, uint end) public pure returns(uint[] memory){
+        return _arr[start:end];
+    }
     }
 
 
