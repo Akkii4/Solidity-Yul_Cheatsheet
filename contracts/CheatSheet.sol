@@ -33,6 +33,12 @@ function outsider(uint256 x) pure returns (uint256) {
     return x * 2;
 }
 
+//struct can be declared outside contract
+struct User {
+    address addr;
+    string task;
+}
+
 //All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
 contract CheatSheet {
 
@@ -217,6 +223,49 @@ always have to define the data locations for the variables
         */
     }
 
+    // Structs is a group of multiple related variables 
+     struct Todo {
+        uint[] steps;
+        bool initialized;
+        address owner;
+        uint numTodo;
+        User user;                         //can contain other struct but not itself
+        //mapping(uint => address) reader;    
+    }
+    Todo[] public todoArr;  // arrays of struct
+
+    function onStruct(uint[] memory _arr, uint _index) external {
+        //Initializing 
+        // 1. initializing individually as reference
+        Todo storage t = todoArr[_index];
+        t.steps = _arr;
+        t.initialized = true;
+        t.owner = msg.sender;
+        t.user = User(msg.sender,"foo");
+        //2. key:value mapping by creating a struct in memory
+        todoArr.push(Todo({        
+            steps : _arr,
+            initialized : true,
+            owner : msg.sender,
+            numTodo: _index,
+            user: User(msg.sender,"foo")
+        }));
+        //3. passing as arguments through struct memory
+        todoArr.push(Todo(
+            _arr,
+            true,
+            msg.sender,
+            _index,
+            User({addr: msg.sender, task: "foo"})
+        ));
+
+        //accessing struct
+        t.owner; // returns the value stored 'owner'
+        
+        // Struct containing a nested mapping can't be constructed though memory
+        //t.reader[_index] = tx.origin;         // WORKS can be intialised by storage reference to struct
+        //Todo({reader[_index]: tx.origin;})    // Error
+    }
 
     // Arrays
     uint[] public dynamicSized;
@@ -237,6 +286,10 @@ always have to define the data locations for the variables
             a[i] = i;               //assigning elements individually
         }
         triDynamic.push(_newArr);   //pushes array of 3 element to a Dynamic array
+
+        //arrays in struct
+        Todo storage g = todoArr[0];   //reference to 'Todo' in 'g'
+        g.steps = a; // changes in 'Todo' also
 
         //Accessing array's elemnts
         nestedDynamic[_x][_y]; //returns the element at index 'y' in the 'x' array
@@ -279,14 +332,6 @@ always have to define the data locations for the variables
     // Not possible to obtain a list of all keys or all values of a mapping
     // maps addresses to unsigned integers.
     mapping(address => uint256) public balances;
-
-    //Structs are group of multiple related variables 
-    struct Voter {
-        uint weight;
-        bool voted;
-        address delegate;
-        uint vote;
-    }
 
     // Constructor code only runs when the contract is created
     constructor() {
