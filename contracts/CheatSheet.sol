@@ -248,7 +248,12 @@ always have to define the data locations for the variables
         uint vote;
     }
 
-
+    // Constructor code only runs when the contract is created
+    constructor() {
+        // "msg" is a special global variable that contains allow access to the blockchain.
+        // msg.sender is always the address where the current (external) function call came from.
+        owner = msg.sender;
+    }
 
     /* 
     Modifiers can be used to change the behaviour of functions 
@@ -277,13 +282,6 @@ always have to define the data locations for the variables
     // Errors allow custom names and data for failure situations.
     // Are used in revert statement & are cheaper than using string in revert
     error invalidValue(uint value);
-
-    // Constructor code only runs when the contract is created
-    constructor() {
-        // "msg" is a special global variable that contains allow access to the blockchain.
-        // msg.sender is always the address where the current (external) function call came from.
-        owner = msg.sender;
-    }
 
     // Modifier usage let only the creator of the contract "owner" can call this function
     function set(uint256 _value) public onlyOwner {
