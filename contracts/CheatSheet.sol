@@ -110,7 +110,7 @@ i.e they are always copied when used as function arguments or in assignments.
     ufixed y;
 
 
-    function literals() external pure returns (address, uint, int, uint, string memory, string memory, string memory, bytes20){
+    function literals() external pure returns (address, uint, int, uint, string memory, string memory, string memory, bytes20, int[2] memory){
         return(
         // Also Hexadecimal literals that pass the address checksum test are considered as address
         0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
@@ -141,7 +141,11 @@ i.e they are always copied when used as function arguments or in assignments.
         unicode"Hi there 👋",
 
         //Random Hexadecimal literal behve just like string literal
-        hex"00112233_44556677"
+        hex"00112233_44556677",
+
+        //array literals are comma-separated list of one or more expressions 
+        // typed by that of it's first element & all it's elements can be converted this type
+        [int(1), -1]
         );
     }
 
