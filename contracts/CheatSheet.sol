@@ -305,7 +305,7 @@ always have to define the data locations for the variables
 
         //Removing elements
         dynamicSized.pop();         // remove end of array element
-        delete arr;                 // resets all values to default value w/o changing length
+        delete arr;                 // resets all values to default value
         triDynamic = new bool[3][](0); //similar to delete array
     }
     /*slicing of array[start:end] 
@@ -329,7 +329,6 @@ always have to define the data locations for the variables
         );
     }
 
-
     /* Mappings are like hash tables which are virtually initialised such that 
     every possible key is mapped to a value whose byte-representation is all zeros,
 
@@ -342,6 +341,64 @@ always have to define the data locations for the variables
     Value can of any type
     */
     mapping(address => uint256) public balances;
+
+/* Operators
+Result type of operation determined based on :
+type of operand to which other operand can be implicitly converted to
+*/
+
+    /* Ternary Operator
+    if <expression> true ? then evaluate <trueExpression>: else evaluate <falseExpression> 
+    */
+    uint tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0 ); 
+    //1.5 + (true ? 1.5 : 2.5) NOT valid, as ternary operator doesn't have a rational number type
+
+    /* Delete operator
+    Resets to the default value of that type
+    doesn't works on mappings
+    */
+    delete dynamicSized[2]; // resets third element of array w/o changing length
+
+    //Bitwise Operator
+    function bitwiseOperate(uint a, uint c) external pure returns(uint, uint, uint, uint, uint, uint){
+        return(
+                //AND
+                // a     = 1110 = 8 + 4 + 2 + 0 = 14
+                // c     = 1011 = 8 + 0 + 2 + 1 = 11
+                // a & c = 1010 = 8 + 0 + 2 + 0 = 10
+                a&c,     
+                
+                //OR
+                // a     = 1100 = 8 + 4 + 0 + 0 = 12
+                // c     = 1001 = 8 + 0 + 0 + 1 = 9
+                // a | c = 1101 = 8 + 4 + 0 + 1 = 13
+                a|c,     
+
+                //NOT
+                // a  = 00001100 =   0 +  0 +  0 +  0 + 8 + 4 + 0 + 0 = 12
+                // ~a = 11110011 = 128 + 64 + 32 + 16 + 0 + 0 + 2 + 1 = 243
+                ~a,     
+                
+                //XOR -> if bits are same then 0 , if different then 1
+                // a     = 1100 = 8 + 4 + 0 + 0 = 12
+                // c     = 0101 = 0 + 4 + 0 + 1 = 5
+                // a ^ c = 1001 = 8 + 0 + 0 + 1 = 9
+                a^c,
+
+                //shift left
+                // 1 << 0 = 0001 --> 0001 = 1
+                // 1 << 1 = 0001 --> 0010 = 2
+                // 1 << 2 = 0001 --> 0100 = 4
+                // 3 << 2 = 0011 --> 1100 = 12
+                a<<c,    
+
+                //shift right
+                // 8  >> 1 = 1000 --> 0100 = 4
+                // 8  >> 4 = 1000 --> 0000 = 0
+                // 12 >> 1 = 1100 --> 0110 = 6
+                a>>c
+        );
+    }
 
     // Constructor code only runs when the contract is created
     constructor() {
