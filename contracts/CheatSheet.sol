@@ -400,6 +400,33 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
+    function _typeConversion() internal pure{
+        /*Implicit Conversions
+        compiler auto tries to convert one type to another
+        conversion is possible if makes sense semantically & no information is lost
+        */
+        uint8 foo;
+        uint16 bar;
+        uint32 foobar = foo + bar; /* during addition uint8 is implicitly converted to uint16 
+                                    and then to uint32 during assignment */
+        
+        /*Explicit Conversions
+        if you are condident and forcefully do conversion
+        */
+        int  k = -3;
+        uint j = uint(k);
+        
+        uint32 l = 0x12345678;
+        uint16 m = uint16(l); // b will be 0x5678 now
+        //uint16 c = 0x123456; 
+        /* fails, since it would have to truncate to 0x5678
+        since v0.8 only conversion allowed if they fits in resulting range*/
+
+        bytes2 n = 0x1234;
+        bytes1 p = bytes1(n); // b will be 0x12
+
+    }
+
     // Constructor code only runs when the contract is created
     constructor() {
         // "msg" is a special global variable that contains allow access to the blockchain.
@@ -470,7 +497,9 @@ type of operand to which other operand can be implicitly converted to
         // do something with data...
         require(res, "Failed to send Ether");
 
-        // Explicit conversion allowed from address to address payable  
+        /* Explicit conversion allowed 
+        from address to address payable  &
+        from uint160 to address */
         payable(owner).transfer(address(this).balance); //querying this contract ether balance 
     }
 
