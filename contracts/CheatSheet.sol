@@ -207,7 +207,13 @@ always have to define the data locations for the variables
         dynamicSized = memoryArray; // Assignments betweem storage, memory & calldata always creates independent copies
         uint[] storage z = dynamicSized; // Assignments to a local storage from storage ,creates reference.
         z.pop(); // modifies array dynamicSized through y
+
+        /* delete
+        Resets to the default value of that type
+        doesn't works on mappings
+        */
         delete dynamicSized; // clears the array dynamicSized & y
+        delete dynamicSized[2]; // resets third element of array w/o changing length
 
         /*  
         Assigning memory to local storage doesn't work as
@@ -352,12 +358,6 @@ type of operand to which other operand can be implicitly converted to
     */
     uint tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0 ); 
     //1.5 + (true ? 1.5 : 2.5) NOT valid, as ternary operator doesn't have a rational number type
-
-    /* Delete operator
-    Resets to the default value of that type
-    doesn't works on mappings
-    */
-    delete dynamicSized[2]; // resets third element of array w/o changing length
 
     //Bitwise Operator
     function bitwiseOperate(uint a, uint c) external pure returns(uint, uint, uint, uint, uint, uint){
