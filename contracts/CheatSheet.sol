@@ -576,6 +576,21 @@ type of operand to which other operand can be implicitly converted to
             _contractAddr.codehash  // Keccak-256 hash of that code
         );
     }
+
+    /* sends contract ether balance to the designated address 
+    then removes contract code from the blockchain
+    but can be retained as it's part of the blockchain's history
+    ether can still be sent to the removed contract but would be lost
+    */
+    function boom() external {
+        // some other code .... 
+        // if boom() reverts before selfdestruct it "undo" the destruction 
+        selfdestruct(payable(owner));
+        /* self destruct forcefully send eth to contract even if:
+            - contract has no payable , receive or fallback functions
+            - contract has revert() in receive()
+        */
+    }
 }
 
 // Comments in Solidity :
