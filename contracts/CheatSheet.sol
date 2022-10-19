@@ -566,7 +566,7 @@ type of operand to which other operand can be implicitly converted to
         /* Explicit conversion allowed 
         from address to address payable  &
         from uint160 to address */
-        payable(owner).transfer(address(this).balance); //querying this contract ether balance 
+        payable(owner).transfer(address(this).balance); //querying current contract balance in Wei
     }
 
     //query the deployed code for any smart contract
