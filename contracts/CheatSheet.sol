@@ -556,6 +556,8 @@ type of operand to which other operand can be implicitly converted to
         Call returns a boolean value indicating success or failure.
         is possible to adjust gas supplied
         most recommended method to transfer funds.
+
+        Warning : .call bypasses type checking, function existence check, and argument packing.
         */
         (bool res, bytes memory data) = _to.call{gas: 5000, value: msg.value}("");
         // do something with data...
