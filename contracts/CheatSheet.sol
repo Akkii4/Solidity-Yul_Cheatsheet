@@ -39,6 +39,10 @@ struct User {
     string task;
 }
 
+contract Token {
+    function transfer(address, uint) external {}
+}
+
 //All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
 contract CheatSheet {
 
@@ -457,6 +461,30 @@ type of operand to which other operand can be implicitly converted to
             gasleft(),                  //remaining gas
             tx.gasprice                 //gas price of transaction
         );
+    }
+
+    function _encodeDecode(uint f, uint[3] memory g, bytes memory h) internal pure 
+    returns(bytes memory encodedData, bytes memory packedEncoded, bytes memory selectorEncoded,
+    bytes memory sigEncoded, bytes memory encodedCall)
+    {
+        
+        return(
+            //Encoding
+            encodedData = abi.encode(f, g, h), // encodes given arguments
+            packedEncoded = abi.encodePacked(f, g, h), //no padding, so one variable can merge into other 
+
+            // encodes arguments from the second and prepends the given four-byte selector
+            selectorEncoded = abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5),  // arguments type is not checked
+            sigEncoded = abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10),  // typo error & args. is not validated
+            encodedCall = abi.encodeCall(Token.transfer, (address(0), 12))  //ensures any typo and args. types match the function signature
+        );
+
+         //Decoding
+            uint _f;
+            uint[3] memory _g;
+            bytes memory _h;
+            (_f, _g, _h) = abi.decode(encodedData, (uint, uint[3], bytes)); //decodes the encoded bytes data back to original arguments
+            assert(_f==f);
     }
 
     // Constructor code only runs when the contract is created
