@@ -25,7 +25,8 @@ Any 20-byte value is corresponds to an address w/wo private key,contract is cons
 It just instructs the compiler to check whether its version matches the one required by the pragma. 
 If it does not match, the compiler issues an error.
 
-8.You can force send Eth to a Smart Contract even if it have no payable function, fallback or receive function.
+8.You can force send Eth to a Smart Contract even if it have no payable function, fallback, receive function or 
+even if it can reverts the receiving eth.
 By creating another contract with a selfdestruct function, send ether to the target contract through it.
 ```
 *Will write more whenever something interesting strikes*
