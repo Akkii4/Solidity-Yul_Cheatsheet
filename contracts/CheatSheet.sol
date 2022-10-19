@@ -427,6 +427,38 @@ type of operand to which other operand can be implicitly converted to
 
     }
 
+    // Units works only with literal number
+    function _units() internal pure{
+        //Ether units
+        assert(1 wei == 1);
+        assert(1 gwei == 1e9);
+        assert(1 ether == 1e18);
+
+        //Time
+        assert(1 seconds == 1);
+        assert(1 minutes == 60 seconds);
+        assert(1 hours == 60 minutes);
+        assert(1 days == 24 hours);
+        assert(1 weeks == 7 days);
+        uint t = 5;
+        t * 1 days; // as t days doesn't work 
+    }
+
+    function _blockProperties(uint _blockNumber) internal view returns(bytes32, uint, uint, address, uint, uint, uint, uint, uint, uint){
+        return(
+            blockhash(_blockNumber),    //hash of block(one of the 256 most recent blocks)
+            block.basefee,               // current block's base fee
+            block.chainid,
+            block.coinbase,             //current block miner’s address
+            block.difficulty,
+            block.gaslimit,
+            block.number,
+            block.timestamp,            //timestamp as seconds of when block is mined
+            gasleft(),                  //remaining gas
+            tx.gasprice                 //gas price of transaction
+        );
+    }
+
     // Constructor code only runs when the contract is created
     constructor() {
         // "msg" is a special global variable that contains allow access to the blockchain.
