@@ -28,6 +28,9 @@ If it does not match, the compiler issues an error.
 8.You can force send Eth to a Smart Contract even if it have no payable function, fallback, receive function or 
 even if it can reverts the receiving eth.
 By creating another contract with a selfdestruct function, send ether to the target contract through it.
+
+9. A function call from one contract to another does not create its own transaction, 
+it is a message call as part of the overall transaction.
 ```
 *Will write more whenever something interesting strikes*
 
