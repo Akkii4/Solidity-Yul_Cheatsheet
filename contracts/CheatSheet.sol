@@ -39,6 +39,10 @@ struct User {
     string task;
 }
 
+interface IERC20 {
+    function transfer(address, uint) external;
+}
+
 contract Token {
     function transfer(address, uint) external {}
 }
@@ -478,7 +482,7 @@ type of operand to which other operand can be implicitly converted to
         // encodes arguments from the second and prepends the given four-byte selector
         abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5);  // arguments type is not checked
         abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10);  // typo error & args. is not validated
-        abi.encodeCall(Token.transfer, (address(0), 12));  //ensures any typo and args. types match the function signature
+        abi.encodeCall(IERC20.transfer, (address(0), 12));  //ensures any typo and args. types match the function signature
 
         //Decoding
             uint _f;
