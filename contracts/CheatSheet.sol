@@ -495,6 +495,23 @@ type of operand to which other operand can be implicitly converted to
             keccak256(abi.encodePacked("Solidity"));
     }
 
+    function contractInfo() external pure returns (string memory, string memory, bytes4) {
+        return (
+            // Name of Contract / Interface.
+            type(Token).name,
+            type(IERC20).name,
+
+            //  EIP-165 interface identifier of the given interface
+            type(IERC20).interfaceId
+
+            // Only can be used in assembly code to build custom creation routines, especially by using the create2 opcode.
+            // type(Test).creationCode,
+
+            // Runtime bytecode of contract that deployed through constructor(assembly code) of other contract.
+            // type(Test).runtimeCode
+        );
+    }
+
     // Constructor code only runs when the contract is created
     constructor() {
         // "msg" is a special global variable that contains allow access to the blockchain.
