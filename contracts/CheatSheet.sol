@@ -643,6 +643,14 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
+    function arithmeticFlow(uint a, uint b) public pure returns(uint u, uint o) {
+        // This subtraction will wrap on underflow.
+        unchecked {  u = a - b; }
+
+        o = a - b;    // will revert on underflow
+        return (u, o);
+    }
+    
     /*Solidity performs a revert operation(instruction 0xfd) for any error,
      resulting in revert all changes made to the state.
     */
