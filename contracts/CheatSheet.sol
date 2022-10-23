@@ -667,6 +667,7 @@ type of operand to which other operand can be implicitly converted to
         /* revert can also be used like revert("description"); 
                                         revert CustomError(args)*/
         uint balBeforeTransfer = address(this).balance;
+        addr.transfer(msg.value / 2);
 
         /* Assert used for:
             - checking Internal errors & invariants
