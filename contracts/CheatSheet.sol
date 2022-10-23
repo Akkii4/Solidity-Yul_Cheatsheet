@@ -318,7 +318,7 @@ always have to define the data locations for the variables
         g.steps = a; // changes in 'Todo' also
 
         //Accessing array's elemnts
-        nestedDynamic[_x][_y]; //returns the element at index 'y' in the 'x' array
+        b[_x][_y]; //returns the element at index 'y' in the 'x' array
         nestedDynamic[_x];     //returns the array at index 'x'
         arr.length;     // number of elements in array
 
@@ -616,8 +616,7 @@ type of operand to which other operand can be implicitly converted to
 
         Warning : .call bypasses type checking, function existence check, and argument packing.
         */
-        (bool res, bytes memory data) = _to.call{gas: 5000, value: msg.value}("");
-        // do something with data...
+        (bool res, ) = _to.call{gas: 5000, value: msg.value}("");
         require(res, "Failed to send Ether");
 
         /* Explicit conversion allowed 
