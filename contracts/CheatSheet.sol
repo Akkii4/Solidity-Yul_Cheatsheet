@@ -538,7 +538,6 @@ type of operand to which other operand can be implicitly converted to
     // Overloading (same modifier name with different parameters) is not possible.
     // Like functions, modifiers can be overridden.
     modifier onlyOwner() {
-        // The require defines that reverts all changes if defined condition not met.
         require(msg.sender == owner, "Not Owner");
         _;
     }
