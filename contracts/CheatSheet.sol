@@ -643,6 +643,16 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
+    function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable{
+        // while external contract call we can specify value & gas
+        tk.retVal{value : msg.value, gas : 3000}(5);
+        /*NOTE : calling contractInstance.{value, gas} w/o () at end , 
+        will not call function resulting in loss of value & gas */
+
+        //arguments can be given by name, in any order, if they are enclosed in { }
+        slice({end:_y, _arr: _data, start:_x});
+    }
+
     function arithmeticFlow(uint a, uint b) public pure returns(uint u, uint o) {
         // This subtraction will wrap on underflow.
         unchecked {  u = a - b; }
