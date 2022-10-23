@@ -589,6 +589,16 @@ type of operand to which other operand can be implicitly converted to
         if(_value < 10) revert ("Low value provided");
         storedData = _value;
 
+        // Block scoping
+        uint insideout = 5;
+        {
+            insideout = 35;         // will assign to the outer variable
+            uint insideout;         // Warning : Shadow declaration but it's visibility is limited only to this block
+            insideout = 1000;       
+            assert(insideout == 1000);
+        }
+        assert(insideout == 35);  // will check for outer variable 
+
         //Stored event emitted
         emit Stored(msg.sender, _value);
     }
