@@ -513,11 +513,12 @@ type of operand to which other operand can be implicitly converted to
     }
 
     // Constructor code only runs when the contract is created
-    constructor() {
+    constructor(bytes32 _salt) payable{
         // "msg" is a special global variable that contains allow access to the blockchain.
         // msg.sender is always the address where the current (external) function call came from.
         owner = msg.sender;
         balances[owner] = 100;  //assigning value to mapping "balances"
+        _createContract(_salt);
     }
 
     /* 
@@ -547,6 +548,31 @@ type of operand to which other operand can be implicitly converted to
     // Errors allow custom names and data for failure situations.
     // Are used in revert statement & are cheaper than using string in revert
     error invalidValue(uint value);
+    function _createContract(bytes32 _salt) internal {
+        // Send ether along with the new contract "Token" creation and passing in args to it's constructor
+        tk = new Token{value: msg.value}(3e6);
+
+        /* contract address is computed from creating contract address and nonce 
+        while if salt value is given, address is computed from :
+        creating contract address, 
+        salt & 
+        creation bytecode of the created contract and the constructor arguments.
+        */
+        address preComputecAddress = address(uint160(uint(keccak256(abi.encodePacked(
+            bytes1(0xff),
+            address(this),
+            _salt,
+            keccak256(abi.encodePacked(
+                type(Token).creationCode,
+                abi.encode(3e6)
+            ))
+        )))));
+
+        //Create2 method
+        address c = address(new Token{value: msg.value, salt : _salt}(3e6));
+
+        assert(address(c) == preComputecAddress);
+    }
 
     // Modifier usage let only the creator of the contract "owner" can call this function
     function set(uint256 _value) public onlyOwner {
