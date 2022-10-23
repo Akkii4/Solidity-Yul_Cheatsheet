@@ -40,11 +40,19 @@ struct User {
 }
 
 interface IERC20 {
-    function transfer(address, uint) external;
+    function transfer(address, uint) external returns(bool);
 }
 
 contract Token {
+    uint public totalSupply;
+    constructor(uint x) payable {
+        require(x >= 100, "Insufficient Supply");
+        totalSupply = x;
+    }
     function transfer(address, uint) external {}
+    function retVal(uint a) public payable returns (uint) {
+        return a + 10;
+    }
 }
 
 //All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
