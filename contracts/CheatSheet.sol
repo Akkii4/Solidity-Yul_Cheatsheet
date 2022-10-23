@@ -556,7 +556,8 @@ type of operand to which other operand can be implicitly converted to
 
     // Errors allow custom names and data for failure situations.
     // Are used in revert statement & are cheaper than using string in revert
-    error invalidValue(uint value);
+    error LowValueProvided(uint value);
+
     function _createContract(bytes32 _salt) internal {
         // Send ether along with the new contract "Token" creation and passing in args to it's constructor
         tk = new Token{value: msg.value}(3e6);
