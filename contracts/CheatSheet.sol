@@ -578,7 +578,7 @@ type of operand to which other operand can be implicitly converted to
 
     // Modifier usage let only the creator of the contract "owner" can call this function
     function set(uint256 _value) public onlyOwner {
-        if(_value < 10) revert invalidValue(_value);
+        if(_value < 10) revert ("Low value provided");
         storedData = _value;
 
         //Stored event emitted
@@ -626,6 +626,77 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
+    /*Solidity performs a revert operation(instruction 0xfd) for any error,
+     resulting in revert all changes made to the state.
+    */
+    function errorFound(address payable addr) public payable {
+        /* Require validates :
+            - invalid inputs
+            - conditions that cannot be detected until execution time
+            - return values from calls to other functions
+        */
+        require(msg.value % 2 == 0, "Value sent not Even");
+    
+        // A direct revert can be triggered using the revert statement and the revert function.
+        if(msg.value < 1 ether ) revert LowValueProvided(msg.value);
+        /* revert can also be used like revert("description"); 
+                                        revert CustomError(args)*/
+        uint balBeforeTransfer = address(this).balance;
+
+        /* Assert used for:
+            - checking Internal errors & invariants
+            - validate contract state after making changes
+            - check for overflow/underflow
+        */
+        assert(address(this).balance == balBeforeTransfer - msg.value / 2); // it will fail only if there is any exception while transferring funds
+        
+
+        /*Error(string) is used for regular error conditions
+            Error exception is generated :
+            - If require(statement) evaluates to false.
+
+            - If you use revert() or revert("description").
+
+            - If you perform an external function call targeting a contract that contains no code.
+
+            - If your contract receives Ether via a public function without payable modifier (including the constructor and the fallback function).
+
+            - If your contract receives Ether via a public getter function.
+        */
+        
+
+        /*Panic(uint256) is used for errors that should not be present in bug-free code
+            Panic error generated with error code:
+            0x00: Used for generic compiler inserted panics.
+
+            0x01: If you call assert with an argument that evaluates to false.
+
+            0x11: If an arithmetic operation results in underflow or overflow outside of an unchecked { ... } block.
+
+            0x12; If you divide or modulo by zero (e.g. 5 / 0 or 23 % 0).
+
+            0x21: If you convert a value that is too big or negative into an enum type.
+
+            0x22: If you access a storage byte array that is incorrectly encoded.
+
+            0x31: If you call .pop() on an empty array.
+
+            0x32: If you access an array, bytesN or an array slice at an out-of-bounds or negative index (i.e. x[i] where i >= x.length or i < 0).
+
+            0x41: If you allocate too much memory or create an array that is too large.
+
+            0x51: If you call a zero-initialized variable of internal function type.
+        */
+
+
+        /* Cases when it can either cause an Error or a Panic (or whatever else was given):
+            - If a .transfer() fails.
+
+            - If calling a function via a message call fails 
+
+            - If the contract creation does not finish properly that was created using 'new'
+        */
+    }
     /* sends contract ether balance to the designated address 
     then removes contract code from the blockchain
     but can be retained as it's part of the blockchain's history
