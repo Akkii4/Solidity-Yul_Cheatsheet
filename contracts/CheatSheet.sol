@@ -714,6 +714,27 @@ type of operand to which other operand can be implicitly converted to
             - If the contract creation does not finish properly that was created using 'new'
         */
     }
+
+    //A failure in an external call or while creating contract can be caught using a try/catch statement
+    function tryNcatch(address _extContract, address _recipient) public returns(bool){
+        try IERC20(_extContract).transfer(_recipient, 100) returns(bool success){
+            return(success);
+        }
+        //while creating new contract -> try new Token(_totalSupply) returns (Token t) 
+        catch Error(string memory desc) {
+            // This is executed in case revert("string description")
+            emit Log(desc, gasleft());
+            return (false);
+        } catch Panic(uint /*errorCode*/) {
+            // executed in case of a panic
+            return (false);
+        } 
+        catch (bytes memory /*lowLevelData*/) {
+            // executed in case revert() was used.
+            return (false);
+        }
+    }
+
     /* sends contract ether balance to the designated address 
     then removes contract code from the blockchain
     but can be retained as it's part of the blockchain's history
