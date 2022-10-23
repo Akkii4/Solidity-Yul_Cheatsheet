@@ -514,7 +514,7 @@ type of operand to which other operand can be implicitly converted to
             //  EIP-165 interface identifier of the given interface
             type(IERC20).interfaceId
 
-            // Only can be used in assembly code to build custom creation routines, especially by using the create2 opcode.
+            // used to build custom creation routines, especially by using the create2 opcode.
             // type(Test).creationCode,
 
             // Runtime bytecode of contract that deployed through constructor(assembly code) of other contract.
