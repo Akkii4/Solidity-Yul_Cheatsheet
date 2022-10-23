@@ -49,6 +49,8 @@ contract Token {
 
 //All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
 contract CheatSheet {
+    // contract instance of "Token"
+    Token tk;
 
 /*
     fallback() or receive ()?
