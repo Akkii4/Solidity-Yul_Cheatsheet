@@ -45,13 +45,29 @@ interface IERC20 {
 
 contract Token {
     uint public totalSupply;
+    uint private anon = 3;
+    
     constructor(uint x) payable {
         require(x >= 100, "Insufficient Supply");
         totalSupply = x;
     }
+
     function transfer(address, uint) external {}
+
     function retVal(uint a) public payable returns (uint) {
         return a + 10;
+    }
+
+    function addPriv(uint val) internal view returns(uint) { return anon + val; }
+
+    function mulPriv(uint val) private view returns(uint) { return anon * val; }
+
+    function getPriv() public view returns(uint) { return anon; }
+}
+
+contract Currency is Token(100) {
+    function intTest() public view returns(uint){
+        return addPriv(5);  // access to internal member (from derived to parent contract)
     }
 }
 
@@ -88,6 +104,14 @@ receive()   fallback()
     /*
     State Variable is like a single slot in a database that are accessible by functions
     and there values are permanently stored in contract storage.
+
+    Visibility : 
+        - public : auto. generates a function that allows to access the state variables even externally
+        - internal : can't be accessed externally but only in there defined & derived contracts
+        - private : similar to internal but not accessible in derived contracts 
+    
+    private or internal variables only prevents other contracts from accessing the data stored, 
+    but it can still be accessible via blockchain
     */
 
 /* 
@@ -114,8 +138,8 @@ i.e they are always copied when used as function arguments or in assignments.
     // address holds 20 byte value and is suitable for storing addresses of contracts, or external accounts.
     address public owner;
     /*  
-        ^ "public" autom generates a function that allows to access the state variable from other contracts
         Equivalent to -> function owner() external view returns (address) { return owner; }
+        thus, can be accessed externally via this.owner()
     */ 
     //address with transfer and send functionality to recieve Ether
     address payable public treasury;
@@ -641,6 +665,19 @@ type of operand to which other operand can be implicitly converted to
             _contractAddr.code,     // gets the EVM bytecode of code
             _contractAddr.codehash  // Keccak-256 hash of that code
         );
+    }
+
+    /*Function Visibility : 
+        - external : these calls create an actual EVM message call, 
+            they can be called from other contracts and via transactions; 
+            and can be accessed internally via this.extFunc()
+        - public : can be either called internally or via message calls.
+        - internal : can only be accessed from within the current contract or contracts deriving from it & neither exposed via ABI
+        - private : similar to internal but not accessible in derived contracts */
+    function canUSeeMe() public view returns(uint){
+        /* tk.anon() , tk.mulPriv() will not be accessible due to private visibility and 
+        also as this contract doesn't derived from contract Token, tk.addPriv() (internal func.) will also not be accessible */
+        return tk.getPriv();
     }
 
     function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable{
