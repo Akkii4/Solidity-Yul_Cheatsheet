@@ -91,14 +91,17 @@ receive() exists?  fallback()
       /      \
 receive()   fallback()
 */
-    // Fallback & recieve functions must be external.
+    //Fallback & recieve functions must be external.
+    receive() external payable {
+        emit Log("receive", gasleft());
+    }
+
+    /* Fallback are executed if none of other function sig is matched,
+            can even be defined as non payable to only receive message call
+            fallback can be virtual , override & have modifiers */ 
     fallback() external payable {
         //returns remaining gas
         emit Log("fallback", gasleft());
-    }
-
-    receive() external payable {
-        emit Log("receive", gasleft());
     }
      
     /*
