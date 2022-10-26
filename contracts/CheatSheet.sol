@@ -449,30 +449,30 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
-    function _typeConversion() internal pure{
+    function _typeConversion() internal pure returns (uint32 foobar, uint j, uint16 m, bytes1 p){
         /*Implicit Conversions
         compiler auto tries to convert one type to another
         conversion is possible if makes sense semantically & no information is lost
         */
         uint8 foo;
         uint16 bar;
-        uint32 foobar = foo + bar; /* during addition uint8 is implicitly converted to uint16 
+        foobar = foo + bar; /* during addition uint8 is implicitly converted to uint16 
                                     and then to uint32 during assignment */
         
         /*Explicit Conversions
         if you are condident and forcefully do conversion
         */
         int  k = -3;
-        uint j = uint(k);
+        j = uint(k);
         
         uint32 l = 0x12345678;
-        uint16 m = uint16(l); // b will be 0x5678 now
+        m = uint16(l); // b will be 0x5678 now
         //uint16 c = 0x123456; 
         /* fails, since it would have to truncate to 0x5678
         since v0.8 only conversion allowed if they fits in resulting range*/
 
         bytes2 n = 0x1234;
-        bytes1 p = bytes1(n); // b will be 0x12
+        p = bytes1(n); // b will be 0x12
 
     }
 
@@ -509,6 +509,7 @@ type of operand to which other operand can be implicitly converted to
     }
 
     function _encodeDecode(uint f, uint[3] memory g, bytes memory h) internal pure
+    returns(bytes memory, bytes memory, bytes memory, bytes32)
     {
         //Encoding
         bytes memory encodedData = abi.encode(f, g, h); // encodes given arguments
@@ -520,11 +521,6 @@ type of operand to which other operand can be implicitly converted to
                                         use abi.encode to solve it
                                         */
 
-        // encodes arguments from the second and prepends the given four-byte selector
-        abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5);  // arguments type is not checked
-        abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10);  // typo error & args. is not validated
-        abi.encodeCall(IERC20.transfer, (address(0), 12));  //ensures any typo and args. types match the function signature
-
         //Decoding
             uint _f;
             uint[3] memory _g;
@@ -532,8 +528,15 @@ type of operand to which other operand can be implicitly converted to
             (_f, _g, _h) = abi.decode(encodedData, (uint, uint[3], bytes)); //decodes the encoded bytes data back to original arguments
             assert(_f==f);
 
-        //Hashing
-            keccak256(abi.encodePacked("Solidity"));
+        return(
+            // encodes arguments from the second and prepends the given four-byte selector
+            abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5),  // arguments type is not checked
+            abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10),  // typo error & args. is not validated
+            abi.encodeCall(IERC20.transfer, (address(0), 12)),  //ensures any typo and args. types match the function signature
+
+            //Hashing
+            keccak256(abi.encodePacked("Solidity"))
+        );
     }
 
     function contractInfo() external pure returns (string memory, string memory, bytes4) {
