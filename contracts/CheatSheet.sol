@@ -8,9 +8,9 @@
 // Versioning is to ensure that the contract is not compilable with a new (breaking) compiler version, where it could behave differently
 pragma solidity >=0.4.16 <0.9.0;
 
-//ABI coder (v2) is able to encode and decode arbitrarily nested arrays and structs
-// Default since Solidity 0.8.0
-// Has all feature of v1
+// ABI coder (v2) is able to encode and decode arbitrarily nested arrays and structs, 
+// can also return multi-dimensional arrays & structs in functions
+// Default since Solidity 0.8.0 & Has all feature of v1
 pragma abicoder v2;
 
 //imports all global symbols from “filename” (and symbols imported there) into current global scope
