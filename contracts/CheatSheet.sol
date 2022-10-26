@@ -25,9 +25,9 @@ import {divide2 as div, name} from "./Div.sol";
 //External imports are also allowed from github -> import "github/filepath/url"
 
 /*
-Functions are the executable units of code. 
-They are usually defined inside a contract, 
-but they can also be defined outside of contracts.
+Functions are the executable units of code ,usually defined inside a contract, 
+but can also be defined outside of contracts(called Free Functions).
+Free functions cannot have visibility(and are internal by default).
 */
 function outsider(uint256 x) pure returns (uint256) {
     return x * 2;
