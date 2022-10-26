@@ -31,6 +31,9 @@ By creating another contract with a selfdestruct function, send ether to the tar
 
 9. A function call from one contract to another does not create its own transaction, 
 it is a message call as part of the overall transaction.
+
+10. After solidity V0.8 , being a function external or public does not matter,
+rather gas cost reduction is caused by use of input arguments as calldata instead of memory
 ```
 *Will write more whenever something interesting strikes*
 
