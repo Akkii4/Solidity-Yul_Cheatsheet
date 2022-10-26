@@ -701,6 +701,21 @@ type of operand to which other operand can be implicitly converted to
         slice({end:_y, _arr: _data, start:_x});
     }
 
+
+    /* Functions Mutability : 
+        - view : functions which do not modigy state but can access state variables or environvment
+        - pure : similar to view but only access limited to local variables (exception of msg.sig & msg.data),
+                    these functions can also use revert as it's not considered 'state modification' */
+    
+    // Contract can have multiple functions of the same name but with different parameter types called 'overloading' 
+    function twins(uint256 j) public view returns(uint k){
+        k = j * block.timestamp;
+    }
+
+    function twins(uint8 j) public pure returns(uint k){
+        k = j * 2;
+    }
+
     function arithmeticFlow(uint a, uint b) public pure returns(uint u, uint o) {
         // This subtraction will wrap on underflow.
         unchecked {  u = a - b; }
