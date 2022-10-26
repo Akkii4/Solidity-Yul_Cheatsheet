@@ -117,6 +117,10 @@ receive()   fallback()
     but it can still be accessible via blockchain
     */
 
+    //State variables can also declared as constant or immutable, values can't modified after contract constructed
+    string constant THANOS = "I am inevitable"; // values need to be fixed at compile time 
+    uint immutable public senderBalance;   // values can only be assigned in constructor
+
 /* 
 Value Types : These variables are always be passed by value, 
 i.e they are always copied when used as function arguments or in assignments.
@@ -554,6 +558,7 @@ type of operand to which other operand can be implicitly converted to
         // "msg" is a special global variable that contains allow access to the blockchain.
         // msg.sender is always the address where the current (external) function call came from.
         owner = msg.sender;
+        senderBalance = owner.balance;  // .balance is used to query the balance of address in Wei
         balances[owner] = 100;  //assigning value to mapping "balances"
         _createContract(_salt);
     }
@@ -684,6 +689,7 @@ type of operand to which other operand can be implicitly converted to
         also as this contract doesn't derived from contract Token, tk.addPriv() (internal func.) will also not be accessible */
         return tk.getPriv();
     }
+
 
     function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable{
         // while external contract call we can specify value & gas
