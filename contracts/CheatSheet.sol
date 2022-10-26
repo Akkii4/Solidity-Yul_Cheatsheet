@@ -586,7 +586,11 @@ type of operand to which other operand can be implicitly converted to
     //     }
     // })
     event Stored(address sender, uint256 value);
-    event Log(string func, uint gas);
+    event Log(string func, uint indexed gas);   // for filtering logs 'indexed' attribute can be added upto 3 params.
+    /* 'anonymous' events can support upto 4 indexed parameters
+        not possible to filter for anonymous events by name, but only by the contract address */
+    event Privacy(string indexed rand1, string indexed rand2, string indexed rand3, string indexed rand4) anonymous;
+    bytes32 eventSelector = Log.selector;   // stores keccak256 hash of non-anonymous event signature
 
     // Errors allow custom names and data for failure situations.
     // Are used in revert statement & are cheaper than using string in revert
