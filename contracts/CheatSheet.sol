@@ -559,11 +559,13 @@ type of operand to which other operand can be implicitly converted to
     Modifiers can be used to change the behaviour of functions 
     in a declarative way(abstract away control flow for logic)
     */
-    // Overloading (same modifier name with different parameters) is not possible.
-    // Like functions, modifiers can be overridden.
-    modifier onlyOwner() {
+    /* Overloading (same modifier name with different parameters) is not possible.
+    * Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
+    * Multiple modifiers in functions are evaluated in the order presented */
+    modifier onlyOwner(/*can receive arguments*/) {
         require(msg.sender == owner, "Not Owner");
-        _;
+        _;  // The function body is inserted where the underscore is placed(can be multiple), 
+        // any logic mentioned after underscore is executed afterwards 
     }
 
     // Events allow clients to react to specific state change
