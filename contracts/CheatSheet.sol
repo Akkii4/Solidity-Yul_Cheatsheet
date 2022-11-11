@@ -55,6 +55,7 @@ contract Token {
     function transfer(address, uint) external {}
 
     function retVal(uint a) public payable returns (uint) {
+    // The keyword `virtual` means that the function can change its behaviour in derived class
         return a + 10;
     }
 
