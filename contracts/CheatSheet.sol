@@ -58,6 +58,10 @@ contract Token {
         return a + 10;
     }
 
+    function updateSupply(uint _x) external payable{
+        totalSupply = _x + msg.value;
+    }
+
     function addPriv(uint val) internal view returns(uint) { return anon + val; }
 
     function mulPriv(uint val) private view returns(uint) { return anon * val; }
@@ -700,7 +704,7 @@ type of operand to which other operand can be implicitly converted to
 
     function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable{
         // while external contract call we can specify value & gas
-        tk.retVal{value : msg.value, gas : 3000}(5);
+        tk.updateSupply{value : msg.value, gas : 3000}(5);
         /*NOTE : calling contractInstance.{value, gas} w/o () at end , 
         will not call function resulting in loss of value & gas */
 
