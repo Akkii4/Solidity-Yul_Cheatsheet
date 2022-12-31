@@ -837,6 +837,8 @@ type of operand to which other operand can be implicitly converted to
     function boom() external {
         // some other code .... 
         // if boom() reverts before selfdestruct it "undo" the destruction 
+        /* EIP-6049: Deprecate SELFDESTRUCT opcode and warns against its use. 
+            A breaking change is likely to come in the future */
         selfdestruct(payable(owner));
         /* self destruct forcefully send eth to contract even if:
             - contract has no payable , receive or fallback functions
