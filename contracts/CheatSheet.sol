@@ -54,8 +54,8 @@ contract Token {
 
     function transfer(address, uint) external {}
 
-    function retVal(uint a) public payable returns (uint) {
     // The keyword `virtual` means that the function can change its behaviour in derived class
+    function retVal(uint a) public virtual returns (uint) {
         return a + 10;
     }
 
@@ -67,13 +67,39 @@ contract Token {
 
     function mulPriv(uint val) private view returns(uint) { return anon * val; }
 
-    function getPriv() public view returns(uint) { return anon; }
+    function getPriv() external virtual view returns(uint) { return anon; }
 }
 
-contract Currency is Token(100) {
+contract Coin {
+    function retVal(uint a) public virtual returns(uint) {
+        return a % 10;
+    }
+}
+
+//Use of 'is' to derive from another contract
+contract Currency is Token(100), Coin {   // If constructor of Base Contract (the derived contract) accepts arguments
     function intTest() public view returns(uint){
         return addPriv(5);  // access to internal member (from derived to parent contract)
     }
+
+    /* Functions can be overridden with the same name, number & types of inputs,  
+        change in output parameters causes an error.
+        Override functions can change mutability
+            - external to public
+            - nonpayable to view/pure
+            - view to pure */
+    //specify the `virtual` keyword again indicates this function can be overridden again.
+    function retVal(uint a) public virtual override(Token, Coin) returns(uint) {
+        return a * 10;                              // ^ Multiple inheritance (Most Derived, least derived Contract)
+    }
+
+    
+    function xyz(uint _a) public {
+        super.retVal(_a);
+    }
+
+    //Public state variables can override external getter functions of the variable
+    uint public override getPriv;
 }
 
 //All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
