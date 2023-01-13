@@ -43,7 +43,16 @@ interface IERC20 {
     function transfer(address, uint) external returns(bool);
 }
 
-contract Token {
+/* Contract is marked as abstract when at least one of it's function is not implemented or 
+    when you do not intend for the contract to be created directly */
+abstract contract Tesseract {
+    function retVal(uint256 x) public virtual returns (uint256);
+
+    function getPriv() external virtual view returns(uint) { return 5; }
+}
+
+// contract inheriting from abstract contract should implement all non-implemented to avoid them being marked as abstract as well.
+contract Token is Tesseract{
     uint public totalSupply;
     uint private anon = 3;
     
@@ -55,7 +64,7 @@ contract Token {
     function transfer(address, uint) external {}
 
     // The keyword `virtual` means that the function can change its behaviour in derived class
-    function retVal(uint a) public virtual returns (uint) {
+    function retVal(uint a) public virtual override returns (uint) {
         return a + 10;
     }
 
@@ -67,7 +76,7 @@ contract Token {
 
     function mulPriv(uint val) private view returns(uint) { return anon * val; }
 
-    function getPriv() external virtual view returns(uint) { return anon; }
+    function getPriv() external view virtual override returns(uint) { return anon; }
 }
 
 contract Coin {
