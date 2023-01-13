@@ -587,7 +587,9 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
-    // Constructor code only runs when the contract is created
+    /* Constructor code only runs when the contract is created
+        State variables are initialised Before the constructor code is executed
+    */
     constructor(bytes32 _salt) payable{
         // "msg" is a special global variable that contains allow access to the blockchain.
         // msg.sender is always the address where the current (external) function call came from.
