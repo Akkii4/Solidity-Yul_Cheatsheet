@@ -71,13 +71,26 @@ contract Token {
 }
 
 contract Coin {
+    constructor() {}
     function retVal(uint a) public virtual returns(uint) {
         return a % 10;
     }
 }
+/*
+*   Inheritance means that components of the parent contracts are "merged" into the child contract
+    The parent contracts do not need to be deployed, as everything can be accessed through the child.
+    Order of "merging" is that the right most contracts override those on the left.
 
-//Use of 'is' to derive from another contract
-contract Currency is Token(100), Coin {   // If constructor of Base Contract (the derived contract) accepts arguments
+    The order of inheritance should start from “most base-like”(least derived, usually an
+    interface) to “most derived”.
+
+*   Use of 'is' to derive from another contract
+
+*   Constructors are executed in the following order: Token, Coin & then Currency
+*/
+contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (the derived contract) accepts arguments ...
+    constructor() Coin() {}              // or through a "modifier" of the derived constructor :
+    
     function intTest() public view returns(uint){
         return addPriv(5);  // access to internal member (from derived to parent contract)
     }
@@ -89,13 +102,14 @@ contract Currency is Token(100), Coin {   // If constructor of Base Contract (th
             - nonpayable to view/pure
             - view to pure */
     //specify the `virtual` keyword again indicates this function can be overridden again.
+    // since Coin is the right most parent contract with this function thus it will internal call Coin.retVal
     function retVal(uint a) public virtual override(Token, Coin) returns(uint) {
-        return a * 10;                              // ^ Multiple inheritance (Most Derived, least derived Contract)
+        return super.retVal(a);                    // ^ Multiple inheritance (Most Derived, least derived Contract)
     }
 
     
     function xyz(uint _a) public {
-        super.retVal(_a);
+        super.retVal(_a); // super keyword calls the function one level higher up in the flattened inheritance hierarchy
     }
 
     //Public state variables can override external getter functions of the variable
@@ -362,6 +376,7 @@ always have to define the data locations for the variables
     bool[3][] triDynamic; // Dynamic Array of arrays of length 3
     uint[] public arr = [1, 2, 3]; // pre assigned array
     uint[][] freeArr; //Dynaic arrays of dynamic array
+
     function aboutArrays(uint _x, uint _y, uint _value, bool[3] memory _newArr, uint size) external {
         //Creating memeory arrays
         uint[] memory a = new uint[](7);          // Fixed size memory array
