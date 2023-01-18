@@ -136,6 +136,49 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
     uint public override getPriv;
 }
 
+/* Libraries are similar to contracts, but :
+    - no state variable 
+    - no inheritance
+    - cannot hold ether
+    - can't be destroyed
+
+A library is embedded into the contract if all library functions are internal 
+and EVM uses JUMP for calling its function similar to a internal function calls
+
+Otherwise the library must be deployed to unique address and then need to be linked with calling contract
+& thus EVM has to use DELEGATECALL which also prevents libraries from killing 
+by SELFDESTRUCT() as it would brick contracts using the library.
+*/
+library Root {
+    function sqrt(uint y) internal pure returns (uint z) {
+        if (y > 3) {
+            z = y;
+            uint x = y / 2 + 1;
+            while (x < z) {
+                z = x;
+                x = (y / x + x) / 2;
+            }
+        } else if (y != 0) {
+            z = 1;
+        }
+        // else z = 0 (default value)
+    }
+
+    /*
+     A library can be attached to a type inside a contract (only active within that contract:
+     - "using Root for uint256;"
+     These functions will receive the object they are called on as their first parameter.
+     */
+    function tryMul(uint256 a, uint256 b) external pure returns (bool, uint256) {
+        unchecked {
+            if (a == 0) return (true, 0);
+            uint256 c = a * b;
+            if (c / a != b) return (false, 0);
+            return (true, c);
+        }
+    }
+}
+
 //All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
 contract CheatSheet {
     // contract instance of "Token"
@@ -907,6 +950,10 @@ type of operand to which other operand can be implicitly converted to
             - contract has no payable , receive or fallback functions
             - contract has revert() in receive()
         */
+    }
+
+    function testRoot(uint256 _num) public pure returns(uint){
+        return Root.sqrt(_num);
     }
 }
 
