@@ -39,7 +39,18 @@ struct User {
     string task;
 }
 
+/* Interfaces are similar to abstract, but :
+    * They cannot have any functions implemented. 
+
+    * They can inherit from other interfaces but not from contracts
+
+    * All declared functions must be external, even if they are public in the contract.
+
+    * They cannot declare state variables, modifiers or constructor
+*/
 interface IERC20 {
+    enum Type { Usefull, Unusefull }
+    struct Demo { string dummy; uint256 num; }
     function transfer(address, uint) external returns(bool);
 }
 
