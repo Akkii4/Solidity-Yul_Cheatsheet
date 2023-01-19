@@ -648,6 +648,9 @@ type of operand to which other operand can be implicitly converted to
 
             //Hashing
             keccak256(abi.encodePacked("Solidity"))
+            /* similarly :
+                - sha256(bytes memory)
+                - ripemd160(bytes memory) */
         );
     }
 
