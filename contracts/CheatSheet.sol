@@ -431,6 +431,7 @@ always have to define the data locations for the variables
         // Struct containing a nested mapping can't be constructed though memory
 
         //t.reader[_index] = tx.origin;         // WORKS can be intialised by storage reference to struct
+                                                // tx.origin : sender's address of the transaction (full call chain)
         //Todo({reader[_index]: tx.origin;})    // Error
     }
 
