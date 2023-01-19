@@ -34,6 +34,15 @@ it is a message call as part of the overall transaction.
 
 10. After solidity V0.8 , being a function external or public does not matter,
 rather gas cost reduction is caused by use of input arguments as calldata instead of memory
+
+11. Solidity compiler's by default optimize the contract assuming it is called 200 times across its lifetime (each opcode is executed around 200 times). 
+For the initial contract deployment to be cheaper and the later function executions to be more expensive, set optimize-runs=1. 
+Otherwise for many transactions and not caring for higher deployment cost and output size, set optimize-runs to a high number. 
+Changing optimiser's parameter effects :
+
+  - the size of the binary search in the function dispatch routine
+
+  - the way constants like large numbers or strings are stored
 ```
-*Will write more whenever something interesting strikes*
+*New points are added whenever something interesting strikes*
 
