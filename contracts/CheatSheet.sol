@@ -98,16 +98,16 @@ contract Coin {
     }
 }
 /*
-*   Inheritance means that components of the parent contracts are "merged" into the child contract
+    Inheritance means that components of the parent contracts are "merged" into the child contract
     The parent contracts do not need to be deployed, as everything can be accessed through the child.
     Order of "merging" is that the right most contracts override those on the left.
 
     The order of inheritance should start from “most base-like”(least derived, usually an
     interface) to “most derived”.
 
-*   Use of 'is' to derive from another contract
+-   Use of 'is' to derive from another contract
 
-*   Constructors are executed in the following order: Token, Coin & then Currency
+-   Constructors are executed in the following order: Token, Coin & then Currency
 */
 contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (the derived contract) accepts arguments ...
     constructor() Coin() {}              // or through a "modifier" of the derived constructor :
@@ -122,7 +122,7 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
             - external to public
             - nonpayable to view/pure
             - view to pure */
-    //specify the `virtual` keyword again indicates this function can be overridden again.
+    // specify the `virtual` keyword again indicates this function can be overridden again.
     // since Coin is the right most parent contract with this function thus it will internal call Coin.retVal
     function retVal(uint a) public virtual override(Token, Coin) returns(uint) {
         return super.retVal(a);                    // ^ Multiple inheritance (Most Derived, least derived Contract)
@@ -133,7 +133,7 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
         super.retVal(_a); // super keyword calls the function one level higher up in the flattened inheritance hierarchy
     }
 
-    //Public state variables can override external getter functions of the variable
+    // Public state variables can override external getter functions of the variable
     uint public override getPriv;
 }
 
@@ -207,7 +207,7 @@ receive()   fallback()
 
     /* Fallback are executed if none of other function sig is matched,
             can even be defined as non payable to only receive message call
-            fallback can be virtual , override & have modifiers */ 
+            fallback can be virtual, override & have modifiers */ 
     fallback() external payable {
         //returns remaining gas
         emit Log("fallback", gasleft());
@@ -429,6 +429,7 @@ always have to define the data locations for the variables
         t.owner; // returns the value stored 'owner'
         
         // Struct containing a nested mapping can't be constructed though memory
+
         //t.reader[_index] = tx.origin;         // WORKS can be intialised by storage reference to struct
         //Todo({reader[_index]: tx.origin;})    // Error
     }
@@ -605,16 +606,16 @@ type of operand to which other operand can be implicitly converted to
 
     function _blockProperties(uint _blockNumber) internal view returns(bytes32, uint, uint, address, uint, uint, uint, uint, uint, uint){
         return(
-            blockhash(_blockNumber),    //hash of block(one of the 256 most recent blocks)
-            block.basefee,               // current block's base fee
+            blockhash(_blockNumber),    // hash of block(one of the 256 most recent blocks)
+            block.basefee,              // current block's base fee
             block.chainid,
-            block.coinbase,             //current block miner’s address
+            block.coinbase,             // current block miner’s address
             block.difficulty,
             block.gaslimit,
             block.number,
-            block.timestamp,            //timestamp as seconds of when block is mined
-            gasleft(),                  //remaining gas
-            tx.gasprice                 //gas price of transaction
+            block.timestamp,            // timestamp as seconds of when block is mined
+            gasleft(),                  // remaining gas
+            tx.gasprice                 // gas price of transaction
         );
     }
 
