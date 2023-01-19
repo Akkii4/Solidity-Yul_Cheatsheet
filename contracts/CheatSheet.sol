@@ -963,6 +963,17 @@ type of operand to which other operand can be implicitly converted to
     function testRoot(uint256 _num) public pure returns(uint){
         return Root.sqrt(_num);
     }
+
+    /* Inline assembly is way to access EVM at low level by passing important safety features & checks of solidity
+        it uses Yul as it's language*/
+    function isContract(address _addr) public view returns (bool){
+        uint256 size;
+        // retrieve the size of the code,through assembly
+        assembly {
+            size := extcodesize(_addr)
+        }
+        return (size > 0);
+    }
 }
 
 // Comments in Solidity :
