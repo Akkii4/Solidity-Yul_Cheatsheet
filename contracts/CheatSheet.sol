@@ -612,7 +612,7 @@ type of operand to which other operand can be implicitly converted to
             block.chainid,
             block.coinbase,             // current block miner’s address
             block.difficulty,
-            block.gaslimit,
+            block.gaslimit,             // current block's gaslimit
             block.number,
             block.timestamp,            // timestamp as seconds of when block is mined
             gasleft(),                  // remaining gas
