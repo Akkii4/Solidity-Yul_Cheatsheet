@@ -230,6 +230,30 @@ receive()   fallback()
     string constant THANOS = "I am inevitable"; // values need to be fixed at compile time 
     uint immutable public senderBalance;   // values can only be assigned in constructor
 
+/* Variable Packing
+    Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
+    Packing reduces storage slot usage but increases opcodes necessary to read/write to them.
+*/
+    uint248 _right; // 31 bytes, Doesn't fit into the previous slot, thus starts with a new one
+    uint8   _left;  // 1 byte, There's still 1 byte left out of 32 byte slot
+    //^ one storage slot will be packed from right to left with the above two variables (lower-order aligned)
+    
+    // Structs and array data always start a new slot!
+
+    // Dynamically-sized arrays use their slot location at p, it's values start being stores at keccak256(p)
+    //  one element after the other, potentially sharing storage slots if the elements are not longer than 16 bytes.
+    // Mappings leave their slot p empty (to avoid clashes), the values corresponding to key k are stored at
+    //  keccak(h(k) + p) with h() padding value to 32 bytes or hashing reference types.
+
+    // Bytes and Strings are stored like array elements and data area is computed using a keccak256 hash of the slot's position.
+    //   For values less than 32 bytes, elements are stored in higher-order bytes (left aligned) and the lowest-order byte stores value (length * 2).
+    //   whereas bytes of 32 bytes or more, the main slot stores (length * 2 + 1) and the data is stored as usual in keccak256(p).
+
+    // In case of inheritance, order of variables is starting with the most base-ward contract & do share same slot
+
+    // There's no packing in memory or function arguments as they are always padded to 32 bytes 
+
+
 /* 
 Value Types : These variables are always be passed by value, 
 i.e they are always copied when used as function arguments or in assignments.
