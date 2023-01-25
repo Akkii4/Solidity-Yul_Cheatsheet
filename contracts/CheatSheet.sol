@@ -252,7 +252,16 @@ receive()   fallback()
     // In case of inheritance, order of variables is starting with the most base-ward contract & do share same slot
 
     // There's no packing in memory or function arguments as they are always padded to 32 bytes 
+        //Example, following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
+        uint8[4] slot_a; 
 
+        // Following struct occupies 96 bytes (3 slots of 32 bytes) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
+        struct S {  
+            uint a;
+            uint b;
+            uint8 c;
+            uint8 d;
+        }
 
 /* 
 Value Types : These variables are always be passed by value, 
