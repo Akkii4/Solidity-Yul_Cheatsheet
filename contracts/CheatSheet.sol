@@ -240,7 +240,7 @@ receive()   fallback()
     
     // Structs and array data always start a new slot!
 
-    // Dynamically-sized arrays use their slot location at p, it's values start being stores at keccak256(p)
+    // Dynamically-sized array's length is stored as the first slot at location p, it's values start being stores at keccak256(p)
     //  one element after the other, potentially sharing storage slots if the elements are not longer than 16 bytes.
     // Mappings leave their slot p empty (to avoid clashes), the values corresponding to key k are stored at
     //  keccak(h(k) + p) with h() padding value to 32 bytes or hashing reference types.
