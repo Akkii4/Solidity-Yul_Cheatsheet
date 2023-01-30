@@ -116,6 +116,7 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
         return addPriv(5);  // access to internal member (from derived to parent contract)
     }
 
+    /// @inheritdoc Coin Copies all missing tags from the base function (must be followed by the contract name)
     /** Functions can be overridden with the same name, number & types of inputs,  
         change in output parameters causes an error.
         Override functions can change mutability
@@ -127,8 +128,9 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
     function retVal(uint a) public virtual override(Token, Coin) returns(uint) {
         return super.retVal(a);                    // ^ Multiple inheritance (Most Derived, least derived Contract)
     }
-
-    
+    /// @notice This function adds 10 to `a` 
+    //  ^ if _a is assigned 5 this will be rendered as dynamic comment as : This function adds 10 to 5 
+    /// @param _a followed by parameter's name explain it (only for function, event)
     function xyz(uint _a) public {
         super.retVal(_a); // super keyword calls the function one level higher up in the flattened inheritance hierarchy
     }
@@ -170,6 +172,7 @@ library Root {
      - "using Root for uint256;"
      These functions will receive the object they are called on as their first parameter.
      */
+    /// @return Documents the return variables of a contract’s function
     function tryMul(uint256 a, uint256 b) external pure returns (bool, uint256) {
         unchecked {
             if (a == 0) return (true, 0);
@@ -180,8 +183,14 @@ library Root {
     }
 }
 
-//All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
-contract CheatSheet {
+/// NatSpec is for formatting for contract, interface, library, function & event comments which are understood by Solifity compiler.
+
+/// @title Title describing contract/interface 
+/// @author Name of author
+/// @notice Explain the functionality
+/// @dev any extra details for the developer
+/// @custom:custom-name tag's explaination
+contract CheatSheet {   // All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
     // contract instance of "Token"
     Token tk;
 
@@ -1020,6 +1029,8 @@ type of operand to which other operand can be implicitly converted to
 // Comments in Solidity :
 
 // This is a single-line comment.
+
+/// single line NatSpec comment
 
 /**
 This is a
