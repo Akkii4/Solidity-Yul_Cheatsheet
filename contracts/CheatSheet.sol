@@ -24,7 +24,7 @@ import {divide2 as div, name} from "./Div.sol";
 
 //External imports are also allowed from github -> import "github/filepath/url"
 
-/*
+/**
 Functions are the executable units of code ,usually defined inside a contract, 
 but can also be defined outside of contracts(called Free Functions).
 Free functions cannot have visibility(and are internal by default).
@@ -39,7 +39,7 @@ struct User {
     string task;
 }
 
-/* Interfaces are similar to abstract, but :
+/** Interfaces are similar to abstract, but :
     * They cannot have any functions implemented. 
 
     * They can inherit from other interfaces but not from contracts
@@ -54,7 +54,7 @@ interface IERC20 {
     function transfer(address, uint) external returns(bool);
 }
 
-/* Contract is marked as abstract when at least one of it's function is not implemented or 
+/** Contract is marked as abstract when at least one of it's function is not implemented or 
     when you do not intend for the contract to be created directly */
 abstract contract Tesseract {
     function retVal(uint256 x) public virtual returns (uint256);
@@ -74,7 +74,7 @@ contract Token is Tesseract{
 
     function transfer(address, uint) external {}
 
-    /* The keyword `virtual` means that the function & modifiers can change its behaviour in derived class
+    /** The keyword `virtual` means that the function & modifiers can change its behaviour in derived class
        The keyword `override` means that this function, modifier or state variables changes its behaviour in base class */
     function retVal(uint a) public virtual override returns (uint) {
         return a + 10;
@@ -97,7 +97,7 @@ contract Coin {
         return a % 10;
     }
 }
-/*
+/**
     Inheritance means that components of the parent contracts are "merged" into the child contract
     The parent contracts do not need to be deployed, as everything can be accessed through the child.
     Order of "merging" is that the right most contracts override those on the left.
@@ -116,7 +116,7 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
         return addPriv(5);  // access to internal member (from derived to parent contract)
     }
 
-    /* Functions can be overridden with the same name, number & types of inputs,  
+    /** Functions can be overridden with the same name, number & types of inputs,  
         change in output parameters causes an error.
         Override functions can change mutability
             - external to public
@@ -137,7 +137,7 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
     uint public override getPriv;
 }
 
-/* Libraries are similar to contracts, but :
+/** Libraries are similar to contracts, but :
     - no state variable 
     - no inheritance
     - cannot hold ether
@@ -165,7 +165,7 @@ library Root {
         // else z = 0 (default value)
     }
 
-    /*
+    /**
      A library can be attached to a type inside a contract (only active within that contract:
      - "using Root for uint256;"
      These functions will receive the object they are called on as their first parameter.
@@ -185,7 +185,7 @@ contract CheatSheet {
     // contract instance of "Token"
     Token tk;
 
-/*
+/**
     fallback() or receive ()?
 
     Ether is sent to contract
@@ -205,7 +205,7 @@ receive()   fallback()
         emit Log("receive", gasleft());
     }
 
-    /* Fallback are executed if none of other function sig is matched,
+    /** Fallback are executed if none of other function signature is matched,
             can even be defined as non payable to only receive message call
             fallback can be virtual, override & have modifiers */ 
     fallback() external payable {
@@ -213,7 +213,7 @@ receive()   fallback()
         emit Log("fallback", gasleft());
     }
      
-    /*
+    /**
     State Variable is like a single slot in a database that are accessible by functions
     and there values are permanently stored in contract storage.
 
@@ -230,7 +230,7 @@ receive()   fallback()
     string constant THANOS = "I am inevitable"; // values need to be fixed at compile time 
     uint immutable public senderBalance;   // values can only be assigned in constructor
 
-/* Variable Packing
+/** Variable Packing
     Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
     Packing reduces storage slot usage but increases opcodes necessary to read/write to them.
 */
@@ -263,7 +263,7 @@ receive()   fallback()
             uint8 d;
         }
 
-/* 
+/** 
 Value Types : These variables are always be passed by value, 
 i.e they are always copied when used as function arguments or in assignments.
 */
@@ -286,7 +286,7 @@ i.e they are always copied when used as function arguments or in assignments.
 
     // address holds 20 byte value and is suitable for storing addresses of contracts, or external accounts.
     address public owner;
-    /*  
+    /**  
         Equivalent to -> function owner() external view returns (address) { return owner; }
         thus, can be accessed externally via this.owner()
     */ 
@@ -312,7 +312,7 @@ i.e they are always copied when used as function arguments or in assignments.
         // Also Hexadecimal literals that pass the address checksum test are considered as address
         0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
 
-        /*
+        /**
         Division on integer literals eg. 5/2
         prior to version 0.4.0 is equal to  2
         but now it's rational number 2.5
@@ -328,7 +328,7 @@ i.e they are always copied when used as function arguments or in assignments.
         //Underscores have no meaning(just eases humman readibility)
         1_2e3_0, // = 12*10**30
 
-        /*
+        /**
         string literal represented in " " OR ' '
         */
         "yo" "lo", // can be splitted = "yolo"
@@ -347,14 +347,14 @@ i.e they are always copied when used as function arguments or in assignments.
     }
 
 
-    /* 
     Enums are user-defined type of predefined constants 
+    /** 
     First values is default & starts from uint 0
     They can be stored even outside of Contract & in libraries as well
     */
     enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
     Status public status;
-    /* 
+    /** 
     As enums are not stored in ABI
     thus in ABI 'updateStatus()' will have its input type as uint8 
     */
@@ -370,7 +370,7 @@ i.e they are always copied when used as function arguments or in assignments.
     }
 
 
-    /* User Defined Value Types allows creating a zero cost abstraction over an elementary value type
+    /** User Defined Value Types allows creating a zero cost abstraction over an elementary value type
     type C is V , C is new type & V is elementary type
     type conversion , operators aren't allowed 
     */
@@ -383,12 +383,12 @@ i.e they are always copied when used as function arguments or in assignments.
     }
 
 
-/* 
+/** 
 Reference Types : Values can be modified through multiple different names unlike Value type
 always have to define the data locations for the variables
 */
     
-    /* Solidity stores data as :
+    /** Solidity stores data as :
     storage - stored on blockchain
     memory - it is modifiable & exists while a function is being called 
     calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
@@ -399,28 +399,28 @@ always have to define the data locations for the variables
         uint[] storage z = dynamicSized; // Assignments to a local storage from storage ,creates reference.
         z.pop(); // modifies array dynamicSized through y
 
-        /* delete
+        /** delete
         Resets to the default value of that type
         doesn't works on mappings
         */
         delete dynamicSized; // clears the array dynamicSized & y
         delete dynamicSized[2]; // resets third element of array w/o changing length
 
-        /*  
+        /**  
         Assigning memory to local storage doesn't work as
         it would need to create a new temporary / unnamed array in storage, 
         but storage is "statically" allocated
         // z = memoryArray;
-        /*
+        /**
 
-        /* 
+        /** 
         Cannot "delete z" as
         referencing global storage objects can only be made from existing local storage objects.
         // delete z
         */
     }
 
-    /* Structs is a group of multiple related variables ,
+    /** Structs is a group of multiple related variables ,
     can be passed as parameters only for library functions 
     */
      struct Todo {
@@ -508,7 +508,7 @@ always have to define the data locations for the variables
         delete arr;                 // resets all values to default value
         triDynamic = new bool[3][](0); //similar to delete array
     }
-    /*slicing of array[start:end] 
+    /**slicing of array[start:end] 
     start default is 0 & end is array's length 
     only works with calldata array as input
     */
@@ -529,7 +529,7 @@ always have to define the data locations for the variables
         );
     }
 
-    /* Mappings are like hash tables which are virtually initialised such that 
+    /** Mappings are like hash tables which are virtually initialised such that 
     every possible key is mapped to a value whose byte-representation is all zeros,
 
     Not possible to obtain a list of all keys or values of a mapping, 
@@ -542,12 +542,12 @@ always have to define the data locations for the variables
     */
     mapping(address => uint256) public balances;
 
-/* Operators
+/** Operators
 Result type of operation determined based on :
 type of operand to which other operand can be implicitly converted to
 */
 
-    /* Ternary Operator
+    /** Ternary Operator
     if <expression> true ? then evaluate <trueExpression>: else evaluate <falseExpression> 
     */
     uint tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0 ); 
@@ -595,16 +595,16 @@ type of operand to which other operand can be implicitly converted to
     }
 
     function _typeConversion() internal pure returns (uint32 foobar, uint j, uint16 m, bytes1 p){
-        /*Implicit Conversions
+        /**Implicit Conversions
         compiler auto tries to convert one type to another
         conversion is possible if makes sense semantically & no information is lost
         */
         uint8 foo;
         uint16 bar;
-        foobar = foo + bar; /* during addition uint8 is implicitly converted to uint16 
+        foobar = foo + bar; /** during addition uint8 is implicitly converted to uint16 
                                     and then to uint32 during assignment */
         
-        /*Explicit Conversions
+        /**Explicit Conversions
         if you are condident and forcefully do conversion
         */
         int  k = -3;
@@ -613,7 +613,7 @@ type of operand to which other operand can be implicitly converted to
         uint32 l = 0x12345678;
         m = uint16(l); // b will be 0x5678 now
         //uint16 c = 0x123456; 
-        /* fails, since it would have to truncate to 0x5678
+        /** fails, since it would have to truncate to 0x5678
         since v0.8 only conversion allowed if they fits in resulting range*/
 
         bytes2 n = 0x1234;
@@ -659,7 +659,7 @@ type of operand to which other operand can be implicitly converted to
         //Encoding
         bytes memory encodedData = abi.encode(f, g, h); // encodes given arguments
         
-        abi.encodePacked(f, g, h);      /* As no padding, thus one variable can merge into other
+        abi.encodePacked(f, g, h);      /** As no padding, thus one variable can merge into other
                                         resulting in Hash collision 
                                         encodePacked(AAA, BBB) -> AAABBB
                                         encodePacked(AA, ABBB) -> AAABBB
@@ -681,7 +681,7 @@ type of operand to which other operand can be implicitly converted to
 
             //Hashing
             keccak256(abi.encodePacked("Solidity"))
-            /* similarly :
+            /** similarly :
                 - sha256(bytes memory)
                 - ripemd160(bytes memory) */
         );
@@ -704,7 +704,7 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
-    /* Constructor code only runs when the contract is created
+    /** Constructor code only runs when the contract is created
         State variables are initialised Before the constructor code is executed
     */
     constructor(bytes32 _salt) payable{
@@ -716,14 +716,14 @@ type of operand to which other operand can be implicitly converted to
         _createContract(_salt);
     }
 
-    /* 
+    /** 
     Modifiers can be used to change the behaviour of functions 
     in a declarative way(abstract away control flow for logic)
     */
-    /* Overloading (same modifier name with different parameters) is not possible.
+    /** Overloading (same modifier name with different parameters) is not possible.
     * Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
     * Multiple modifiers in functions are evaluated in the order presented */
-    modifier onlyOwner(/*can receive arguments*/) {
+    modifier onlyOwner(/**can receive arguments*/) {
         require(msg.sender == owner, "Not Owner");
         _;  // The function body is inserted where the underscore is placed(can be multiple), 
         // any logic mentioned after underscore is executed afterwards 
@@ -740,7 +740,7 @@ type of operand to which other operand can be implicitly converted to
     // })
     event Stored(address sender, uint256 value);
     event Log(string func, uint indexed gas);   // for filtering logs 'indexed'(stores parameter as topic) attribute can be added in-upto 3 params.
-    /* 'anonymous' events can support upto 4 indexed parameters
+    /** 'anonymous' events can support upto 4 indexed parameters
         - does not stores event's signature as topic
         - not possible to filter for anonymous events by name, but only by the contract address */
     event Privacy(string indexed rand1, string indexed rand2, string indexed rand3, string indexed rand4) anonymous;
@@ -754,7 +754,7 @@ type of operand to which other operand can be implicitly converted to
         // Send ether along with the new contract "Token" creation and passing in args to it's constructor
         tk = new Token{value: msg.value}(3e6);
 
-        /* contract address is computed from creating contract address and nonce 
+        /** contract address is computed from creating contract address and nonce 
         while if salt value is given, address is computed from :
         creating contract address, 
         salt & 
@@ -797,21 +797,21 @@ type of operand to which other operand can be implicitly converted to
 
     // Payable Function requires Calling this function along with some Ether (as msg.value)
     function transferringFunds(address payable _to) external payable{
-        /*
+        /**
         'transfer' fails if sender don't have enough balance or trx rejected by reciever 
         reverts on failure & stops execution
         transfer/send has 2300 gas limit
         */
         treasury.transfer(1 wei);
 
-        /*
+        /**
         'send' returns a boolean value indicating success or failure.
         doesn't stops execution
         */
         bool sent = payable(0).send(1 wei); // payable(0) -> 0x0000000000000000000000000000000000000000
         require(sent, "Send failed");
 
-        /*
+        /**
         Call returns a boolean value indicating success or failure.
         is possible to adjust gas supplied
         most recommended method to transfer funds.
@@ -821,7 +821,7 @@ type of operand to which other operand can be implicitly converted to
         (bool res, ) = _to.call{gas: 5000, value: msg.value}("");
         require(res, "Failed to send Ether");
 
-        /* Explicit conversion allowed 
+        /** Explicit conversion allowed 
         from address to address payable  &
         from uint160 to address */
         payable(owner).transfer(address(this).balance); //querying current contract balance in Wei
@@ -835,7 +835,7 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
-    /*Function Visibility : 
+    /**Function Visibility : 
         - external : these calls create an actual EVM message call, 
             they can be called from other contracts and via transactions; 
             and can be accessed internally via this.extFunc()
@@ -843,7 +843,7 @@ type of operand to which other operand can be implicitly converted to
         - internal : can only be accessed from within the current contract or contracts deriving from it & neither exposed via ABI
         - private : similar to internal but not accessible in derived contracts */
     function canUSeeMe() public view returns(uint){
-        /* tk.anon() , tk.mulPriv() will not be accessible due to private visibility and 
+        /** tk.anon() , tk.mulPriv() will not be accessible due to private visibility and 
         also as this contract doesn't derived from contract Token, tk.addPriv() (internal func.) will also not be accessible */
         return tk.getPriv();
     }
@@ -852,7 +852,7 @@ type of operand to which other operand can be implicitly converted to
     function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable{
         // while external contract call we can specify value & gas
         tk.updateSupply{value : msg.value, gas : 3000}(5);
-        /*NOTE : calling contractInstance.{value, gas} w/o () at end , 
+        /**NOTE : calling contractInstance.{value, gas} w/o () at end , 
         will not call function resulting in loss of value & gas */
 
         //arguments can be given by name, in any order, if they are enclosed in { }
@@ -860,7 +860,7 @@ type of operand to which other operand can be implicitly converted to
     }
 
 
-    /* Functions Mutability : 
+    /** Functions Mutability : 
         - view : functions which do not modigy state but can access state variables or environvment
         - pure : similar to view but only access limited to local variables (exception of msg.sig & msg.data),
                     these functions can also use revert as it's not considered 'state modification' */
@@ -882,11 +882,11 @@ type of operand to which other operand can be implicitly converted to
         return (u, o);
     }
     
-    /*Solidity performs a revert operation(instruction 0xfd) for any error,
+    /**Solidity performs a revert operation(instruction 0xfd) for any error,
      resulting in revert all changes made to the state.
     */
     function errorFound(address payable addr) public payable {
-        /* Require validates :
+        /** Require validates :
             - invalid inputs
             - conditions that cannot be detected until execution time
             - return values from calls to other functions
@@ -895,12 +895,12 @@ type of operand to which other operand can be implicitly converted to
     
         // A direct revert can be triggered using the revert statement and the revert function.
         if(msg.value < 1 ether ) revert LowValueProvided(msg.value);
-        /* revert can also be used like revert("description"); 
+        /** revert can also be used like revert("description"); 
                                         revert CustomError(args)*/
         uint balBeforeTransfer = address(this).balance;
         addr.transfer(msg.value / 2);
 
-        /* Assert used for:
+        /** Assert used for:
             - checking Internal errors & invariants
             - validate contract state after making changes
             - check for overflow/underflow
@@ -908,7 +908,7 @@ type of operand to which other operand can be implicitly converted to
         assert(address(this).balance == balBeforeTransfer - msg.value / 2); // it will fail only if there is any exception while transferring funds
         
 
-        /*Error(string) is used for regular error conditions
+        /**Error(string) is used for regular error conditions
             Error exception is generated :
             - If require(statement) evaluates to false.
 
@@ -922,7 +922,7 @@ type of operand to which other operand can be implicitly converted to
         */
         
 
-        /*Panic(uint256) is used for errors that should not be present in bug-free code
+        /**Panic(uint256) is used for errors that should not be present in bug-free code
             Panic error generated with error code:
             0x00: Used for generic compiler inserted panics.
 
@@ -946,7 +946,7 @@ type of operand to which other operand can be implicitly converted to
         */
 
 
-        /* Cases when it can either cause an Error or a Panic (or whatever else was given):
+        /** Cases when it can either cause an Error or a Panic (or whatever else was given):
             - If a .transfer() fails.
 
             - If calling a function via a message call fails 
@@ -965,17 +965,17 @@ type of operand to which other operand can be implicitly converted to
             // This is executed in case revert("string description")
             emit Log(desc, gasleft());
             return (false);
-        } catch Panic(uint /*errorCode*/) {
+        } catch Panic(uint /**errorCode*/) {
             // executed in case of a panic
             return (false);
         } 
-        catch (bytes memory /*lowLevelData*/) {
+        catch (bytes memory /**lowLevelData*/) {
             // executed in case revert() was used.
             return (false);
         }
     }
 
-    /* sends contract ether balance to the designated address 
+    /** sends contract ether balance to the designated address 
     then removes contract code from the blockchain
     but can be retained as it's part of the blockchain's history
     ether can still be sent to the removed contract but would be lost
@@ -983,10 +983,10 @@ type of operand to which other operand can be implicitly converted to
     function boom() external {
         // some other code .... 
         // if boom() reverts before selfdestruct it "undo" the destruction 
-        /* EIP-6049: Deprecate SELFDESTRUCT opcode and warns against its use. 
+        /** EIP-6049: Deprecate SELFDESTRUCT opcode and warns against its use. 
             A breaking change is likely to come in the future */
         selfdestruct(payable(owner));
-        /* self destruct forcefully send eth to contract even if:
+        /** self destruct forcefully send eth to contract even if:
             - contract has no payable , receive or fallback functions
             - contract has revert() in receive()
         */
@@ -997,15 +997,15 @@ type of operand to which other operand can be implicitly converted to
         return Root.sqrt(_num);
     }
 
-    /* Inline assembly is way to access EVM at low level by passing important safety features & checks of solidity
-        it uses Yul as it's language*/
+    /** Inline assembly is way to access EVM at low level by passing important safety features & checks of solidity
+        it uses Yul as it's language */
     function isContract(address _addr) public view returns (bool){
         uint256 size;
         // retrieve the size of the code,through assembly
         assembly {
             size := extcodesize(_addr)
 
-            /* Layout in Memory(Reserves certain areas of memory) :
+            /** Layout in Memory(Reserves certain areas of memory) :
 
                 -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
                 - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
@@ -1021,7 +1021,7 @@ type of operand to which other operand can be implicitly converted to
 
 // This is a single-line comment.
 
-/*
+/**
 This is a
 multi-line comment.
 */
