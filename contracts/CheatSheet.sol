@@ -1038,6 +1038,31 @@ type of operand to which other operand can be implicitly converted to
     The contract uses the function selector to determine which function should be executed, 
         and then checks the signature of the function to ensure that the correct input parameters have been provided.
     
+    Argument encoding the process of encoding function arguments into byte array that serves as input data input data to contract's function call
+        this input data is later decoded by the contract and are passed to functions in correct format
+
+    for eg. calling following function with params. 
+        (53, ["abc", "def"], "dave", true, [1,2,3]) we would pass total 388 bytes as follows :
+
+    -  function selector. first 4 bytes of function signature
+    // rest all arguments will be padded to 32 bytes
+    -  uint32 value 53 as first parameter
+    -  bytes3 value "abc" (left-aligned) as first part of second parameter
+    -  bytes3 value "def" (left-aligned) as second part of second parameter
+    -  location of data part of third parameter (dynamic type), measured in bytes
+    -  boolean true as fourth parameter
+    -  location of data part of fifth parameter (dynamic type)
+    -  data part of third argument, starts with length of byte array, in this case, 4
+    -  data of third argument UTF-8 (equal to ASCII in this case) encoding of "dave", padded on right to 32 bytes
+    -  data part of fifth argument, starts with length of array, in this case, 3
+    -  first element of fifth parameter
+    -  second element of fifth parameter
+    -  third element of fifth parameter
+    */
+    function selector_JSL(uint32 par_1, bytes3[2] memory, bytes memory, bool, uint[] memory) external pure returns(bool r)
+    {
+        r = par_1 > 32 ? true : false;
+    }
 }
 
 // Comments in Solidity :
