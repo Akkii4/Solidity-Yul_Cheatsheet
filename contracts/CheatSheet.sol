@@ -293,7 +293,7 @@ i.e they are always copied when used as function arguments or in assignments.
         );
     }
 
-    // address holds 20 byte value and is suitable for storing addresses of contracts, or external accounts.
+    // address holds 20 byte(160 bits) value and is suitable for storing addresses of contracts, or external accounts.
     address public owner;
     /**  
         Equivalent to -> function owner() external view returns (address) { return owner; }
@@ -302,7 +302,7 @@ i.e they are always copied when used as function arguments or in assignments.
     //address with transfer and send functionality to recieve Ether
     address payable public treasury;
 
-    // Boolean possible values are true and false
+    // Boolean holds 1 byte value (0 or 1) possible values are true and false
     bool public isEven;
     function boolTesting(bool _x, bool _y, bool _z) public pure returns (bool) {
         // Short-circuiting rule: full expression will not be evaluated
@@ -356,8 +356,8 @@ i.e they are always copied when used as function arguments or in assignments.
     }
 
 
-    Enums are user-defined type of predefined constants 
     /** 
+    Enums are user-defined type of predefined constants which holds uint8 values 
     First values is default & starts from uint 0
     They can be stored even outside of Contract & in libraries as well
     */
@@ -486,7 +486,7 @@ always have to define the data locations for the variables
     uint[][] freeArr; //Dynaic arrays of dynamic array
 
     function aboutArrays(uint _x, uint _y, uint _value, bool[3] memory _newArr, uint size) external {
-        //Creating memeory arrays
+        //Creating memory arrays
         uint[] memory a = new uint[](7);          // Fixed size memory array
         uint[2][] memory b = new uint[2][](size); // Dynamic memory array 
         // fixed size array can't be converted/assigned to dynamic memory array
