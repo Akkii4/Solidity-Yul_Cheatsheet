@@ -1024,6 +1024,20 @@ type of operand to which other operand can be implicitly converted to
         }
         return (size > 0);
     }
+
+    /**
+    Function signature is a string that consists of the function's name and the types of its input parameters. 
+        also used to distinguish function from another with the same name but different parameters.
+        eg. a function "transfer" with two input parameters address & uint256, signature is "transfer(address,uint256)".
+    
+    Function selector is a first(left alligned) four-byte of keccak256 hash of function's signature 
+        used to identify a specific function in a contract. 
+
+    Function's selector and signature are used together to call a specific function within a contract. 
+        as the function selector is included in the data field of the transaction when a call is made to contract 
+    The contract uses the function selector to determine which function should be executed, 
+        and then checks the signature of the function to ensure that the correct input parameters have been provided.
+    
 }
 
 // Comments in Solidity :
