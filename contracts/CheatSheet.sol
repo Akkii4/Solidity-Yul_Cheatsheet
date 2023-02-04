@@ -13,27 +13,29 @@ pragma solidity >=0.4.16 <0.9.0;
 // Default since Solidity 0.8.0 & Has all feature of v1
 pragma abicoder v2;
 
-//imports all global symbols from “filename” (and symbols imported there) into current global scope
+// imports all global symbols from “filename” (and symbols imported there) into current global scope
 // not recommended as any items added to the “filename” auto appears in the files
 import "./Add.sol";
+
 // & to import specific symbols explicitly
 // equivalent to -> import * as multiplier from "./Mul.sol";
 import "./Mul.sol" as multiplier;
+
 //to avoid naming collision
 import {divide2 as div, name} from "./Div.sol";
 
-//External imports are also allowed from github -> import "github/filepath/url"
+// External imports are also allowed from github -> import "github/filepath/url"
 
 /**
-Functions are the executable units of code ,usually defined inside a contract, 
-but can also be defined outside of contracts(called Free Functions).
-Free functions cannot have visibility(and are internal by default).
+    Functions are the executable units of code, usually defined inside a contract, 
+    but can also be defined outside of contracts(called Free Functions).
+    Free functions cannot have visibility(and are internal by default).
 */
 function outsider(uint256 x) pure returns (uint256) {
     return x * 2;
 }
 
-//struct can be declared outside contract
+// struct can be declared outside contract
 struct User {
     address addr;
     string task;
@@ -97,6 +99,7 @@ contract Coin {
         return a % 10;
     }
 }
+
 /**
     Inheritance means that components of the parent contracts are "merged" into the child contract
     The parent contracts do not need to be deployed, as everything can be accessed through the child.
@@ -105,9 +108,9 @@ contract Coin {
     The order of inheritance should start from “most base-like”(least derived, usually an
     interface) to “most derived”.
 
--   Use of 'is' to derive from another contract
+    Use of 'is' to derive from another contract
 
--   Constructors are executed in the following order: Token, Coin & then Currency
+    Constructors are executed in the following order: Token, Coin & then Currency
 */
 contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (the derived contract) accepts arguments ...
     constructor() Coin() {}              // or through a "modifier" of the derived constructor :
@@ -128,6 +131,7 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
     function retVal(uint a) public virtual override(Token, Coin) returns(uint) {
         return super.retVal(a);                    // ^ Multiple inheritance (Most Derived, least derived Contract)
     }
+
     /// @notice This function adds 10 to `a` 
     //  ^ if _a is assigned 5 this will be rendered as dynamic comment as : This function adds 10 to 5 
     /// @param _a followed by parameter's name explain it (only for function, event)
@@ -140,17 +144,17 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
 }
 
 /** Libraries are similar to contracts, but :
-    - no state variable 
-    - no inheritance
-    - cannot hold ether
-    - can't be destroyed
+        - no state variable 
+        - no inheritance
+        - cannot hold ether
+        - can't be destroyed
 
-A library is embedded into the contract if all library functions are internal 
-and EVM uses JUMP for calling its function similar to a internal function calls
+    A library is embedded into the contract if all library functions are internal 
+    and EVM uses JUMP for calling its function similar to a internal function calls
 
-Otherwise the library must be deployed to unique address and then need to be linked with calling contract
-& thus EVM has to use DELEGATECALL which also prevents libraries from killing 
-by SELFDESTRUCT() as it would brick contracts using the library.
+    Otherwise the library must be deployed to unique address and then need to be linked with calling contract
+    & thus EVM has to use DELEGATECALL which also prevents libraries from killing 
+    by SELFDESTRUCT() as it would brick contracts using the library.
 */
 library Root {
     function sqrt(uint y) internal pure returns (uint z) {
@@ -167,10 +171,9 @@ library Root {
         // else z = 0 (default value)
     }
 
-    /**
-     A library can be attached to a type inside a contract (only active within that contract:
-     - "using Root for uint256;"
-     These functions will receive the object they are called on as their first parameter.
+    /** A library can be attached to a type inside a contract (only active within that contract:
+            - "using Root for uint256;"
+        These functions will receive the object they are called on as their first parameter.
      */
     /// @return Documents the return variables of a contract’s function
     function tryMul(uint256 a, uint256 b) external pure returns (bool, uint256) {
@@ -222,8 +225,7 @@ receive()   fallback()
         emit Log("fallback", gasleft());
     }
      
-    /**
-    State Variable is like a single slot in a database that are accessible by functions
+    /** State Variable is like a single slot in a database that are accessible by functions
     and there values are permanently stored in contract storage.
 
     Visibility : 
@@ -321,25 +323,22 @@ i.e they are always copied when used as function arguments or in assignments.
         // Also Hexadecimal literals that pass the address checksum test are considered as address
         0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
 
-        /**
-        Division on integer literals eg. 5/2
-        prior to version 0.4.0 is equal to  2
-        but now it's rational number 2.5
+        /** Division on integer literals eg. 5/2
+            prior to version 0.4.0 is equal to  2
+            but now it's rational number 2.5
         */
         5/2 + 1 + 0.5,  //  = 4
         // whereas uint x = 1;
         //         uint y = 5/2 + x + 0.5  returns compiler error, as operators works only on common value types
 
-        //decimals fractional formed by . with at least one number after decimal point
+        // decimals fractional formed by . with at least one number after decimal point
         // .1, 1.3 but not 1. 
         -.2e10, //Scientific notation of type MeE ~= M * 10**E
 
-        //Underscores have no meaning(just eases humman readibility)
+        // Underscores have no meaning(just eases humman readibility)
         1_2e3_0, // = 12*10**30
 
-        /**
-        string literal represented in " " OR ' '
-        */
+        // string literal represented in " " OR ' '
         "yo" "lo", // can be splitted = "yolo"
         'abc\\def', // also supports various escape characters
 
@@ -356,16 +355,14 @@ i.e they are always copied when used as function arguments or in assignments.
     }
 
 
-    /** 
-    Enums are user-defined type of predefined constants which holds uint8 values 
-    First values is default & starts from uint 0
-    They can be stored even outside of Contract & in libraries as well
+    /** Enums are user-defined type of predefined constants which holds uint8 values 
+        First values is default & starts from uint 0
+        They can be stored even outside of Contract & in libraries as well
     */
     enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
     Status public status;
-    /** 
-    As enums are not stored in ABI
-    thus in ABI 'updateStatus()' will have its input type as uint8 
+    /** As enums are not stored in ABI
+        thus in ABI 'updateStatus()' will have its input type as uint8 
     */
     function updateStatus(Status _status) public {
         status = _status;
@@ -472,9 +469,9 @@ always have to define the data locations for the variables
         
         // Struct containing a nested mapping can't be constructed though memory
 
-        //t.reader[_index] = tx.origin;         // WORKS can be intialised by storage reference to struct
+        // t.reader[_index] = tx.origin;         // WORKS can be intialised by storage reference to struct
                                                 // tx.origin : sender's address of the transaction (full call chain)
-        //Todo({reader[_index]: tx.origin;})    // Error
+        // Todo({reader[_index]: tx.origin;})  // Error
     }
 
     // Arrays
@@ -483,41 +480,41 @@ always have to define the data locations for the variables
     uint[][4] nestedDynamic; // An array of 4 dynamic arrays
     bool[3][] triDynamic; // Dynamic Array of arrays of length 3
     uint[] public arr = [1, 2, 3]; // pre assigned array
-    uint[][] freeArr; //Dynaic arrays of dynamic array
+    uint[][] freeArr; // Dynaic arrays of dynamic array
 
     function aboutArrays(uint _x, uint _y, uint _value, bool[3] memory _newArr, uint size) external {
-        //Creating memory arrays
+        // Creating memory arrays
         uint[] memory a = new uint[](7);          // Fixed size memory array
         uint[2][] memory b = new uint[2][](size); // Dynamic memory array 
         // fixed size array can't be converted/assigned to dynamic memory array
         // uint[] memory x = [uint(1), 3, 4]; // gives Error
         
-        //assigning to arrays
+        // assigning to arrays
         for(uint i =0; i<=7; i++){
-            a[i] = i;               //assigning elements individually
+            a[i] = i;               // assigning elements individually
         }
-        triDynamic.push(_newArr);   //pushes array of 3 element to a Dynamic array
+        triDynamic.push(_newArr);   // pushes array of 3 element to a Dynamic array
 
-        //arrays in struct
-        Todo storage g = todoArr[0];   //reference to 'Todo' in 'g'
+        // arrays in struct
+        Todo storage g = todoArr[0];   // reference to 'Todo' in 'g'
         g.steps = a; // changes in 'Todo' also
 
-        //Accessing array's elemnts
-        b[_x][_y]; //returns the element at index 'y' in the 'x' array
-        nestedDynamic[_x];     //returns the array at index 'x'
+        // Accessing array's elemnts
+        b[_x][_y]; // returns the element at index 'y' in the 'x' array
+        nestedDynamic[_x];     // returns the array at index 'x'
         arr.length;     // number of elements in array
 
         // Only dynamic storage arrays are resizable
-        //Adding elements 
+        // Adding elements 
         dynamicSized.push(_value);  // appends new element at end of array
         dynamicSized.push();        // appends zero-initialized element
 
-        //Removing elements
+        // Removing elements
         dynamicSized.pop();         // remove end of array element
         delete arr;                 // resets all values to default value
-        triDynamic = new bool[3][](0); //similar to delete array
+        triDynamic = new bool[3][](0); // similar to delete array
     }
-    /**slicing of array[start:end] 
+    /** slicing of array[start:end] 
     start default is 0 & end is array's length 
     only works with calldata array as input
     */
@@ -525,7 +522,7 @@ always have to define the data locations for the variables
         return _arr[start:end];
     }
 
-    //string
+    // string
     function bytesOperations(string calldata _str) public pure returns (uint, bytes1, bool, string memory) {
         return (
                 // access byte-representation of string
@@ -560,42 +557,42 @@ type of operand to which other operand can be implicitly converted to
     if <expression> true ? then evaluate <trueExpression>: else evaluate <falseExpression> 
     */
     uint tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0 ); 
-    //1.5 + (true ? 1.5 : 2.5) NOT valid, as ternary operator doesn't have a rational number type
+    // 1.5 + (true ? 1.5 : 2.5) NOT valid, as ternary operator doesn't have a rational number type
 
-    //Bitwise Operator
+    // Bitwise Operator
     function bitwiseOperate(uint a, uint c) external pure returns(uint, uint, uint, uint, uint, uint){
         return(
-                //AND
+                // AND
                 // a     = 1110 = 8 + 4 + 2 + 0 = 14
                 // c     = 1011 = 8 + 0 + 2 + 1 = 11
                 // a & c = 1010 = 8 + 0 + 2 + 0 = 10
                 a&c,     
                 
-                //OR
+                // OR
                 // a     = 1100 = 8 + 4 + 0 + 0 = 12
                 // c     = 1001 = 8 + 0 + 0 + 1 = 9
                 // a | c = 1101 = 8 + 4 + 0 + 1 = 13
                 a|c,     
 
-                //NOT
+                // NOT
                 // a  = 00001100 =   0 +  0 +  0 +  0 + 8 + 4 + 0 + 0 = 12
                 // ~a = 11110011 = 128 + 64 + 32 + 16 + 0 + 0 + 2 + 1 = 243
                 ~a,     
                 
-                //XOR -> if bits are same then 0 , if different then 1
+                // XOR -> if bits are same then 0 , if different then 1
                 // a     = 1100 = 8 + 4 + 0 + 0 = 12
                 // c     = 0101 = 0 + 4 + 0 + 1 = 5
                 // a ^ c = 1001 = 8 + 0 + 0 + 1 = 9
                 a^c,
 
-                //shift left
+                // shift left
                 // 1 << 0 = 0001 --> 0001 = 1
                 // 1 << 1 = 0001 --> 0010 = 2
                 // 1 << 2 = 0001 --> 0100 = 4
                 // 3 << 2 = 0011 --> 1100 = 12
                 a<<c,    
 
-                //shift right
+                // shift right
                 // 8  >> 1 = 1000 --> 0100 = 4
                 // 8  >> 4 = 1000 --> 0000 = 0
                 // 12 >> 1 = 1100 --> 0110 = 6
@@ -604,7 +601,7 @@ type of operand to which other operand can be implicitly converted to
     }
 
     function _typeConversion() internal pure returns (uint32 foobar, uint j, uint16 m, bytes1 p){
-        /**Implicit Conversions
+        /** Implicit Conversions
         compiler auto tries to convert one type to another
         conversion is possible if makes sense semantically & no information is lost
         */
@@ -613,7 +610,7 @@ type of operand to which other operand can be implicitly converted to
         foobar = foo + bar; /** during addition uint8 is implicitly converted to uint16 
                                     and then to uint32 during assignment */
         
-        /**Explicit Conversions
+        /** Explicit Conversions
         if you are condident and forcefully do conversion
         */
         int  k = -3;
@@ -621,9 +618,10 @@ type of operand to which other operand can be implicitly converted to
         
         uint32 l = 0x12345678;
         m = uint16(l); // b will be 0x5678 now
-        //uint16 c = 0x123456; 
+        // uint16 c = 0x123456; 
         /** fails, since it would have to truncate to 0x5678
-        since v0.8 only conversion allowed if they fits in resulting range*/
+        since v0.8 only conversion allowed if they fits in resulting range
+        */
 
         bytes2 n = 0x1234;
         p = bytes1(n); // b will be 0x12
@@ -632,12 +630,12 @@ type of operand to which other operand can be implicitly converted to
 
     // Units works only with literal number
     function _units() internal pure{
-        //Ether units
+        // Ether units
         assert(1 wei == 1);
         assert(1 gwei == 1e9);
         assert(1 ether == 1e18);
 
-        //Time
+        // Time
         assert(1 seconds == 1);
         assert(1 minutes == 60 seconds);
         assert(1 hours == 60 minutes);
@@ -665,7 +663,7 @@ type of operand to which other operand can be implicitly converted to
     function _encodeDecode(uint f, uint[3] memory g, bytes memory h) internal pure
     returns(bytes memory, bytes memory, bytes memory, bytes32)
     {
-        //Encoding
+        // Encoding
         bytes memory encodedData = abi.encode(f, g, h); // encodes given arguments
         
         abi.encodePacked(f, g, h);      /** As no padding, thus one variable can merge into other
@@ -675,20 +673,20 @@ type of operand to which other operand can be implicitly converted to
                                         use abi.encode to solve it
                                         */
 
-        //Decoding
+        // Decoding
             uint _f;
             uint[3] memory _g;
             bytes memory _h;
-            (_f, _g, _h) = abi.decode(encodedData, (uint, uint[3], bytes)); //decodes the encoded bytes data back to original arguments
+            (_f, _g, _h) = abi.decode(encodedData, (uint, uint[3], bytes)); // decodes the encoded bytes data back to original arguments
             assert(_f==f);
 
         return(
             // encodes arguments from the second and prepends the given four-byte selector
             abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5),  // arguments type is not checked
             abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10),  // typo error & args. is not validated
-            abi.encodeCall(IERC20.transfer, (address(0), 12)),  //ensures any typo and args. types match the function signature
+            abi.encodeCall(IERC20.transfer, (address(0), 12)),  // ensures any typo and args. types match the function signature
 
-            //Hashing
+            // Hashing
             keccak256(abi.encodePacked("Solidity"))
             /** similarly :
                 - sha256(bytes memory)
@@ -702,7 +700,7 @@ type of operand to which other operand can be implicitly converted to
             type(Token).name,
             type(IERC20).name,
 
-            //  EIP-165 interface identifier of the given interface
+            // EIP-165 interface identifier of the given interface
             type(IERC20).interfaceId
 
             // used to build custom creation routines, especially by using the create2 opcode.
@@ -721,12 +719,11 @@ type of operand to which other operand can be implicitly converted to
         // msg.sender is always the address where the current (external) function call came from.
         owner = msg.sender;
         senderBalance = owner.balance;  // .balance is used to query the balance of address in Wei
-        balances[owner] = 100;  //assigning value to mapping "balances"
+        balances[owner] = 100;  // assigning value to mapping "balances"
         _createContract(_salt);
     }
 
-    /** 
-    Modifiers can be used to change the behaviour of functions 
+    /** Modifiers can be used to change the behaviour of functions 
     in a declarative way(abstract away control flow for logic)
     */
     /** Overloading (same modifier name with different parameters) is not possible.
@@ -779,7 +776,7 @@ type of operand to which other operand can be implicitly converted to
             ))
         )))));
 
-        //Create2 method
+        // Create2 method
         address c = address(new Token{value: msg.value, salt : _salt}(3e6));
 
         assert(address(c) == preComputecAddress);
@@ -800,28 +797,25 @@ type of operand to which other operand can be implicitly converted to
         }
         assert(insideout == 35);  // will check for outer variable 
 
-        //Stored event emitted
+        // Stored event emitted
         emit Stored(msg.sender, _value);
     }
 
     // Payable Function requires Calling this function along with some Ether (as msg.value)
     function transferringFunds(address payable _to) external payable{
-        /**
-        'transfer' fails if sender don't have enough balance or trx rejected by reciever 
+        /** 'transfer' fails if sender don't have enough balance or trx rejected by reciever 
         reverts on failure & stops execution
         transfer/send has 2300 gas limit
         */
         treasury.transfer(1 wei);
 
-        /**
-        'send' returns a boolean value indicating success or failure.
+        /** 'send' returns a boolean value indicating success or failure.
         doesn't stops execution
         */
         bool sent = payable(0).send(1 wei); // payable(0) -> 0x0000000000000000000000000000000000000000
         require(sent, "Send failed");
 
-        /**
-        Call returns a boolean value indicating success or failure.
+        /** Call returns a boolean value indicating success or failure.
         is possible to adjust gas supplied
         most recommended method to transfer funds.
 
@@ -832,11 +826,12 @@ type of operand to which other operand can be implicitly converted to
 
         /** Explicit conversion allowed 
         from address to address payable  &
-        from uint160 to address */
+        from uint160 to address 
+        */
         payable(owner).transfer(address(this).balance); //querying current contract balance in Wei
     }
 
-    //query the deployed code for any smart contract
+    // query the deployed code for any smart contract
     function accessCode(address _contractAddr) external view returns(bytes memory, bytes32){
         return (
             _contractAddr.code,     // gets the EVM bytecode of code
@@ -844,7 +839,7 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
-    /**Function Visibility : 
+    /** Function Visibility : 
         - external : these calls create an actual EVM message call, 
             they can be called from other contracts and via transactions; 
             and can be accessed internally via this.extFunc()
@@ -853,7 +848,8 @@ type of operand to which other operand can be implicitly converted to
         - private : similar to internal but not accessible in derived contracts */
     function canUSeeMe() public view returns(uint){
         /** tk.anon() , tk.mulPriv() will not be accessible due to private visibility and 
-        also as this contract doesn't derived from contract Token, tk.addPriv() (internal func.) will also not be accessible */
+        also as this contract doesn't derived from contract Token, tk.addPriv() (internal func.) will also not be accessible 
+        */
         return tk.getPriv();
     }
 
@@ -861,8 +857,9 @@ type of operand to which other operand can be implicitly converted to
     function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable{
         // while external contract call we can specify value & gas
         tk.updateSupply{value : msg.value, gas : 3000}(5);
-        /**NOTE : calling contractInstance.{value, gas} w/o () at end , 
-        will not call function resulting in loss of value & gas */
+        /** NOTE : calling contractInstance.{value, gas} w/o () at end , 
+        will not call function resulting in loss of value & gas 
+        */
 
         //arguments can be given by name, in any order, if they are enclosed in { }
         slice({end:_y, _arr: _data, start:_x});
@@ -891,7 +888,7 @@ type of operand to which other operand can be implicitly converted to
         return (u, o);
     }
     
-    /**Solidity performs a revert operation(instruction 0xfd) for any error,
+    /** Solidity performs a revert operation(instruction 0xfd) for any error,
      resulting in revert all changes made to the state.
     */
     function errorFound(address payable addr) public payable {
@@ -917,41 +914,41 @@ type of operand to which other operand can be implicitly converted to
         assert(address(this).balance == balBeforeTransfer - msg.value / 2); // it will fail only if there is any exception while transferring funds
         
 
-        /**Error(string) is used for regular error conditions
-            Error exception is generated :
-            - If require(statement) evaluates to false.
+        /** Error(string) is used for regular error conditions
+                Error exception is generated :
+                - If require(statement) evaluates to false.
 
-            - If you use revert() or revert("description").
+                - If you use revert() or revert("description").
 
-            - If you perform an external function call targeting a contract that contains no code.
+                - If you perform an external function call targeting a contract that contains no code.
 
-            - If your contract receives Ether via a public function without payable modifier (including the constructor and the fallback function).
+                - If your contract receives Ether via a public function without payable modifier (including the constructor and the fallback function).
 
-            - If your contract receives Ether via a public getter function.
+                - If your contract receives Ether via a public getter function.
         */
         
 
-        /**Panic(uint256) is used for errors that should not be present in bug-free code
-            Panic error generated with error code:
-            0x00: Used for generic compiler inserted panics.
+        /** Panic(uint256) is used for errors that should not be present in bug-free code
+                Panic error generated with error code:
+                0x00: Used for generic compiler inserted panics.
 
-            0x01: If you call assert with an argument that evaluates to false.
+                0x01: If you call assert with an argument that evaluates to false.
 
-            0x11: If an arithmetic operation results in underflow or overflow outside of an unchecked { ... } block.
+                0x11: If an arithmetic operation results in underflow or overflow outside of an unchecked { ... } block.
 
-            0x12; If you divide or modulo by zero (e.g. 5 / 0 or 23 % 0).
+                0x12; If you divide or modulo by zero (e.g. 5 / 0 or 23 % 0).
 
-            0x21: If you convert a value that is too big or negative into an enum type.
+                0x21: If you convert a value that is too big or negative into an enum type.
 
-            0x22: If you access a storage byte array that is incorrectly encoded.
+                0x22: If you access a storage byte array that is incorrectly encoded.
 
-            0x31: If you call .pop() on an empty array.
+                0x31: If you call .pop() on an empty array.
 
-            0x32: If you access an array, bytesN or an array slice at an out-of-bounds or negative index (i.e. x[i] where i >= x.length or i < 0).
+                0x32: If you access an array, bytesN or an array slice at an out-of-bounds or negative index (i.e. x[i] where i >= x.length or i < 0).
 
-            0x41: If you allocate too much memory or create an array that is too large.
+                0x41: If you allocate too much memory or create an array that is too large.
 
-            0x51: If you call a zero-initialized variable of internal function type.
+                0x51: If you call a zero-initialized variable of internal function type.
         */
 
 
@@ -964,12 +961,12 @@ type of operand to which other operand can be implicitly converted to
         */
     }
 
-    //A failure in an external call or while creating contract can be caught using a try/catch statement
+    // A failure in an external call or while creating contract can be caught using a try/catch statement
     function tryNcatch(address _extContract, address _recipient) public returns(bool){
         try IERC20(_extContract).transfer(_recipient, 100) returns(bool success){
             return(success);
         }
-        //while creating new contract -> try new Token(_totalSupply) returns (Token t) 
+        // while creating new contract -> try new Token(_totalSupply) returns (Token t) 
         catch Error(string memory desc) {
             // This is executed in case revert("string description")
             emit Log(desc, gasleft());
@@ -993,7 +990,8 @@ type of operand to which other operand can be implicitly converted to
         // some other code .... 
         // if boom() reverts before selfdestruct it "undo" the destruction 
         /** EIP-6049: Deprecate SELFDESTRUCT opcode and warns against its use. 
-            A breaking change is likely to come in the future */
+            A breaking change is likely to come in the future 
+        */
         selfdestruct(payable(owner));
         /** self destruct forcefully send eth to contract even if:
             - contract has no payable , receive or fallback functions
@@ -1001,7 +999,7 @@ type of operand to which other operand can be implicitly converted to
         */
     }
 
-    //accessing library
+    // accessing library
     function testRoot(uint256 _num) public pure returns(uint){
         return Root.sqrt(_num);
     }
@@ -1014,7 +1012,7 @@ type of operand to which other operand can be implicitly converted to
             - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
             - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
             New objects in Solidity are always placed at the free memory pointer and memory is never freed.
-        */
+    */
     function assemblyTinker(address _addr) public returns (bool){
         uint256 size;
         // retrieve the size of the code,through assembly
@@ -1023,11 +1021,11 @@ type of operand to which other operand can be implicitly converted to
             size := extcodesize(_addr)  // extcodesize is opcode for length of the contract bytecode(in bytes) at addr
             
             // no semicolon or new line required
-            let a := mload(0x40)  //reads and assign (u)int256 from memory at location 0x40
-            mstore(a, 2)          //writes (u)int256 value 2 as memory to variable 'a'
-            sstore(a, 10)         //writes (u)int256 value 2 as storage to variable 'a'
+            let a := mload(0x40)  // reads and assign (u)int256 from memory at location 0x40
+            mstore(a, 2)          // writes (u)int256 value 2 as memory to variable 'a'
+            sstore(a, 10)         // writes (u)int256 value 2 as storage to variable 'a'
 
-            //Supports for loops, if and switch statements and function calls.
+            // Supports for loops, if and switch statements and function calls.
             if eq(size, 0) {revert(0,0)}
 
             {
@@ -1050,7 +1048,7 @@ type of operand to which other operand can be implicitly converted to
                 {
                     result := 1
                     // variable declarations by let
-                    for { let i := 0 } lt(i, exponent) { i := add(i, 1) }   //lt opcode is for comparing if i<exponent
+                    for { let i := 0 } lt(i, exponent) { i := add(i, 1) }   // lt opcode is for comparing if i<exponent
                     {
                         result := mul(result, base)
                     }
@@ -1061,8 +1059,7 @@ type of operand to which other operand can be implicitly converted to
         return (size > 0);
     }
 
-    /**
-    Function signature is a string that consists of the function's name and the types of its input parameters. 
+    /** Function signature is a string that consists of the function's name and the types of its input parameters. 
         also used to distinguish function from another with the same name but different parameters.
         eg. a function "transfer" with two input parameters address & uint256, signature is "transfer(address,uint256)".
     
@@ -1080,20 +1077,20 @@ type of operand to which other operand can be implicitly converted to
     for eg. calling following function with params. 
         (53, ["abc", "def"], "dave", true, [1,2,3]) we would pass total 388 bytes as follows :
 
-    -  function selector. first 4 bytes of function signature
-    // rest all arguments will be padded to 32 bytes
-    -  uint32 value 53 as first parameter
-    -  bytes3 value "abc" (left-aligned) as first part of second parameter
-    -  bytes3 value "def" (left-aligned) as second part of second parameter
-    -  location of data part of third parameter (dynamic type), measured in bytes
-    -  boolean true as fourth parameter
-    -  location of data part of fifth parameter (dynamic type)
-    -  data part of third argument, starts with length of byte array, in this case, 4
-    -  data of third argument UTF-8 (equal to ASCII in this case) encoding of "dave", padded on right to 32 bytes
-    -  data part of fifth argument, starts with length of array, in this case, 3
-    -  first element of fifth parameter
-    -  second element of fifth parameter
-    -  third element of fifth parameter
+        -  function selector. first 4 bytes of function signature
+            // rest all arguments will be padded to 32 bytes
+        -  uint32 value 53 as first parameter
+        -  bytes3 value "abc" (left-aligned) as first part of second parameter
+        -  bytes3 value "def" (left-aligned) as second part of second parameter
+        -  location of data part of third parameter (dynamic type), measured in bytes
+        -  boolean true as fourth parameter
+        -  location of data part of fifth parameter (dynamic type)
+        -  data part of third argument, starts with length of byte array, in this case, 4
+        -  data of third argument UTF-8 (equal to ASCII in this case) encoding of "dave", padded on right to 32 bytes
+        -  data part of fifth argument, starts with length of array, in this case, 3
+        -  first element of fifth parameter
+        -  second element of fifth parameter
+        -  third element of fifth parameter
     */
     function selector_JSL(uint32 par_1, bytes3[2] memory, bytes memory, bool, uint[] memory) external pure returns(bool r)
     {
