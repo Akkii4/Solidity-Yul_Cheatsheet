@@ -1006,20 +1006,56 @@ type of operand to which other operand can be implicitly converted to
         return Root.sqrt(_num);
     }
 
-    function isContract(address _addr) public view returns (bool){
     /** Inline assembly is way to access EVM at low level(via OPCODES) by passing important safety features & checks of solidity
         it uses Yul as it's language 
+        
         // Layout in Memory(Reserves certain areas of memory) :
             -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
             - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
             - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
             New objects in Solidity are always placed at the free memory pointer and memory is never freed.
         */
+    function assemblyTinker(address _addr) public returns (bool){
         uint256 size;
         // retrieve the size of the code,through assembly
-        assembly {
-            size := extcodesize(_addr)
+        assembly {      // variables declared outside assembly block can be manipulated inside
+            // assign to variable by :=
+            size := extcodesize(_addr)  // extcodesize is opcode for length of the contract bytecode(in bytes) at addr
+            
+            // no semicolon or new line required
+            let a := mload(0x40)  //reads and assign (u)int256 from memory at location 0x40
+            mstore(a, 2)          //writes (u)int256 value 2 as memory to variable 'a'
+            sstore(a, 10)         //writes (u)int256 value 2 as storage to variable 'a'
 
+            //Supports for loops, if and switch statements and function calls.
+            if eq(size, 0) {revert(0,0)}
+
+            {
+                function switchPower(base, exponent) -> result
+                {
+                    switch exponent
+                    case 0 { result := 1 }
+                    case 1 { result := base }
+                    default
+                    {
+                        result := switchPower(mul(base, base), div(exponent, 2))
+                        switch mod(exponent, 2)
+                            case 1 { result := mul(base, result) }
+                    }
+                }
+            }
+
+            {
+                function forPower(base, exponent) -> result
+                {
+                    result := 1
+                    // variable declarations by let
+                    for { let i := 0 } lt(i, exponent) { i := add(i, 1) }   //lt opcode is for comparing if i<exponent
+                    {
+                        result := mul(result, base)
+                    }
+                }
+            }
 
         }
         return (size > 0);
