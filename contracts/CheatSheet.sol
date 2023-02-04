@@ -398,9 +398,9 @@ always have to define the data locations for the variables
 */
     
     /** Solidity stores data as :
-    storage - stored on blockchain
-    memory - it is modifiable & exists while a function is being called 
-    calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
+        1. storage - stored on blockchain
+        2. memory - it is modifiable & exists while a function is being called 
+        3. calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
     Prior to v0.6.9 data location was limited to calldata in external functions
     */
     function dataLocations(uint[] memory memoryArray) public {
