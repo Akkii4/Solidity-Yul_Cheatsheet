@@ -1006,21 +1006,21 @@ type of operand to which other operand can be implicitly converted to
         return Root.sqrt(_num);
     }
 
-    /** Inline assembly is way to access EVM at low level by passing important safety features & checks of solidity
-        it uses Yul as it's language */
     function isContract(address _addr) public view returns (bool){
+    /** Inline assembly is way to access EVM at low level(via OPCODES) by passing important safety features & checks of solidity
+        it uses Yul as it's language 
+        // Layout in Memory(Reserves certain areas of memory) :
+            -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
+            - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
+            - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
+            New objects in Solidity are always placed at the free memory pointer and memory is never freed.
+        */
         uint256 size;
         // retrieve the size of the code,through assembly
         assembly {
             size := extcodesize(_addr)
 
-            /** Layout in Memory(Reserves certain areas of memory) :
 
-                -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
-                - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
-                - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
-                New objects in Solidity are always placed at the free memory pointer and memory is never freed.
-            */
         }
         return (size > 0);
     }
