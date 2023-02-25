@@ -82,8 +82,10 @@ contract Token is Tesseract{
 
     function transfer(address, uint) external {}
 
-    /** The keyword `virtual` means that the function & modifiers can change its behaviour in derived class
-       The keyword `override` means that this function, modifier or state variables changes its behaviour in base class */
+    /** `virtual` means the function & modifiers can change its behaviour in derived class
+        `override` means this function, modifier or state variables has changed its behaviour from the base class 
+        private function or state variables can't be marked as virtual or override
+    */
     function retVal(uint a) public virtual override returns (uint) {
         return a + 10;
     }
