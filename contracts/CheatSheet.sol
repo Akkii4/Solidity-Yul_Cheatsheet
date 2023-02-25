@@ -664,6 +664,8 @@ type of operand to which other operand can be implicitly converted to
         
         /** Explicit Conversions
         if you are confident and forcefully do conversion
+            - converting to a smaller type, higher-order bits are cut off
+            - converting to a larger type, it is padded on the left
         */
         int  k = -3;
         j = uint(k);
