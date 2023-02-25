@@ -374,7 +374,7 @@ i.e. they are always copied when used as function arguments or in assignments.
     }
 
 
-    /** Enums are user-defined type of predefined constants which holds uint8 values 
+    /** Enums are user-defined type of predefined constants which holds uint8 values (max 256 values)
         First value is default & starts from uint 0
         They can be stored even outside of Contract & in libraries as well
     */
