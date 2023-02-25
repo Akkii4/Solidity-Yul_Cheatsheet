@@ -1,11 +1,16 @@
 // SPDX-License-Identifier: GPL-3.0
 // ^ Tells that source code is licensed under the GPL version 3.0. Machine-readable license
-// "pragma" keyword is used to enable certain compiler features or checks
     // It is included as string in the bytecode metadata.
 
+/*  pragma solidity x.y.z 
+    "pragma" keyword is used to enable certain compiler features or checks
+    where x.y.z indicates the version of the compiler 
+        A different y in x.y.z indicates breaking changes & z indicates bug fixes.
+        Versioning is to ensure that the contract is not compatible with a new (breaking) compiler version, where it could behave differently
+    another e.g. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and 
+        floating pragma `^` represents it neither compiles on compiler 0.x.0(where x > 4).
+*/
 // Source code is written for Solidity version 0.4.16, or a newer version of the language up to, but not including version 0.9.0
-// another eg. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and `^` represnts it neither compiles on compiler 0.x.0(where x > 4).
-// Versioning is to ensure that the contract is not compilable with a new (breaking) compiler version, where it could behave differently
 pragma solidity >=0.4.16 <0.9.0;
 
 /* ABI coder (v2) is able to encode and decode arbitrarily nested arrays and structs, 
