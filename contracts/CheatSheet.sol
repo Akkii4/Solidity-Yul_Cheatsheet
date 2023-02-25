@@ -300,6 +300,29 @@ receive()   fallback()
             uint8 d;
         }
 
+    function packing() external view returns(uint256 leftSlot, uint256 rightSlot, bytes32 value, uint256 leftOffset, uint256 leftValue) {
+        assembly {
+            // returns the slot position in storage at which the variable is stored
+            // both would return the same slot(because of variable packing sharing same slot)
+            leftSlot:= _left.slot
+            rightSlot:= _right.slot
+
+            // fetches value stored at the slot where variable 'right' & 'left'
+            // returned value will be concatenated representation of both values (in bytes)
+            // e.g. bytes32: value 0x0000000000000000000000000000000200000000000000000000000000000001
+                //considering if right = 2 & left = 1
+            value:= sload(rightSlot)
+            
+            // offset tells the exact position (in terms of bytes) in a slot where the variable values start
+            leftOffset:= _left.offset   // will return 31 as the start of variable 'left' will begin where the previous ('right' of 31 bytes) stops 
+
+            // To get the value on the leftmost side of the slot, it need to be shifted to right.
+            // During shifting the rightmost value will "fall out" of the slot leaving the leftSide filled with zeros.
+            // leftOffset of 31 bytes (248 bits) that will be shifted:
+            leftValue := shr(mul(leftOffset, 8), value) // 0x0000000000000000000000000000000000000000000000000000000000000002
+        }
+    }
+
 /** 
 Value Types : These variables are always be passed by value, 
 i.e. they are always copied when used as function arguments or in assignments.
