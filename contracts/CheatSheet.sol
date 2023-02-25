@@ -275,6 +275,7 @@ receive()   fallback()
     //  keccak(h(k) + p) with h() padding value to 32 bytes or hashing reference types.
 
     // Bytes and Strings are stored like array elements and data area is computed using a keccak256 hash of the slot's position.
+    //   Bytes are stored in continuous memory locations while strings are stored as a sequence of pointers to memory locations 
     //   For values less than 32 bytes, elements are stored in higher-order bytes (left aligned) and the lowest-order byte stores value (length * 2).
     //   whereas bytes of 32 bytes or more, the main slot stores (length * 2 + 1) and the data is stored as usual in keccak256(p).
 
