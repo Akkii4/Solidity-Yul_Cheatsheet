@@ -800,8 +800,13 @@ type of operand to which other operand can be implicitly converted to
     //     }
     // })
     event Stored(address sender, uint256 value);
-    event Log(string func, uint indexed gas);   // for filtering logs 'indexed'(stores parameter as topic) attribute can be added in-upto 3 params.
-    /** 'anonymous' events can support upto 4 indexed parameters
+    /* 
+    for filtering certain logs 'indexed'(stores parameter as "topics") attribute can be added in-upto 3 params
+    All parameters without the indexed attribute are ABI-encoded into the data part of the log
+    Filtering of events can also be done via the address of contract
+    */
+    event Log(string func, uint indexed gas);  
+    /** 'anonymous' events can support up to 4 indexed parameters
         - does not stores event's signature as topic
         - not possible to filter for anonymous events by name, but only by the contract address */
     event Privacy(string indexed rand1, string indexed rand2, string indexed rand3, string indexed rand4) anonymous;
