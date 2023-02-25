@@ -490,8 +490,8 @@ always have to define the data locations for the variables
         
         // Struct containing a nested mapping can't be constructed though memory
 
-                                                // tx.origin : sender's address of the transaction (full call chain)
         // t.reader[_index] = tx.origin;         // WORKS can be initialised by storage reference to struct
+                                                // tx.origin : sender's address of the transaction as transactions can originate only from Externally Owned Account (EOA)                                             
         // Todo({reader[_index]: tx.origin;})  // Error
     }
 
