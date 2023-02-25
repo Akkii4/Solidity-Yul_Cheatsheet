@@ -907,7 +907,7 @@ type of operand to which other operand can be implicitly converted to
     function twins(uint256 j) public view returns(uint k){
         k = j * block.timestamp;
     }
-
+    // Returns parameters are not taken into consideration for overload resolution
     function twins(uint8 j) public pure returns(uint k){
         k = j * 2;
     }
