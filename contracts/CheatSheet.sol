@@ -428,7 +428,7 @@ always have to define the data locations for the variables
 
         /** delete
         Resets to the default value of that type
-        doesn't works on mappings
+        doesn't works on mappings (unless deleting a individual key)
         */
         delete dynamicSized; // clears the array dynamicSized & y
         delete dynamicSized[2]; // resets third element of array w/o changing length
