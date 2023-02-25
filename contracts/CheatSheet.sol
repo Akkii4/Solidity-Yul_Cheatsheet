@@ -57,7 +57,7 @@ struct User {
     * They cannot declare state variables, modifiers or constructor
 */
 interface IERC20 {
-    enum Type { Usefull, Unusefull }
+    enum Type { Useful, Useless }
     struct Demo { string dummy; uint256 num; }
     function transfer(address, uint) external returns(bool);
 }
