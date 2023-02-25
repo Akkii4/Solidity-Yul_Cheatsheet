@@ -808,7 +808,7 @@ type of operand to which other operand can be implicitly converted to
             ))
         )))));
 
-        // Create2 method
+        // Create2 opcode is method to deploy a new contract with a deterministic address
         address c = address(new Token{value: msg.value, salt : _salt}(3e6));
 
         assert(address(c) == preComputecAddress);
