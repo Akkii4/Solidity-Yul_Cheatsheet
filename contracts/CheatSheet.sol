@@ -738,8 +738,9 @@ type of operand to which other operand can be implicitly converted to
         return(
             // encodes arguments from the second and prepends the given four-byte selector
             abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5),  // arguments type is not checked
-            abi.encodeCall(IERC20.transfer, (address(0), 12)),  // ensures any typo and args. types match the function signature
             abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10),  // typo error & arguments is not validated
+            // ensures any typo and arguments types match the function signature
+            abi.encodeCall(IERC20.transfer, (address(0), 12)),  
             /* zero address (address(0)) private key is unknown 
             thus Ether and tokens sent to this address cannot be retrieved and setting access control roles to this address also won’t work  
             */
