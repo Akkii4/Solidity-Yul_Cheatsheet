@@ -414,8 +414,10 @@ always have to define the data locations for the variables
 */
     
     /** Solidity stores data as :
-        1. storage - stored on blockchain
-        2. memory - it is modifiable & exists while a function is being called 
+        1. storage - stored on blockchain as 256-bit to 256-bit key-value store 
+        2. memory - is a linear byte-array, addressable at a byte-level 
+                  - is modifiable & exists while a function is being called 
+                  - can store either 1 or 32 bytes at a time in memory, but can only read in chunks of 32 bytes
         3. calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
     Prior to v0.6.9 data location was limited to calldata in external functions
     */
