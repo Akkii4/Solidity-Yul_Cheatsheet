@@ -496,7 +496,7 @@ always have to define the data locations for the variables
     }
 
     // Arrays
-    uint[] public dynamicSized; // length of a dynamic array is stored at the first slot of the array and followed by the array elements
+    uint[] public dynamicSized; // length of a dynamic array is stored at the first slot of array and followed by its elements
     uint[2**3] fixedSized; // array of 8 elements all initialized to 0
     uint[][4] nestedDynamic; // An array of 4 dynamic arrays
     bool[3][] triDynamic; // Dynamic Array of arrays of length 3
