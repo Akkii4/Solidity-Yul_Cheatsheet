@@ -27,7 +27,7 @@ import "./Add.sol";
 // equivalent to -> import * as multiplier from "./Mul.sol";
 import "./Mul.sol" as multiplier;
 
-//to avoid naming collision
+// using 'as' keyword while importing to avoid naming collision
 import {divide2 as div, name} from "./Div.sol";
 
 // External imports are also allowed from github -> import "github/filepath/url"
