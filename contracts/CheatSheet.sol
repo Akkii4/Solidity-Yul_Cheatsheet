@@ -103,7 +103,7 @@ contract Token is Tesseract{
 
 contract Coin {
     constructor() {}
-    function retVal(uint a) public virtual returns(uint) {
+    function retVal(uint a) public pure virtual returns(uint) {
         return a % 10;
     }
 }
@@ -136,14 +136,14 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
             - view to pure */
     // specify the `virtual` keyword again indicates this function can be overridden again.
     // since Coin is the right most parent contract with this function thus it will internal call Coin.retVal
-    function retVal(uint a) public virtual override(Token, Coin) returns(uint) {
+    function retVal(uint a) public pure virtual override(Token, Coin) returns(uint) {
         return super.retVal(a);                    // ^ Multiple inheritance (Most Derived, least derived Contract)
     }
 
     /// @notice This function adds 10 to `a` 
     //  ^ if _a is assigned 5 this will be rendered as dynamic comment as : This function adds 10 to 5 
     /// @param _a followed by parameter's name explain it (only for function, event)
-    function xyz(uint _a) public {
+    function xyz(uint _a) public pure{
         super.retVal(_a); // super keyword calls the function one level higher up in the flattened inheritance hierarchy
     }
 
