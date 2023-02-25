@@ -246,9 +246,17 @@ receive()   fallback()
     but it can still be accessible via blockchain
     */
 
-    string constant THANOS = "I am inevitable"; // values need to be fixed at compile time 
-    uint immutable public senderBalance;   // values can only be assigned in constructor
     // State variables can also declared as constant or immutable, values can't modified after contract constructed
+    
+    /* values need to be fixed at compile time 
+    any expression that accesses storage, blockchain data (e.g. block.timestamp, address(this).balance) or 
+    execution data (msg.value or gasleft()) or 
+    makes calls to external contracts is disallowed
+    */
+    string constant THANOS = "I am inevitable"; 
+
+    // values can only be assigned in constructor & cannot be read during construction time 
+    uint immutable public senderBalance;   
 
 /** Variable Packing
     Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
