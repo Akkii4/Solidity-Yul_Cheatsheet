@@ -550,7 +550,8 @@ always have to define the data locations for the variables
         return _arr[start:end];
     }
 
-    // string
+    /* String represents dynamic array of UTF-8 characters
+    manipulation and storage of strings are more complex (parsing & decoding) and costly as compared to that of bytes */
     function bytesOperations(string calldata _str) public pure returns (uint, bytes1, bool, string memory) {
         return (
                 // access byte-representation of string
