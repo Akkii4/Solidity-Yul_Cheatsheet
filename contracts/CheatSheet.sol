@@ -281,6 +281,13 @@ receive()   fallback()
 
     // In case of inheritance, order of variables is starting with the most base-ward contract & do share same slot
 
+    /* Layout in Memory(Reserves certain areas of memory) :
+        -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
+        - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
+        - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
+        New objects in Solidity are always placed at the free memory pointer and memory is never freed.
+    */
+
     // There's no packing in memory or function arguments as they are always padded to 32 bytes 
         //Example, following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
         uint8[4] slot_a; 
@@ -1027,12 +1034,6 @@ type of operand to which other operand can be implicitly converted to
 
     /** Inline assembly is way to access EVM at low level(via OPCODES) by passing important safety features & checks of solidity
         it uses Yul as it's language 
-        
-        // Layout in Memory(Reserves certain areas of memory) :
-            -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
-            - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
-            - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
-            New objects in Solidity are always placed at the free memory pointer and memory is never freed.
     */
     function assemblyTinker(address _addr) public returns (bool){
         uint256 size;
