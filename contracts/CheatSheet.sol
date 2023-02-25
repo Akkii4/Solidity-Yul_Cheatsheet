@@ -921,10 +921,21 @@ type of operand to which other operand can be implicitly converted to
     }
 
 
-    /** Functions Mutability : 
-        - view : functions which do not modigy state but can access state variables or environvment
-        - pure : similar to view but only access limited to local variables (exception of msg.sig & msg.data),
-                    these functions can also use revert as it's not considered 'state modification' */
+    /** Functions Mutability :
+        - view : functions which can read state & environment variables but cannot modify it
+                    Following are considered as state modifying :
+                        - Writing to state variables 
+                        - Emitting events 
+                        - Creating other contracts 
+                        - Using selfdestruct 
+                        - Sending Ether via calls 
+                        - Calling any function not marked view or pure 
+                        - Using low-level calls 
+                        - Using inline assembly that contains certain opcodes.
+
+        - pure : functions can neither read or modify state or environment variables (except msg.sig & msg.data),
+                    these functions can also use revert as its not considered 'state modification'
+    */
     
     // Contract can have multiple functions of the same name but with different parameter types called 'overloading' 
     function twins(uint256 j) public view returns(uint k){
