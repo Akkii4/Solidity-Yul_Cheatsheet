@@ -742,6 +742,9 @@ type of operand to which other operand can be implicitly converted to
 
     /** Constructor(is optional) code only runs when the contract is created
         State variables are initialised before the constructor code is executed
+        After execution of constructor the final code deployed on chain does not include :
+                                                                                - constructor code or 
+                                                                                - any internal functions call through it
     */
     constructor(bytes32 _salt) payable{
         // "msg" is a special global variable that contains allow access to the blockchain.
