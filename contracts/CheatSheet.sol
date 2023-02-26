@@ -1099,6 +1099,9 @@ receive()   fallback()
 
     /** 
         A failure in an external call or while creating contract can be caught using a try/catch statement
+        whenever a "revert" call is executed an exception is generated that propgates up the function call stack 
+        untill caught by try/catch.
+    */
     function tryNcatch(address _extContract, address _recipient) public returns(bool){
         try IERC20(_extContract).transfer(_recipient, 100) returns(bool success){
             return(success);
