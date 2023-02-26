@@ -704,10 +704,7 @@ receive()   fallback()
         
         uint32 l = 0x12345678;
         m = uint16(l); // b will be 0x5678 now
-        // uint16 c = 0x123456; 
-        /** fails, since it would have to truncate to 0x5678
-        since v0.8 only conversion allowed if they fits in resulting range
-        */
+        // uint16 c = 0x123456; //error, since it would have to truncate to 0x5678, since v0.8 only conversion allowed if in resulting range
 
         bytes2 n = 0x1234;
         p = bytes1(n); // b will be 0x12
