@@ -2,25 +2,29 @@
 // ^ Tells that source code is licensed under the GPL version 3.0. Machine-readable license
     // It is included as string in the bytecode metadata.
 
-/*  pragma solidity x.y.z 
-    "pragma" keyword is used to enable certain compiler features or checks
-    where x.y.z indicates the version of the compiler 
-        A different y in x.y.z indicates breaking changes & z indicates bug fixes.
-        Versioning is to ensure that the contract is not compatible with a new (breaking) compiler version, where it could behave differently
-    another e.g. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and 
+/*  
+    - pragma solidity x.y.z 
+    - "pragma" keyword is used to enable certain compiler features or checks
+        where x.y.z indicates the version of the compiler 
+            a different y in x.y.z indicates breaking changes & z indicates bug fixes.
+        Versioning is to ensure that the contract is not compatible with a new (breaking) compiler version, to avoid behaving differently
+    - another e.g. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and 
         floating pragma `^` represents it neither compiles on compiler 0.x.0(where x > 4).
 */
-// Source code is written for Solidity version 0.4.16, or a newer version of the language up to, but not including version 0.9.0
 pragma solidity >=0.4.16 <0.9.0;
+// ^ Source code is written for Solidity version 0.4.16, or a newer version of the language up to, but not including version 0.9.0
 
-/* ABI coder (v2) is able to encode and decode arbitrarily nested arrays and structs, 
-   can also return multi-dimensional arrays & structs in functions
-   Default since Solidity 0.8.0 & Has all feature of v1 
+/* 
+    - ABI coder (v2) is able to encode and decode arbitrarily nested arrays and structs, 
+        can also return multi-dimensional arrays & structs in functions.
+    - Default since Solidity 0.8.0 & Has all feature of v1 
 */
 pragma abicoder v2;
 
-// imports all global symbols from “filename” (and symbols imported there) into current global scope
-// not recommended as any items added to the “filename” auto appears in the files
+/* 
+    imports all global symbols from “filename” (and symbols imported there) into current global scope
+    not recommended as any items added to the “filename” auto appears in the files
+*/
 import "./Add.sol";
 
 // & to import specific symbols explicitly
@@ -29,7 +33,6 @@ import "./Mul.sol" as multiplier;
 
 // using 'as' keyword while importing to avoid naming collision
 import {divide2 as div, name} from "./Div.sol";
-
 // External imports are also allowed from github -> import "github/filepath/url"
 
 /**
@@ -47,14 +50,15 @@ struct User {
     string task;
 }
 
-/** Interfaces are similar to abstract, but :
-    * They cannot have any functions implemented. 
+/** 
+    Interfaces are similar to abstract, but :
+        * They cannot have any functions implemented. 
 
-    * They can inherit from other interfaces but not from contracts
+        * They can inherit from other interfaces but not from contracts
 
-    * All declared functions must be external, even if they are public in the contract.
+        * All declared functions must be external, even if they are public in the contract.
 
-    * They cannot declare state variables, modifiers or constructor
+        * They cannot declare state variables, modifiers or constructor
 */
 interface IERC20 {
     enum Type { Useful, Useless }
@@ -62,8 +66,10 @@ interface IERC20 {
     function transfer(address, uint) external returns(bool);
 }
 
-/** Contract is marked as abstract when at least one of it's function is not implemented or 
-    when you do not intend for the contract to be created directly */
+/** 
+    Contract is marked as abstract when at least one of it's function is not implemented or 
+    when you do not intend for the contract to be created directly 
+*/
 abstract contract Tesseract {
     function retVal(uint256 x) public virtual returns (uint256);
 
@@ -82,7 +88,8 @@ contract Token is Tesseract{
 
     function transfer(address, uint) external {}
 
-    /** `virtual` means the function & modifiers can change its behaviour in derived class
+    /** 
+        `virtual` means the function & modifiers can change its behaviour in derived class
         `override` means this function, modifier or state variables has changed its behaviour from the base class 
         private function or state variables can't be marked as virtual or override
     */
@@ -128,12 +135,14 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
     }
 
     /// @inheritdoc Coin Copies all missing tags from the base function (must be followed by the contract name)
-    /** Functions can be overridden with the same name, number & types of inputs,  
+    /** 
+        Functions can be overridden with the same name, number & types of inputs,  
         change in output parameters causes an error.
         Override functions can change mutability
             - external to public
             - nonpayable to view/pure
-            - view to pure */
+            - view to pure 
+    */
     // specify the `virtual` keyword again indicates this function can be overridden again.
     // since Coin is the right most parent contract with this function thus it will internal call Coin.retVal
     function retVal(uint a) public pure virtual override(Token, Coin) returns(uint) {
@@ -151,7 +160,8 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
     uint public override getPriv;
 }
 
-/** Libraries are similar to contracts, but :
+/** 
+    Libraries are similar to contracts, but :
         - no state variable 
         - no inheritance
         - cannot hold ether
@@ -179,7 +189,8 @@ library Root {
         // else z = 0 (default value)
     }
 
-    /** A library can be attached to a type inside a contract (only active within that contract:
+    /** 
+        A library can be attached to a type inside a contract (only active within that contract:
             - "using Root for uint256;"
         These functions will receive the object they are called on as their first parameter.
      */
@@ -220,45 +231,50 @@ receive() exists?  fallback()
       /      \
 receive()   fallback()
 */
-    //Fallback & receive functions must be external.
+    // Fallback & receive functions must be external.
     // Both can rely on just 2300 gas being available to prevent re-entry
     receive() external payable {
         emit Log("receive", gasleft());
     }
 
-    /** Fallback are executed if none of other function signature is matched,
+    /** 
+        Fallback are executed if none of other function signature is matched,
             can even be defined as non-payable to only receive message call
-            fallback can be virtual, override & have modifiers */ 
+            fallback can be virtual, override & have modifiers 
+    */ 
     fallback() external payable {
         //returns remaining gas
         emit Log("fallback", gasleft());
     }
      
-    /** State Variable is like a single slot in a database that are accessible by functions
-    and there values are permanently stored in contract storage.
+    /** 
+        State Variable is like a single slot in a database that are accessible by functions
+        and there values are permanently stored in contract storage.
 
-    Visibility : 
-        - public : auto. generates a function that allows to access the state variables even externally
-        - internal : can't be accessed externally but only in there defined & derived contracts
-        - private : similar to internal but not accessible in derived contracts 
-    
-    private or internal variables only prevents other contracts from accessing the data stored, 
-    but it can still be accessible via blockchain
+        Visibility : 
+            - public : auto. generates a function that allows to access the state variables even externally
+            - internal : can't be accessed externally but only in there defined & derived contracts
+            - private : similar to internal but not accessible in derived contracts 
+        
+        private or internal variables only prevents other contracts from accessing the data stored, 
+        but it can still be accessible via blockchain
     */
 
     // State variables can also declared as constant or immutable, values can't modified after contract constructed
     
-    /* values need to be fixed at compile time 
-    any expression that accesses storage, blockchain data (e.g. block.timestamp, address(this).balance) or 
-    execution data (msg.value or gasleft()) or 
-    makes calls to external contracts is disallowed
+    /**
+        values need to be fixed at compile time 
+        any expression that accesses storage, blockchain data (e.g. block.timestamp, address(this).balance) or 
+        execution data (msg.value or gasleft()) or 
+        makes calls to external contracts is disallowed
     */
     string constant THANOS = "I am inevitable"; 
 
     // values can only be assigned in constructor & cannot be read during construction time 
     uint immutable public senderBalance;   
 
-/** Variable Packing
+/** 
+    Variable Packing
     Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
     Packing reduces storage slot usage but increases opcodes necessary to read/write to them.
 */
@@ -281,7 +297,8 @@ receive()   fallback()
 
     // In case of inheritance, order of variables is starting with the most base-ward contract & do share same slot
 
-    /* Layout in Memory(Reserves certain areas of memory) :
+    /**
+        Layout in Memory(Reserves certain areas of memory) :
         -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
         - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
         - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
@@ -324,8 +341,8 @@ receive()   fallback()
     }
 
 /** 
-Value Types : These variables are always be passed by value, 
-i.e. they are always copied when used as function arguments or in assignments.
+    Value Types : These variables are always be passed by value, 
+    i.e. they are always copied when used as function arguments or in assignments.
 */
     // Integers exists in sizes(from 8 up to 256 bits) in steps of 8
     // uint and int are aliases for uint256 and int256, respectively
@@ -372,7 +389,8 @@ i.e. they are always copied when used as function arguments or in assignments.
         // Also Hexadecimal literals that pass the address checksum test are considered as address
         0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
 
-        /** Division on integer literals e.g. 5/2
+        /** 
+            Division on integer literals e.g. 5/2
             prior to version 0.4.0 is equal to  2
             but now it's rational number 2.5
         */
@@ -404,19 +422,21 @@ i.e. they are always copied when used as function arguments or in assignments.
     }
 
 
-    /** Enums are user-defined type of predefined constants which holds uint8 values (max 256 values)
+    /** 
+        Enums are user-defined type of predefined constants which holds uint8 values (max 256 values)
         First value is default & starts from uint 0
         They can be stored even outside of Contract & in libraries as well
     */
     enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
     Status public status;
-    /** As enums are not stored in ABI
+    /** 
+        As enums are not stored in ABI
         thus in ABI 'updateStatus()' will have its input type as uint8 
     */
     function updateStatus(Status _status) public {
         status = _status;
     }
-    //Accessing boundaries range values of an enum
+    // Accessing boundaries range values of an enum
     function enumsRange() public pure returns(Status, Status) {
         return (
                 type(Status).max,   // return 3, indicating 'User'
@@ -425,9 +445,10 @@ i.e. they are always copied when used as function arguments or in assignments.
     }
 
 
-    /** User Defined Value Types allows creating a zero cost abstraction over an elementary value type
-    type C is V , C is new type & V is elementary type
-    type conversion , operators aren't allowed 
+    /** 
+        User Defined Value Types allows creating a zero cost abstraction over an elementary value type
+        type C is V , C is new type & V is elementary type
+        type conversion , operators aren't allowed 
     */
     type UFixed256x18 is uint256;   // Represent a 18 decimal, 256 bit wide fixed point.
     /// custom types only allows wrap and unwrap
@@ -439,66 +460,69 @@ i.e. they are always copied when used as function arguments or in assignments.
 
 
 /** 
-Reference Types : Values can be modified through multiple different names unlike Value type
-always have to define the data locations for the variables
+    Reference Types : Values can be modified through multiple different names unlike Value type
+    always have to define the data locations for the variables
 */
     
-    /** Solidity stores data as :
-        1. storage - stored on blockchain as 256-bit to 256-bit key-value store 
-        2. memory - is a linear byte-array, addressable at a byte-level 
-                  - is modifiable & exists while a function is being called 
-                  - can store either 1 or 32 bytes at a time in memory, but can only read in chunks of 32 bytes
-        3. calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
-    Prior to v0.6.9 data location was limited to calldata in external functions
+    /** 
+        Solidity stores data as :
+            1. storage - stored on blockchain as 256-bit to 256-bit key-value store 
+            2. memory - is a linear byte-array, addressable at a byte-level 
+                    - is modifiable & exists while a function is being called 
+                    - can store either 1 or 32 bytes at a time in memory, but can only read in chunks of 32 bytes
+            3. calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
+        Prior to v0.6.9 data location was limited to calldata in external functions
     */
     function dataLocations(uint[] memory memoryArray) public {
         dynamicSized = memoryArray; // Assignments between storage, memory & calldata always creates independent copies
         uint[] storage z = dynamicSized; // Assignments to a local storage from storage ,creates reference.
         z.pop(); // modifies array dynamicSized through y
 
-        /** delete
-        Resets to the default value of that type
-        doesn't works on mappings (unless deleting a individual key)
+        /** 
+            delete
+                Resets to the default value of that type
+                doesn't works on mappings (unless deleting a individual key)
         */
         delete dynamicSized; // clears the array dynamicSized & y
         delete dynamicSized[2]; // resets third element of array w/o changing length
 
         /**  
-        Assigning memory to local storage doesn't work as
-        it would need to create a new temporary / unnamed array in storage, 
-        but storage is "statically" allocated
-        // z = memoryArray;
-        /**
+            Assigning memory to local storage doesn't work as
+            it would need to create a new temporary / unnamed array in storage, 
+            but storage is "statically" allocated
+            // z = memoryArray;
+        /*
 
         /** 
-        Cannot "delete z" as
-        referencing global storage objects can only be made from existing local storage objects.
-        // delete z
+            Cannot "delete z" as
+            referencing global storage objects can only be made from existing local storage objects.
+            // delete z
         */
     }
 
-    /** Structs is a group of multiple related variables ,
-    can be passed as parameters only for library functions 
+    /** 
+        Structs is a group of multiple related variables ,
+        can be passed as parameters only for library functions 
     */
      struct Todo {
         uint[] steps;
         bool initialized;
         address owner;
         uint numTodo;
-        User user;                         //can contain other struct but not itself
-        //mapping(uint => address) reader;    
+        User user;                         // can contain other struct but not itself
+        // mapping(uint => address) reader;    
     }
     Todo[] public todoArr;  // arrays of struct
 
     function onStruct(uint[] memory _arr, uint _index) external {
-        //Initializing 
+        // Initializing 
         // 1. initializing individually as reference
         Todo storage t = todoArr[_index];
         t.steps = _arr;
         t.initialized = true;
         t.owner = msg.sender;
         t.user = User(msg.sender,"foo");
-        //2. key: value mapping by creating a struct in memory
+        // 2. key: value mapping by creating a struct in memory
         todoArr.push(Todo({        
             steps : _arr,
             initialized : true,
@@ -506,7 +530,7 @@ always have to define the data locations for the variables
             numTodo: _index,
             user: User(msg.sender,"foo")
         }));
-        //3. passing as arguments through struct memory
+        // 3. passing as arguments through struct memory
         todoArr.push(Todo(
             _arr,
             true,
@@ -515,7 +539,7 @@ always have to define the data locations for the variables
             User({addr: msg.sender, task: "foo"})
         ));
 
-        //accessing struct
+        // accessing struct
         t.owner; // returns the value stored 'owner'
         
         // Struct containing a nested mapping can't be constructed though memory
@@ -566,16 +590,19 @@ always have to define the data locations for the variables
         delete arr;                 // resets all values to default value
         triDynamic = new bool[3][](0); // similar to delete array
     }
-    /** slicing of array[start:end] 
-    start default is 0 & end is array's length 
-    only works with calldata array as input
+    /** 
+        slicing of array[start:end] 
+        start default is 0 & end is array's length 
+        only works with calldata array as input
     */
     function slice(uint[] calldata _arr, uint start, uint end) public pure returns(uint[] memory){
         return _arr[start:end];
     }
 
-    /* String represents dynamic array of UTF-8 characters
-    manipulation and storage of strings are more complex (parsing & decoding) and costly as compared to that of bytes */
+    /**
+        String represents dynamic array of UTF-8 characters
+        manipulation and storage of strings are more complex (parsing & decoding) and costly as compared to that of bytes 
+    */
     function bytesOperations(string calldata _str) public pure returns (uint, bytes1, bool, string memory) {
         return (
                 // access byte-representation of string
@@ -588,26 +615,29 @@ always have to define the data locations for the variables
         );
     }
 
-    /** Mappings are like hash tables which are virtually initialised such that 
-    every possible key is mapped to a value whose byte-representation is all zeros,
+    /** 
+        Mappings are like hash tables which are virtually initialised such that 
+        every possible key is mapped to a value whose byte-representation is all zeros,
 
-    Not possible to obtain a list of all keys or values of a mapping, 
-    as keecak256 hash of keys is used to look up value
+        Not possible to obtain a list of all keys or values of a mapping, 
+        as keecak256 hash of keys is used to look up value
 
-    only allowed as state variables but can be passed as parameters only for library functions 
+        only allowed as state variables but can be passed as parameters only for library functions 
 
-    Key Type can be inbuilt value types, bytes, string, enum but not user-defined, mappings, arrays or struct
-    Value can of any type
+        Key Type can be inbuilt value types, bytes, string, enum but not user-defined, mappings, arrays or struct
+        Value can of any type
     */
     mapping(address => uint256) public balances;
 
-/** Operators
-Result type of operation determined based on :
-type of operand to which other operand can be implicitly converted to
+/** 
+    Operators
+        Result type of operation determined based on :
+        type of operand to which other operand can be implicitly converted to
 */
 
-    /** Ternary Operator
-    if <expression> true ? then evaluate <true Expression>: else evaluate <false Expression> 
+    /** 
+        Ternary Operator
+        if <expression> true ? then evaluate <true Expression>: else evaluate <false Expression> 
     */
     uint tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0 ); 
     // 1.5 + (true ? 1.5 : 2.5) NOT valid, as ternary operator doesn't have a rational number type
@@ -654,19 +684,20 @@ type of operand to which other operand can be implicitly converted to
     }
 
     function _typeConversion() internal pure returns (uint32 foobar, uint j, uint16 m, bytes1 p){
-        /** Implicit Conversions
-        compiler auto tries to convert one type to another
-        conversion is possible if makes sense semantically & no information is lost
+        /** 
+            Implicit Conversions
+                compiler auto tries to convert one type to another
+                conversion is possible if makes sense semantically & no information is lost
         */
         uint8 foo;
         uint16 bar;
-        foobar = foo + bar; /** during addition uint8 is implicitly converted to uint16 
-                                    and then to uint32 during assignment */
+        foobar = foo + bar; // during addition uint8 is implicitly converted to uint16 and then to uint32 during assignment
         
-        /** Explicit Conversions
-        if you are confident and forcefully do conversion
-            - converting to a smaller type, higher-order bits are cut off
-            - converting to a larger type, it is padded on the left
+        /** 
+            Explicit Conversions
+                if you are confident and forcefully do conversion
+                    - converting to a smaller type, higher-order bits are cut off
+                    - converting to a larger type, it is padded on the left
         */
         int  k = -3;
         j = uint(k);
@@ -702,16 +733,16 @@ type of operand to which other operand can be implicitly converted to
 
     function _blockProperties(uint _blockNumber) internal view returns(bytes32, uint, uint, address, uint, uint, uint, uint, uint, uint){
         return(
-            blockhash(_blockNumber),    // hash of block(one of the 256 most recent blocks)
-            block.basefee,              // current block's base fee
+            blockhash(_blockNumber),            // hash of block(one of the 256 most recent blocks)
+            block.basefee,                      // current block's base fee
             block.chainid,
             block.coinbase,             // current block miner’s address
             block.difficulty,
             block.gaslimit,             // current block's gas limit
             block.number,
-            block.timestamp,            // timestamp as seconds of when block is mined
-            gasleft(),                  // remaining gas
-            tx.gasprice                 // gas price of transaction
+            block.timestamp,                    // timestamp as seconds of when block is mined
+            gasleft(),                          // remaining gas
+            tx.gasprice                         // gas price of transaction
         );
     }
 
@@ -721,11 +752,12 @@ type of operand to which other operand can be implicitly converted to
         // Encoding
         bytes memory encodedData = abi.encode(f, g, h); // encodes given arguments
         
-        abi.encodePacked(f, g, h);      /** As no padding, thus one variable can merge into other
-                                        resulting in Hash collision 
-                                        encodePacked(AAA, BBB) -> AAABBB
-                                        encodePacked(AA, ABBB) -> AAABBB
-                                        use abi.encode to solve it
+        abi.encodePacked(f, g, h);      /** 
+                                            As no padding, thus one variable can merge into other
+                                            resulting in Hash collision 
+                                            encodePacked(AAA, BBB) -> AAABBB
+                                            encodePacked(AA, ABBB) -> AAABBB
+                                            use abi.encode to solve it
                                         */
 
         // Decoding
@@ -739,17 +771,21 @@ type of operand to which other operand can be implicitly converted to
             // encodes arguments from the second and prepends the given four-byte selector
             abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5),  // arguments type is not checked
             abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10),  // typo error & arguments is not validated
+
             // ensures any typo and arguments types match the function signature
             abi.encodeCall(IERC20.transfer, (address(0), 12)),  
-            /* zero address (address(0)) private key is unknown 
-            thus Ether and tokens sent to this address cannot be retrieved and setting access control roles to this address also won’t work  
+            /**
+                ^ zero address (address(0)) private key is unknown 
+                thus Ether and tokens sent to this address cannot be retrieved and setting access control roles to this address also won’t work  
             */
 
             // Hashing
             keccak256(abi.encodePacked("Solidity"))
-            /** similarly :
-                - sha256(bytes memory)
-                - ripemd160(bytes memory) */
+            /** 
+                similarly :
+                    - sha256(bytes memory)
+                    - ripemd160(bytes memory) 
+            */
         );
     }
 
@@ -770,7 +806,8 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
-    /** Constructor(is optional) code only runs when the contract is created
+    /** 
+        Constructor(is optional) code only runs when the contract is created
         State variables are initialised before the constructor code is executed
         After execution of constructor the final code deployed on chain does not include :
                                                                                 - constructor code or 
@@ -785,12 +822,14 @@ type of operand to which other operand can be implicitly converted to
         _createContract(_salt);
     }
 
-    /** Modifiers can be used to change the behaviour of functions 
-    in a declarative way(abstract away control flow for logic)
+    /** 
+        - Modifiers can be used to change the behaviour of functions 
+            in a declarative way(abstract away control flow for logic)
+
+        - Overloading (same modifier name with different parameters) is not possible.
+            Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
+            Multiple modifiers in functions are evaluated in the order presented 
     */
-    /** Overloading (same modifier name with different parameters) is not possible.
-    * Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
-    * Multiple modifiers in functions are evaluated in the order presented */
     modifier onlyOwner(/**can receive arguments*/) {
         require(msg.sender == owner, "Not Owner");
         _;  // The function body is inserted where the underscore is placed(can be multiple), 
@@ -807,16 +846,21 @@ type of operand to which other operand can be implicitly converted to
     //     }
     // })
     event Stored(address sender, uint256 value);
-    /* 
-    for filtering certain logs 'indexed'(stores parameter as "topics") attribute can be added in-upto 3 params
-    All parameters without the indexed attribute are ABI-encoded into the data part of the log
-    Filtering of events can also be done via the address of contract
+
+    /** 
+        for filtering certain logs 'indexed'(stores parameter as "topics") attribute can be added in-upto 3 params
+        All parameters without the indexed attribute are ABI-encoded into the data part of the log
+        Filtering of events can also be done via the address of contract
     */
     event Log(string func, uint indexed gas);  
-    /** 'anonymous' events can support up to 4 indexed parameters
-        - does not stores event's signature as topic
-        - not possible to filter for anonymous events by name, but only by the contract address */
+
+    /** 
+        'anonymous' events can support up to 4 indexed parameters
+            - does not stores event's signature as topic
+            - not possible to filter for anonymous events by name, but only by the contract address 
+    */
     event Privacy(string indexed rand1, string indexed rand2, string indexed rand3, string indexed rand4) anonymous;
+
     bytes32 eventSelector = Log.selector;   // stores keccak256 hash of non-anonymous event signature
 
     // Errors allow custom names and data for failure situations.
@@ -827,11 +871,12 @@ type of operand to which other operand can be implicitly converted to
         // Send ether along with the new contract "Token" creation and passing in args to it's constructor
         tk = new Token{value: msg.value}(3e6);
 
-        /** contract address is computed from creating contract address and nonce 
-        while if salt value is given, address is computed from :
-        creating contract address, 
-        salt & 
-        creation bytecode of the created contract and the constructor arguments.
+        /** 
+            contract address is computed from creating contract address and nonce 
+            while if salt value is given, address is computed from :
+            creating contract address, 
+            salt & 
+            creation bytecode of the created contract and the constructor arguments.
         */
         address preComputecAddress = address(uint160(uint(keccak256(abi.encodePacked(
             bytes1(0xff),
@@ -870,32 +915,38 @@ type of operand to which other operand can be implicitly converted to
 
     // Payable Function requires Calling this function along with some Ether (as msg.value)
     function transferringFunds(address payable _to) external payable{
-        /** 'transfer' fails if sender don't have enough balance or Transaction rejected by receiver 
-        reverts on failure & stops execution
-        transfer/send has 2300 gas limit
+        /** 
+            'transfer' fails if sender don't have enough balance or Transaction rejected by receiver 
+            reverts on failure & stops execution
+            transfer/send has 2300 gas limit
         */
         treasury.transfer(1 wei);
 
-        /** 'send' returns a boolean value indicating success or failure.
-        doesn't stops execution
+        /** 
+            'send' returns a boolean value indicating success or failure.
+            doesn't stops execution
+            transfer of tokens via 'send' can failed if call stack depth reaches 1024 & also if recipient run out of gas 
         */
         bool sent = payable(0).send(1 wei); // payable(0) -> 0x0000000000000000000000000000000000000000
         require(sent, "Send failed");
 
-        /** Call returns a boolean value indicating success or failure.
-        is possible to adjust gas supplied
-        most recommended method to transfer funds.
+        /** 
+            Call returns a boolean value indicating success or failure.
+            is possible to adjust gas supplied
+            most recommended method to transfer funds.
 
-        Warning : .call bypasses type checking, function existence check, and argument packing.
+            Warning : .call bypasses type checking, function existence check, and argument packing.
         */
         (bool res, ) = _to.call{gas: 5000, value: msg.value}("");
         require(res, "Failed to send Ether");
 
-        /** Explicit conversion allowed 
-        from address to address payable  &
-        from uint160 to address 
+        /** 
+            Explicit conversion allowed 
+            from address to address payable &
+            from uint160 to address 
         */
-        payable(owner).transfer(address(this).balance); //querying current contract balance in Wei
+        payable(owner).transfer(address(this).balance); // querying current contract balance in Wei
+    }
     }
 
     // query the deployed code for any smart contract
@@ -906,16 +957,19 @@ type of operand to which other operand can be implicitly converted to
         );
     }
 
-    /** Function Visibility : 
-        - external : these calls create an actual EVM message call, 
-            they can be called from other contracts and via transactions; 
-            and can be accessed internally via this.extFunc()
-        - public : can be either called internally or via message calls.
-        - internal : can only be accessed from within the current contract or contracts deriving from it & neither exposed via ABI
-        - private : similar to internal but not accessible in derived contracts */
+    /** 
+        Function Visibility : 
+            - external : these calls create an actual EVM message call, 
+                they can be called from other contracts and via transactions; 
+                and can be accessed internally via this.extFunc()
+            - public : can be either called internally or via message calls.
+            - internal : can only be accessed from within the current contract or contracts deriving from it & neither exposed via ABI
+            - private : similar to internal but not accessible in derived contracts 
+    */
     function canUSeeMe() public view returns(uint){
-        /** tk.anon() , tk.mulPriv() will not be accessible due to private visibility and 
-        also as this contract doesn't derived from contract Token, tk.addPriv() (internal func.) will also not be accessible 
+        /** 
+            tk.anon() , tk.mulPriv() will not be accessible due to private visibility and 
+            also as this contract doesn't derived from contract Token, tk.addPriv() (internal func.) will also not be accessible 
         */
         return tk.getPriv();
     }
@@ -924,8 +978,9 @@ type of operand to which other operand can be implicitly converted to
     function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable{
         // while external contract call we can specify value & gas
         tk.updateSupply{value : msg.value, gas : 3000}(5);
-        /** NOTE : calling contractInstance.{value, gas} w/o () at end , 
-        will not call function resulting in loss of value & gas 
+        /** 
+            NOTE : calling contractInstance.{value, gas} w/o () at end , 
+            will not call function resulting in loss of value & gas 
         */
 
         //arguments can be given by name, in any order, if they are enclosed in { }
@@ -966,33 +1021,37 @@ type of operand to which other operand can be implicitly converted to
         return (u, o);
     }
     
-    /** Solidity performs a revert operation(instruction 0xfd) for any error,
-     resulting in revert all changes made to the state.
+    /** 
+        Solidity performs a revert operation(instruction 0xfd) for any error,
+        resulting in revert all changes made to the state.
     */
     function errorFound(address payable addr) public payable {
-        /** Require validates :
-            - invalid inputs
-            - conditions that cannot be detected until execution time
-            - return values from calls to other functions
+        /** 
+            Require validates :
+                - invalid inputs
+                - conditions that cannot be detected until execution time
+                - return values from calls to other functions
         */
         require(msg.value % 2 == 0, "Value sent not Even");
     
         // A direct revert can be triggered using the revert statement and the revert function.
         if(msg.value < 1 ether ) revert LowValueProvided(msg.value);
-        /** revert can also be used like revert("description"); 
-                                        revert CustomError(args)*/
+        // revert can also be used like revert("description"); revert CustomError(args)
+
         uint balBeforeTransfer = address(this).balance;
         addr.transfer(msg.value / 2);
 
-        /** Assert used for:
-            - checking Internal errors & invariants
-            - validate contract state after making changes
-            - check for overflow/underflow
+        /** 
+            Assert used for:
+                - checking Internal errors & invariants
+                - validate contract state after making changes
+                - check for overflow/underflow
         */
         assert(address(this).balance == balBeforeTransfer - msg.value / 2); // it will fail only if there is any exception while transferring funds
         
 
-        /** Error(string) is used for regular error conditions
+        /** 
+            Error(string) is used for regular error conditions
                 Error exception is generated :
                 - If require(statement) evaluates to false.
 
@@ -1006,7 +1065,8 @@ type of operand to which other operand can be implicitly converted to
         */
         
 
-        /** Panic(uint256) is used for errors that should not be present in bug-free code
+        /** 
+            Panic(uint256) is used for errors that should not be present in bug-free code
                 Panic error generated with error code:
                 0x00: Used for generic compiler inserted panics.
 
@@ -1030,16 +1090,18 @@ type of operand to which other operand can be implicitly converted to
         */
 
 
-        /** Cases when it can either cause an Error or a Panic (or whatever else was given):
-            - If a .transfer() fails.
+        /** 
+            Cases when it can either cause an Error or a Panic (or whatever else was given):
+                - If a .transfer() fails.
 
-            - If calling a function via a message call fails 
+                - If calling a function via a message call fails 
 
-            - If the contract creation does not finish properly that was created using 'new'
+                - If the contract creation does not finish properly that was created using 'new'
         */
     }
 
-    // A failure in an external call or while creating contract can be caught using a try/catch statement
+    /** 
+        A failure in an external call or while creating contract can be caught using a try/catch statement
     function tryNcatch(address _extContract, address _recipient) public returns(bool){
         try IERC20(_extContract).transfer(_recipient, 100) returns(bool success){
             return(success);
@@ -1059,21 +1121,24 @@ type of operand to which other operand can be implicitly converted to
         }
     }
 
-    /** sends contract ether balance to the designated address 
-    then removes contract code from the blockchain
-    but can be retained as it's part of the blockchain's history
-    ether can still be sent to the removed contract but would be lost
+    /** 
+        sends contract ether balance to the designated address 
+        then removes contract code from the blockchain
+        but can be retained as it's part of the blockchain's history
+        ether can still be sent to the removed contract but would be lost
     */
     function boom() external {
         // some other code .... 
         // if boom() reverts before selfdestruct, it "undo" the destruction 
-        /** EIP-6049: Deprecate SELFDESTRUCT opcode and warns against its use. 
+        /** 
+            EIP-6049: Deprecate SELFDESTRUCT opcode and warns against its use. 
             A breaking change is likely to come in the future 
         */
         selfdestruct(payable(owner));
-        /** self destruct forcefully send eth to contract even if:
-            - contract has no payable , receive or fallback functions
-            - contract has revert() in receive()
+        /** 
+            self destruct forcefully send eth to contract even if:
+                - contract has no payable , receive or fallback functions
+                - contract has revert() in receive()
         */
     }
 
@@ -1082,7 +1147,8 @@ type of operand to which other operand can be implicitly converted to
         return Root.sqrt(_num);
     }
 
-    /** Inline assembly is way to access EVM at low level(via OPCODES) by passing important safety features & checks of solidity
+    /** 
+        Inline assembly is way to access EVM at low level(via OPCODES) by passing important safety features & checks of solidity
         it uses Yul as it's language 
     */
     function assemblyTinker(address _addr) public returns (bool){
@@ -1131,38 +1197,39 @@ type of operand to which other operand can be implicitly converted to
         return (size > 0);
     }
 
-    /** Function signature is a string that consists of the function's name and the types of its input parameters. 
-        also used to distinguish function from another with the same name but different parameters.
-        e.g. a function "transfer" with two input parameters address & uint256, signature is "transfer(address,uint256)".
-    
-    Function selector is a first(left aligned) four-byte of keccak256 hash of function's signature 
-        used to identify a specific function in a contract. 
+    /** 
+        Function signature is a string that consists of the function's name and the types of its input parameters. 
+            also used to distinguish function from another with the same name but different parameters.
+            e.g. a function "transfer" with two input parameters address & uint256, signature is "transfer(address,uint256)".
+        
+        Function selector is a first(left aligned) four-byte of keccak256 hash of function's signature 
+            used to identify a specific function in a contract. 
 
-    Function's selector and signature are used together to call a specific function within a contract. 
-        as the function selector is included in the data field of the transaction when a call is made to contract 
-    The contract uses the function selector to determine which function should be executed, 
-        and then checks the signature of the function to ensure that the correct input parameters have been provided.
-    
-    Argument encoding the process of encoding function arguments into byte array that serves as input data input data to contract's function call
-        this input data is later decoded by the contract and are passed to functions in correct format
+        Function's selector and signature are used together to call a specific function within a contract. 
+            as the function selector is included in the data field of the transaction when a call is made to contract 
+        The contract uses the function selector to determine which function should be executed, 
+            and then checks the signature of the function to ensure that the correct input parameters have been provided.
+        
+        Argument encoding the process of encoding function arguments into byte array that serves as input data input data to contract's function call
+            this input data is later decoded by the contract and are passed to functions in correct format
 
-    for eg. calling following function with params. 
-        (53, ["abc", "def"], "dave", true, [1,2,3]) we would pass total 388 bytes as follows :
+        for eg. calling following function with params. 
+            (53, ["abc", "def"], "dave", true, [1,2,3]) we would pass total 388 bytes as follows :
 
-        -  function selector. first 4 bytes of function signature
-            // rest all arguments will be padded to 32 bytes
-        -  uint32 value 53 as first parameter
-        -  bytes3 value "abc" (left-aligned) as first part of second parameter
-        -  bytes3 value "def" (left-aligned) as second part of second parameter
-        -  location of data part of third parameter (dynamic type), measured in bytes
-        -  Boolean ‘true’ as fourth parameter
-        -  location of data part of fifth parameter (dynamic type)
-        -  data part of third argument, starts with length of byte array, in this case, 4
-        -  data of third argument UTF-8 (equal to ASCII in this case) encoding of "dave", padded on right to 32 bytes
-        -  data part of fifth argument, starts with length of array, in this case, 3
-        -  first element of fifth parameter
-        -  second element of fifth parameter
-        -  third element of fifth parameter
+            -  function selector. first 4 bytes of function signature
+                // rest all arguments will be padded to 32 bytes
+            -  uint32 value 53 as first parameter
+            -  bytes3 value "abc" (left-aligned) as first part of second parameter
+            -  bytes3 value "def" (left-aligned) as second part of second parameter
+            -  location of data part of third parameter (dynamic type), measured in bytes
+            -  Boolean ‘true’ as fourth parameter
+            -  location of data part of fifth parameter (dynamic type)
+            -  data part of third argument, starts with length of byte array, in this case, 4
+            -  data of third argument UTF-8 (equal to ASCII in this case) encoding of "dave", padded on right to 32 bytes
+            -  data part of fifth argument, starts with length of array, in this case, 3
+            -  first element of fifth parameter
+            -  second element of fifth parameter
+            -  third element of fifth parameter
     */
     function selector_JSL(uint32 par_1, bytes3[2] memory, bytes memory, bool, uint[] memory) external pure returns(bool r)
     {
