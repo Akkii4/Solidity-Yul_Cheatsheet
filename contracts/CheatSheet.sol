@@ -728,14 +728,15 @@ receive()   fallback()
         t * 1 days; // as t days doesn't work 
     }
 
-    function _blockProperties(uint _blockNumber) internal view returns(bytes32, uint, uint, address, uint, uint, uint, uint, uint, uint){
+    function _blockProperties(uint _blockNumber) internal view returns(bytes32, uint, uint, address, uint, /**uint,*/ uint, uint, uint, uint, uint){
         return(
             blockhash(_blockNumber),            // hash of block(one of the 256 most recent blocks)
             block.basefee,                      // current block's base fee
             block.chainid,
             block.coinbase,             // current block miner’s address
             block.difficulty,
-            block.gaslimit,             // current block's gas limit
+         // block.prevrandao(_blockNumber),     // random number provided by the beacon chain (EVM >= Paris)
+            block.gaslimit,                     // current block's gas limit
             block.number,
             block.timestamp,                    // timestamp as seconds of when block is mined
             gasleft(),                          // remaining gas
