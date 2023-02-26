@@ -733,8 +733,8 @@ receive()   fallback()
             blockhash(_blockNumber),            // hash of block(one of the 256 most recent blocks)
             block.basefee,                      // current block's base fee
             block.chainid,
-            block.coinbase,             // current block miner’s address
-            block.difficulty,
+            block.coinbase,                     // current block miner’s address
+            block.difficulty,                   // depreceated for EVM versions previous Paris
          // block.prevrandao(_blockNumber),     // random number provided by the beacon chain (EVM >= Paris)
             block.gaslimit,                     // current block's gas limit
             block.number,
