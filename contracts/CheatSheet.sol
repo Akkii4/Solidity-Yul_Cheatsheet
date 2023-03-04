@@ -299,9 +299,9 @@ receive()   fallback()
 
     /**
         Layout in Memory(Reserves certain areas of memory) :
-        -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
-        - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
-        - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
+            -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
+            - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
+            - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
         New objects in Solidity are always placed at the free memory pointer and memory is never freed.
     */
 
@@ -1033,8 +1033,9 @@ receive()   fallback()
         require(msg.value % 2 == 0, "Value sent not Even");
     
         // A direct revert can be triggered using the revert statement and the revert function.
-        if(msg.value < 1 ether ) revert LowValueProvided(msg.value);
-        // revert can also be used like revert("description"); revert CustomError(args)
+        if(msg.value < 1 ether ) 
+        revert LowValueProvided(msg.value);
+        // revert can also be used like revert("description") or revert CustomError(args)
 
         uint balBeforeTransfer = address(this).balance;
         addr.transfer(msg.value / 2);
