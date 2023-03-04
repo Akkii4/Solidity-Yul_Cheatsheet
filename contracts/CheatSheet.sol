@@ -751,10 +751,11 @@ receive()   fallback()
         bytes memory encodedData = abi.encode(f, g, h); // encodes given arguments
         
         abi.encodePacked(f, g, h);      /** 
-                                            As no padding, thus one variable can merge into other
-                                            resulting in Hash collision 
-                                            encodePacked(AAA, BBB) -> AAABBB
-                                            encodePacked(AA, ABBB) -> AAABBB
+                                            This method has no padding, thus one variable can merge into other
+                                            resulting in Hash collision , 
+                                            only usefull if types and length of parameters are known
+                                            e.g. encodePacked(AAA, BBB) -> AAABBB
+                                                             (AA, ABBB) -> AAABBB
                                             use abi.encode to solve it
                                         */
 
@@ -916,7 +917,7 @@ receive()   fallback()
         /** 
             'transfer' fails if sender don't have enough balance or Transaction rejected by receiver 
             reverts on failure & stops execution
-            transfer/send has 2300 gas limit
+            transfer/send has 2300 gas limit to prevent re-entrancy attack
         */
         treasury.transfer(1 wei);
 
@@ -1020,8 +1021,8 @@ receive()   fallback()
     }
     
     /** 
-        Solidity performs a revert operation(instruction 0xfd) for any error,
-        resulting in revert all changes made to the state.
+        Solidity throws an exception if an condition evaluates to false
+        resulting in revert to previous state via rolling back all changes made to the state so far.
     */
     function errorFound(address payable addr) public payable {
         /** 
