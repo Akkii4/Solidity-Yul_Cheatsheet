@@ -944,6 +944,35 @@ receive()   fallback()
         */
         payable(owner).transfer(address(this).balance); // querying current contract balance in Wei
     }
+
+    /** 
+        low level function to interact with other contract especially with
+        the source code of the called contract is not available in the calling contract
+        
+        ether and custom gas amount can be sent along
+
+        low level calls are not recommended : 
+            - bypasses type checking, function existence check, and argument packing
+            - on "revert" cause entire transaction to be reverted (including any changes made prior to low-level call)
+    */
+    function lowLevelCall(address payable _contract) external payable returns(bool success, bytes memory data){
+        // call method
+        (success, data) = _contract.call{value: msg.value, gas: 5000}(
+            abi.encodeWithSignature("dummy(string,uint256)", "hello there", 200)
+        );
+
+        /**
+            delegatecall to other contract execute it's function but preserves calling contract's state (e.g. storage, contract address & balance)
+            The purpose of delegatecall is to use library code which is stored in another contract.
+            Prior to v0.5.0 delegatecall is called callcode
+        */
+        (success, data) = _contract.delegatecall(
+            abi.encodeWithSignature("setVar(uint256)", 35)  
+        );
+        /** 
+            ^ If state variables are accessed via a low-level delegatecall, 
+            the storage layout of the two contracts must be in same order for the called contract to correctly access the storage variables of the calling contract by name. 
+        */
     }
 
     // query the deployed code for any smart contract
