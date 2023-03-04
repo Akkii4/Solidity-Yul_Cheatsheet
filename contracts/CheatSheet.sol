@@ -1040,6 +1040,9 @@ receive()   fallback()
         addr.transfer(msg.value / 2);
 
         /** 
+            Assert should be used at end of function to prevent severe error ,
+            especially at statement which should never evaluate to 'false' under normal circumstances in bug free code
+
             Assert used for:
                 - checking Internal errors & invariants
                 - validate contract state after making changes
@@ -1051,6 +1054,8 @@ receive()   fallback()
         /** 
             Error(string) is used for regular error conditions
                 Error exception is generated :
+                - require() and revert() uses 0xfd(REVERT) error code , this refunds any unused gas until now 
+
                 - If require(statement) evaluates to false.
 
                 - If you use revert() or revert("description").
@@ -1069,6 +1074,7 @@ receive()   fallback()
                 0x00: Used for generic compiler inserted panics.
 
                 0x01: If you call assert with an argument that evaluates to false.
+                assert() uses 0xfe(INVALID) opcode which uses up all gas included in transaction
 
                 0x11: If an arithmetic operation results in underflow or overflow outside of an unchecked { ... } block.
 
