@@ -79,7 +79,7 @@ abstract contract Tesseract {
 // contract inheriting from abstract contract should implement all non-implemented to avoid them being marked as abstract as well.
 contract Token is Tesseract{
     uint public totalSupply;
-    uint private anon = 3;
+    uint private _anon = 3;
     
     constructor(uint x) payable {
         require(x >= 100, "Insufficient Supply");
@@ -101,11 +101,11 @@ contract Token is Tesseract{
         totalSupply = _x + msg.value;
     }
 
-    function addPriv(uint val) internal view returns(uint) { return anon + val; }
+    function _addPriv(uint val) internal view returns(uint) { return _anon + val; }
     
-    function mulPriv(uint val) private view returns(uint) { return anon * val; }
+    function _mulPriv(uint val) private view returns(uint) { return _anon * val; }
 
-    function getPriv() external view virtual override returns(uint) { return anon; }
+    function getPriv() external view virtual override returns(uint) { return _anon; }
 }
 
 contract Coin {
@@ -131,7 +131,7 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
     constructor() Coin() {}              // or through a "modifier" of the derived constructor :
     
     function intTest() public view returns(uint){
-        return addPriv(5);  // access to internal member (from derived to parent contract)
+        return _addPriv(5);  // access to internal member (from derived to parent contract)
     }
 
     /// @inheritdoc Coin Copies all missing tags from the base function (must be followed by the contract name)
@@ -214,7 +214,7 @@ library Root {
 /// @custom:custom-name tag's explanation
 contract CheatSheet {   // All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
     // contract instance of "Token"
-    Token tk;
+    Token _tk;
 
 /**
     fallback() or receive ()?
@@ -270,10 +270,10 @@ receive()   fallback()
         execution data (msg.value or gasleft()) or 
         makes calls to external contracts is disallowed
     */
-    string constant THANOS = "I am inevitable"; 
+    string public constant THANOS = "I am inevitable"; 
 
     // values can only be assigned in constructor & cannot be read during construction time 
-    uint immutable public senderBalance;   
+    uint public immutable senderBalance;   
 
 /** 
     Variable Packing
@@ -309,7 +309,7 @@ receive()   fallback()
 
     // There's no packing in memory or function arguments as they are always padded to 32 bytes 
         //Example, following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
-        uint8[4] slot_a; 
+        uint8[4] _slotA; 
 
         // Following struct occupies 96 bytes (3 slots of 32 bytes) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
         struct S {  
@@ -348,7 +348,7 @@ receive()   fallback()
 */
     // Integers exists in sizes(from 8 up to 256 bits) in steps of 8
     // uint and int are aliases for uint256 and int256, respectively
-    uint256 storedData; // unsigned integer of 256 bits
+    uint256 _storedData; // unsigned integer of 256 bits
     // access the minimum and maximum value representable by the integer type
     function integersRange() external pure returns(uint ,uint ,int , int) {
         return (
@@ -382,8 +382,8 @@ receive()   fallback()
     
 
     // Fixed point numbers aren't yet supported and thus can only be declared
-    fixed x;
-    ufixed y;
+    fixed _xFix;
+    ufixed _yUfx;
 
 
     function literals() external pure returns (address, uint, int, uint, string memory, string memory, string memory, bytes20, int[2] memory){
@@ -454,7 +454,7 @@ receive()   fallback()
     */
     type UFixed256x18 is uint256;   // Represent a 18 decimal, 256 bit wide fixed point.
     /// custom types only allows wrap and unwrap
-    function customMul(UFixed256x18 _x, uint256 _y) internal pure returns (UFixed256x18) {
+    function _customMul(UFixed256x18 _x, uint256 _y) internal pure returns (UFixed256x18) {
         return UFixed256x18.wrap(               // wrap (convert underlying type -> custom type)
                 UFixed256x18.unwrap(_x) * _y      // unwrap (convert custom type -> underlying type)
         );
@@ -553,11 +553,11 @@ receive()   fallback()
 
     // Arrays
     uint[] public dynamicSized; // length of a dynamic array is stored at the first slot of array and followed by its elements
-    uint[2**3] fixedSized; // array of 8 elements all initialized to 0
-    uint[][4] nestedDynamic; // An array of 4 dynamic arrays
-    bool[3][] triDynamic; // Dynamic Array of arrays of length 3
+    uint[2**3] _fixedSized; // array of 8 elements all initialized to 0
+    uint[][4] _nestedDynamic; // An array of 4 dynamic arrays
+    bool[3][] _triDynamic; // Dynamic Array of arrays of length 3
     uint[] public arr = [1, 2, 3]; // pre assigned array
-    uint[][] freeArr; // Dynaic arrays of dynamic array
+    uint[][] _freeArr; // Dynaic arrays of dynamic array
 
     function aboutArrays(uint _x, uint _y, uint _value, bool[3] memory _newArr, uint size) external {
         // Creating memory arrays
@@ -571,7 +571,7 @@ receive()   fallback()
         for(uint i =0; i<=7; i++){
             a[i] = i;               // assigning elements individually
         }
-        triDynamic.push(_newArr);   // pushes array of 3 element to a Dynamic array
+        _triDynamic.push(_newArr);   // pushes array of 3 element to a Dynamic array
 
         // arrays in struct
         Todo storage g = todoArr[0];   // reference to 'Todo' in 'g'
@@ -579,7 +579,7 @@ receive()   fallback()
 
         // Accessing array's elements
         b[_x][_y]; // returns the element at index 'y' in the 'x' array
-        nestedDynamic[_x];     // returns the array at index 'x'
+        _nestedDynamic[_x];     // returns the array at index 'x'
         arr.length;     // number of elements in array
 
         // Only dynamic storage arrays are resizable
@@ -590,7 +590,7 @@ receive()   fallback()
         // Removing elements
         dynamicSized.pop();         // remove end of array element
         delete arr;                 // resets all values to default value
-        triDynamic = new bool[3][](0); // similar to delete array
+        _triDynamic = new bool[3][](0); // similar to delete array
     }
     /** 
         slicing of array[start:end] 
@@ -641,8 +641,8 @@ receive()   fallback()
         Ternary Operator
         if <expression> true ? then evaluate <true Expression>: else evaluate <false Expression> 
     */
-    uint tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0 ); 
-    // 1.5 + (true ? 1.5 : 2.5) NOT valid, as ternary operator doesn't have a rational number type
+    uint _tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0 ); 
+    // 1.5 + (true ? 1.5 : 2.5) NOT valid, as _ternary operator doesn't have a rational number type
 
     // Bitwise Operator
     function bitwiseOperate(uint a, uint c) external pure returns(uint, uint, uint, uint, uint, uint){
@@ -862,7 +862,7 @@ receive()   fallback()
     */
     event Privacy(string indexed rand1, string indexed rand2, string indexed rand3, string indexed rand4) anonymous;
 
-    bytes32 eventSelector = Log.selector;   // stores keccak256 hash of non-anonymous event signature
+    bytes32 _eventSelector = Log.selector;   // stores keccak256 hash of non-anonymous event signature
 
     // Errors allow custom names and data for failure situations.
     // Are used in revert statement & are cheaper than using string in revert
@@ -870,7 +870,7 @@ receive()   fallback()
 
     function _createContract(bytes32 _salt) internal {
         // Send ether along with the new contract "Token" creation and passing in args to it's constructor
-        tk = new Token{value: msg.value}(3e6);
+        _tk = new Token{value: msg.value}(3e6);
 
         /** 
             contract address is computed from creating contract address and nonce 
@@ -898,7 +898,7 @@ receive()   fallback()
     // Modifier usage let only the creator of the contract "owner" can call this function
     function set(uint256 _value) public onlyOwner {
         if(_value < 10) revert ("Low value provided");
-        storedData = _value;
+        _storedData = _value;
 
         // Block scoping
         uint insideout = 5;
@@ -998,16 +998,16 @@ receive()   fallback()
     */
     function canUSeeMe() public view returns(uint){
         /** 
-            tk.anon() , tk.mulPriv() will not be accessible due to private visibility and 
-            also as this contract doesn't derived from contract Token, tk.addPriv() (internal func.) will also not be accessible 
+            _tk._anon() , _tk._mulPriv() will not be accessible due to private visibility and 
+            also as this contract doesn't derived from contract Token, _tk._addPriv() (internal func.) will also not be accessible 
         */
-        return tk.getPriv();
+        return _tk.getPriv();
     }
 
 
     function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable{
         // while external contract call we can specify value & gas
-        tk.updateSupply{value : msg.value, gas : 3000}(5);
+        _tk.updateSupply{value : msg.value, gas : 3000}(5);
         /** 
             NOTE : calling contractInstance.{value, gas} w/o () at end , 
             will not call function resulting in loss of value & gas 
@@ -1271,9 +1271,9 @@ receive()   fallback()
             -  second element of fifth parameter
             -  third element of fifth parameter
     */
-    function selector_JSL(uint32 par_1, bytes3[2] memory, bytes memory, bool, uint[] memory) external pure returns(bool r)
+    function selectorJSL(uint32 par1, bytes3[2] memory, bytes memory, bool, uint[] memory) external pure returns(bool r)
     {
-        r = par_1 > 32 ? true : false;
+        r = par1 > 32 ? true : false;
     }
 }
 
