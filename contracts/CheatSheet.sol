@@ -242,9 +242,11 @@ receive()   fallback()
             can even be defined as non-payable to only receive message call
             fallback can be virtual, override & have modifiers 
     */ 
-    fallback() external payable {
+    fallback(bytes calldata data) external payable returns(bytes memory){   // after v0.8.0, fallback can optionally take bytes as input & also return 
+        (bool success, bytes memory res) = address(0).call{value: msg.value}(data);
+        require(success, "call failed");
         //returns remaining gas
-        emit Log("fallback", gasleft());
+        return res;
     }
      
     /** 
