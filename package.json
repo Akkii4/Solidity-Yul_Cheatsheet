@@ -1,0 +1,33 @@
+{
+  "name": "solidity_cheatsheet",
+  "version": "1.0.0",
+  "description": "An in-depth reference guide to Solidity",
+  "main": "contracts/CheatSheet.sol",
+  "scripts": {
+    "check": "solcjs --bin contracts/CheatSheet.sol -o /tmp/",
+    "lint": "solhint 'contracts/CheatSheet.sol'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Akkii4/Solidity_Cheatsheet.git"
+  },
+  "keywords": [
+    "solidity",
+    "cheatsheet.sol",
+    "solidity docs",
+    "solidity documentation",
+    "cheatsheet",
+    "solidity_cheatsheet",
+    "solidity_guide"
+  ],
+  "author": "Akshit Choudhary",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Akkii4/Solidity_Cheatsheet/issues"
+  },
+  "homepage": "https://github.com/Akkii4/Solidity_Cheatsheet#readme",
+  "dependencies": {
+    "solc": "^0.8.17",
+    "solhint": "^3.4.1"
+  }
+}
