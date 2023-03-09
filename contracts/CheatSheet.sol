@@ -964,8 +964,10 @@ receive()   fallback()
         );
 
         /**
-            delegatecall to other contract execute it's function but preserves calling contract's state (e.g. storage, contract address & balance)
-            The purpose of delegatecall is to use library code which is stored in another contract.
+            delegatecall to other contract execute it's function but preserves calling contract's state (storage, contract address & balance)
+            i.e. delegatecall from contract A to B : while the code executed is that of contract B, but execution happens in the context of contract A. 
+                Such that any reads or writes to storage affect the storage of A, not B.
+            The purpose of delegatecall is to use library code which is stored in another contract as well as used in proxy pattern.
             Prior to v0.5.0 delegatecall is called callcode
         */
         (success, data) = _contract.delegatecall(
