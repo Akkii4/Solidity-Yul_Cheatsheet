@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0
 // ^ Tells that source code is licensed under the GPL version 3.0. Machine-readable license
-    // It is included as string in the bytecode metadata.
+// It is included as string in the bytecode metadata.
 
 /*  
     - pragma solidity x.y.z 
@@ -33,6 +33,7 @@ import "./Mul.sol" as multiplier;
 
 // using 'as' keyword while importing to avoid naming collision
 import {divide2 as div, name} from "./Div.sol";
+
 // External imports are also allowed from github -> import "github/filepath/url"
 
 /**
@@ -61,9 +62,16 @@ struct User {
         * They cannot declare state variables, modifiers or constructor
 */
 interface IERC20 {
-    enum Type { Useful, Useless }
-    struct Demo { string dummy; uint256 num; }
-    function transfer(address, uint) external returns(bool);
+    enum Type {
+        Useful,
+        Useless
+    }
+    struct Demo {
+        string dummy;
+        uint256 num;
+    }
+
+    function transfer(address, uint) external returns (bool);
 }
 
 /** 
@@ -73,14 +81,16 @@ interface IERC20 {
 abstract contract Tesseract {
     function retVal(uint256 x) public virtual returns (uint256);
 
-    function getPriv() external virtual view returns(uint) { return 5; }
+    function getPriv() external view virtual returns (uint) {
+        return 5;
+    }
 }
 
 // contract inheriting from abstract contract should implement all non-implemented to avoid them being marked as abstract as well.
-contract Token is Tesseract{
+contract Token is Tesseract {
     uint public totalSupply;
     uint private _anon = 3;
-    
+
     constructor(uint x) payable {
         require(x >= 100, "Insufficient Supply");
         totalSupply = x;
@@ -97,20 +107,27 @@ contract Token is Tesseract{
         return a + 10;
     }
 
-    function updateSupply(uint _x) external payable{
+    function updateSupply(uint _x) external payable {
         totalSupply = _x + msg.value;
     }
 
-    function _addPriv(uint val) internal view returns(uint) { return _anon + val; }
-    
-    function _mulPriv(uint val) private view returns(uint) { return _anon * val; }
+    function _addPriv(uint val) internal view returns (uint) {
+        return _anon + val;
+    }
 
-    function getPriv() external view virtual override returns(uint) { return _anon; }
+    function _mulPriv(uint val) private view returns (uint) {
+        return _anon * val;
+    }
+
+    function getPriv() external view virtual override returns (uint) {
+        return _anon;
+    }
 }
 
 contract Coin {
     constructor() {}
-    function retVal(uint a) public pure virtual returns(uint) {
+
+    function retVal(uint a) public pure virtual returns (uint) {
         return a % 10;
     }
 }
@@ -127,11 +144,14 @@ contract Coin {
 
     Constructors are executed in the following order: Token, Coin & then Currency
 */
-contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (the derived contract) accepts arguments ...
-    constructor() Coin() {}              // or through a "modifier" of the derived constructor :
-    
-    function intTest() public view returns(uint){
-        return _addPriv(5);  // access to internal member (from derived to parent contract)
+contract Currency is
+    Token(100),
+    Coin // If constructor of ^ Base Contract (the derived contract) accepts arguments ...
+{
+    constructor() Coin() {} // or through a "modifier" of the derived constructor :
+
+    function intTest() public view returns (uint) {
+        return _addPriv(5); // access to internal member (from derived to parent contract)
     }
 
     /// @inheritdoc Coin Copies all missing tags from the base function (must be followed by the contract name)
@@ -145,14 +165,16 @@ contract Currency is Token(100), Coin {  // If constructor of ^ Base Contract (t
     */
     // specify the `virtual` keyword again indicates this function can be overridden again.
     // since Coin is the right most parent contract with this function thus it will internal call Coin.retVal
-    function retVal(uint a) public pure virtual override(Token, Coin) returns(uint) {
-        return super.retVal(a);                    // ^ Multiple inheritance (Most Derived, least derived Contract)
+    function retVal(
+        uint a
+    ) public pure virtual override(Token, Coin) returns (uint) {
+        return super.retVal(a); // ^ Multiple inheritance (Most Derived, least derived Contract)
     }
 
-    /// @notice This function adds 10 to `a` 
-    //  ^ if _a is assigned 5 this will be rendered as dynamic comment as : This function adds 10 to 5 
+    /// @notice This function adds 10 to `a`
+    //  ^ if _a is assigned 5 this will be rendered as dynamic comment as : This function adds 10 to 5
     /// @param _a followed by parameter's name explain it (only for function, event)
-    function xyz(uint _a) public pure{
+    function xyz(uint _a) public pure {
         super.retVal(_a); // super keyword calls the function one level higher up in the flattened inheritance hierarchy
     }
 
@@ -195,7 +217,10 @@ library Root {
         These functions will receive the object they are called on as their first parameter.
      */
     /// @return Documents the return variables of a contract’s function
-    function tryMul(uint256 a, uint256 b) external pure returns (bool, uint256) {
+    function tryMul(
+        uint256 a,
+        uint256 b
+    ) external pure returns (bool, uint256) {
         unchecked {
             if (a == 0) return (true, 0);
             uint256 c = a * b;
@@ -207,16 +232,17 @@ library Root {
 
 /// NatSpec is for formatting for contract, interface, library, function & event comments which are understood by Solidity compiler.
 
-/// @title Title describing contract/interface 
+/// @title Title describing contract/interface
 /// @author Name of author
 /// @notice Explain the functionality
 /// @dev any extra details for the developer
 /// @custom:custom-name tag's explanation
-contract CheatSheet {   // All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
+contract CheatSheet {
+    // All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
     // contract instance of "Token"
     Token _tk;
 
-/**
+    /**
     fallback() or receive ()?
 
     Ether is sent to contract
@@ -241,14 +267,17 @@ receive()   fallback()
         Fallback are executed if none of other function signature is matched,
             can even be defined as non-payable to only receive message call
             fallback can be virtual, override & have modifiers 
-    */ 
-    fallback(bytes calldata data) external payable returns(bytes memory){   // after v0.8.0, fallback can optionally take bytes as input & also return 
-        (bool success, bytes memory res) = address(0).call{value: msg.value}(data);
+    */
+    fallback(bytes calldata data) external payable returns (bytes memory) {
+        // after v0.8.0, fallback can optionally take bytes as input & also return
+        (bool success, bytes memory res) = address(0).call{value: msg.value}(
+            data
+        );
         require(success, "call failed");
         //returns remaining gas
         return res;
     }
-     
+
     /** 
         State Variable is like a single slot in a database that are accessible by functions
         and there values are permanently stored in contract storage.
@@ -263,27 +292,27 @@ receive()   fallback()
     */
 
     // State variables can also declared as constant or immutable, values can't modified after contract constructed
-    
+
     /**
         values need to be fixed at compile time 
         any expression that accesses storage, blockchain data (e.g. block.timestamp, address(this).balance) or 
         execution data (msg.value or gasleft()) or 
         makes calls to external contracts is disallowed
     */
-    string public constant THANOS = "I am inevitable"; 
+    string public constant THANOS = "I am inevitable";
 
-    // values can only be assigned in constructor & cannot be read during construction time 
-    uint public immutable senderBalance;   
+    // values can only be assigned in constructor & cannot be read during construction time
+    uint public immutable senderBalance;
 
-/** 
+    /** 
     Variable Packing
     Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
     Packing reduces storage slot usage but increases opcodes necessary to read/write to them.
 */
     uint248 _right; // 31 bytes, Doesn't fit into the previous slot, thus starts with a new one
-    uint8   _left;  // 1 byte, There's still 1 byte left out of 32 byte slot
+    uint8 _left; // 1 byte, There's still 1 byte left out of 32 byte slot
     //^ one storage slot will be packed from right to left with the above two variables (lower-order aligned)
-    
+
     // Structs and array data always start a new slot!
 
     // Dynamically-sized array's length is stored as the first slot at location p, it's values start being stores at keccak256(p)
@@ -293,7 +322,7 @@ receive()   fallback()
     //  keccak(h(k) + p) with h() padding value to 32 bytes or hashing reference types.
 
     // Bytes and Strings are stored like array elements and data area is computed using a keccak256 hash of the slot's position.
-    //   Bytes are stored in continuous memory locations while strings are stored as a sequence of pointers to memory locations 
+    //   Bytes are stored in continuous memory locations while strings are stored as a sequence of pointers to memory locations
     //   For values less than 32 bytes, elements are stored in higher-order bytes (left aligned) and the lowest-order byte stores value (length * 2).
     //   whereas bytes of 32 bytes or more, the main slot stores (length * 2 + 1) and the data is stored as usual in keccak256(p).
 
@@ -307,33 +336,43 @@ receive()   fallback()
         New objects in Solidity are always placed at the free memory pointer and memory is never freed.
     */
 
-    // There's no packing in memory or function arguments as they are always padded to 32 bytes 
-        //Example, following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
-        uint8[4] _slotA; 
+    // There's no packing in memory or function arguments as they are always padded to 32 bytes
+    //Example, following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
+    uint8[4] _slotA;
 
-        // Following struct occupies 96 bytes (3 slots of 32 bytes) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
-        struct S {  
-            uint a;
-            uint b;
-            uint8 c;
-            uint8 d;
-        }
+    // Following struct occupies 96 bytes (3 slots of 32 bytes) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
+    struct S {
+        uint a;
+        uint b;
+        uint8 c;
+        uint8 d;
+    }
 
-    function packing() external view returns(uint256 leftSlot, uint256 rightSlot, bytes32 value, uint256 leftOffset, uint256 leftValue) {
+    function packing()
+        external
+        view
+        returns (
+            uint256 leftSlot,
+            uint256 rightSlot,
+            bytes32 value,
+            uint256 leftOffset,
+            uint256 leftValue
+        )
+    {
         assembly {
             // returns the slot position in storage at which the variable is stored
             // both would return the same slot(because of variable packing sharing same slot)
-            leftSlot:= _left.slot
-            rightSlot:= _right.slot
+            leftSlot := _left.slot
+            rightSlot := _right.slot
 
             // fetches value stored at the slot where variable 'right' & 'left'
             // returned value will be concatenated representation of both values (in bytes)
             // e.g. bytes32: value 0x0000000000000000000000000000000200000000000000000000000000000001
-                //considering if right = 2 & left = 1
-            value:= sload(rightSlot)
-            
+            //considering if right = 2 & left = 1
+            value := sload(rightSlot)
+
             // offset tells the exact position (in terms of bytes) in a slot where the variable values start
-            leftOffset:= _left.offset   // will return 31 as the start of variable 'left' will begin where the previous ('right' of 31 bytes) stops 
+            leftOffset := _left.offset // will return 31 as the start of variable 'left' will begin where the previous ('right' of 31 bytes) stops
 
             // To get the value on the leftmost side of the slot, it need to be shifted to right.
             // During shifting the rightmost value will "fall out" of the slot leaving the leftSide filled with zeros.
@@ -342,24 +381,24 @@ receive()   fallback()
         }
     }
 
-/** 
+    /** 
     Value Types : These variables are always be passed by value, 
     i.e. they are always copied when used as function arguments or in assignments.
 */
     // Integers exists in sizes(from 8 up to 256 bits) in steps of 8
     // uint and int are aliases for uint256 and int256, respectively
     uint256 _storedData; // unsigned integer of 256 bits
-    // access the minimum and maximum value representable by the integer type
-    function integersRange() external pure returns(uint ,uint ,int , int) {
-        return (
-                //uintX range
-                type(uint8).max, // 2**8 - 1
-                type(uint16).min, // 0
 
-                // int : Signed Integer
-                // intX range
-                type(int32).max, // (2**32)/2 - 1
-                type(int64).min  // (2**64)/2 * -1
+    // access the minimum and maximum value representable by the integer type
+    function integersRange() external pure returns (uint, uint, int, int) {
+        return (
+            //uintX range
+            type(uint8).max, // 2**8 - 1
+            type(uint16).min, // 0
+            // int : Signed Integer
+            // intX range
+            type(int32).max, // (2**32)/2 - 1
+            type(int64).min // (2**64)/2 * -1
         );
     }
 
@@ -368,69 +407,82 @@ receive()   fallback()
     /**  
         Equivalent to -> function owner() external view returns (address) { return owner; }
         thus, can be accessed externally via this.owner()
-    */ 
+    */
     // address with transfer and send functionality to receive Ether
     address payable public treasury;
 
     // Boolean holds 1 byte value (0 or 1) possible values are true and false
     bool public isEven;
+
     function boolTesting(bool _x, bool _y, bool _z) public pure returns (bool) {
         // Short-circuiting rule: full expression will not be evaluated
         // if the result is already been determined by previous variable
         return _x && (_y || _z);
     }
-    
 
     // Fixed point numbers aren't yet supported and thus can only be declared
     fixed _xFix;
     ufixed _yUfx;
 
-
-    function literals() external pure returns (address, uint, int, uint, string memory, string memory, string memory, bytes20, int[2] memory){
-        return(
-        // Also Hexadecimal literals that pass the address checksum test are considered as address
-        0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
-
-        /** 
+    function literals()
+        external
+        pure
+        returns (
+            address,
+            uint,
+            int,
+            uint,
+            string memory,
+            string memory,
+            string memory,
+            bytes20,
+            int[2] memory
+        )
+    {
+        return (
+            // Also Hexadecimal literals that pass the address checksum test are considered as address
+            0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
+            /** 
             Division on integer literals e.g. 5/2
             prior to version 0.4.0 is equal to  2
             but now it's rational number 2.5
         */
-        5/2 + 1 + 0.5,  //  = 4
-        // whereas uint x = 1;
-        //         uint y = 5/2 + x + 0.5  returns compiler error, as operators works only on common value types
+            5 / 2 + 1 + 0.5, //  = 4
+            // whereas uint x = 1;
+            //         uint y = 5/2 + x + 0.5  returns compiler error, as operators works only on common value types
 
-        // decimals fractional formed by . with at least one number after decimal point
-        // .1, 1.3 but not 1. 
-        -.2e10, //Scientific notation of type MeE ~= M * 10**E
-
-        // Underscores have no meaning(just eases human readability)
-        1_2e3_0, // = 12*10**30
-
-        // string literal represented in " " OR ' '
-        "yo" "lo", // can be split = "yolo"
-        'abc\\def', // also supports various escape characters
-
-        //unicode
-        unicode"Hi there 👋",
-
-        //Random Hexadecimal literal behave just like string literal
-        hex"00112233_44556677",
-
-        //array literals are comma-separated list of one or more expressions 
-        // typed by that of its first element & all its elements can be converted this type
-        [int(1), -1]
+            // decimals fractional formed by . with at least one number after decimal point
+            // .1, 1.3 but not 1.
+            -.2e10, //Scientific notation of type MeE ~= M * 10**E
+            // Underscores have no meaning(just eases human readability)
+            1_2e3_0, // = 12*10**30
+            // string literal represented in " " OR ' '
+            "yo"
+            "lo", // can be split = "yolo"
+            "abc\\def", // also supports various escape characters
+            //unicode
+            unicode"Hi there 👋",
+            //Random Hexadecimal literal behave just like string literal
+            hex"00112233_44556677",
+            //array literals are comma-separated list of one or more expressions
+            // typed by that of its first element & all its elements can be converted this type
+            [int(1), -1]
         );
     }
-
 
     /** 
         Enums are user-defined type of predefined constants which holds uint8 values (max 256 values)
         First value is default & starts from uint 0
         They can be stored even outside of Contract & in libraries as well
     */
-    enum Status { Manufacturer, Wholesaler, Shopkeeper, User  }
+    enum Status {
+        Manufacturer,
+        Wholesaler,
+        Shopkeeper,
+        User
+    }
     Status public status;
+
     /** 
         As enums are not stored in ABI
         thus in ABI 'updateStatus()' will have its input type as uint8 
@@ -438,34 +490,38 @@ receive()   fallback()
     function updateStatus(Status _status) public {
         status = _status;
     }
+
     // Accessing boundaries range values of an enum
-    function enumsRange() public pure returns(Status, Status) {
+    function enumsRange() public pure returns (Status, Status) {
         return (
-                type(Status).max,   // return 3, indicating 'User'
-                type(Status).min    // return 0, indicating 'Manufacturer'
+            type(Status).max, // return 3, indicating 'User'
+            type(Status).min // return 0, indicating 'Manufacturer'
         );
     }
-
 
     /** 
         User Defined Value Types allows creating a zero cost abstraction over an elementary value type
         type C is V , C is new type & V is elementary type
         type conversion , operators aren't allowed 
     */
-    type UFixed256x18 is uint256;   // Represent a 18 decimal, 256 bit wide fixed point.
+    type UFixed256x18 is uint256; // Represent a 18 decimal, 256 bit wide fixed point.
+
     /// custom types only allows wrap and unwrap
-    function _customMul(UFixed256x18 _x, uint256 _y) internal pure returns (UFixed256x18) {
-        return UFixed256x18.wrap(               // wrap (convert underlying type -> custom type)
-                UFixed256x18.unwrap(_x) * _y      // unwrap (convert custom type -> underlying type)
-        );
+    function _customMul(
+        UFixed256x18 _x,
+        uint256 _y
+    ) internal pure returns (UFixed256x18) {
+        return
+            UFixed256x18.wrap( // wrap (convert underlying type -> custom type)
+                UFixed256x18.unwrap(_x) * _y // unwrap (convert custom type -> underlying type)
+            );
     }
 
-
-/** 
+    /** 
     Reference Types : Values can be modified through multiple different names unlike Value type
     always have to define the data locations for the variables
 */
-    
+
     /** 
         Solidity stores data as :
             1. storage - stored on blockchain as 256-bit to 256-bit key-value store 
@@ -506,98 +562,113 @@ receive()   fallback()
         Structs is a group of multiple related variables ,
         can be passed as parameters only for library functions 
     */
-     struct Todo {
+    struct Todo {
         uint[] steps;
         bool initialized;
         address owner;
         uint numTodo;
-        User user;                         // can contain other struct but not itself
-        // mapping(uint => address) reader;    
+        User user; // can contain other struct but not itself
+        // mapping(uint => address) reader;
     }
-    Todo[] public todoArr;  // arrays of struct
+    Todo[] public todoArr; // arrays of struct
 
     function onStruct(uint[] memory _arr, uint _index) external {
-        // Initializing 
+        // Initializing
         // 1. initializing individually as reference
         Todo storage t = todoArr[_index];
         t.steps = _arr;
         t.initialized = true;
         t.owner = msg.sender;
-        t.user = User(msg.sender,"foo");
+        t.user = User(msg.sender, "foo");
         // 2. key: value mapping by creating a struct in memory
-        todoArr.push(Todo({        
-            steps : _arr,
-            initialized : true,
-            owner : msg.sender,
-            numTodo: _index,
-            user: User(msg.sender,"foo")
-        }));
+        todoArr.push(
+            Todo({
+                steps: _arr,
+                initialized: true,
+                owner: msg.sender,
+                numTodo: _index,
+                user: User(msg.sender, "foo")
+            })
+        );
         // 3. passing as arguments through struct memory
-        todoArr.push(Todo(
-            _arr,
-            true,
-            msg.sender,
-            _index,
-            User({addr: msg.sender, task: "foo"})
-        ));
+        todoArr.push(
+            Todo(
+                _arr,
+                true,
+                msg.sender,
+                _index,
+                User({addr: msg.sender, task: "foo"})
+            )
+        );
 
         // accessing struct
         t.owner; // returns the value stored 'owner'
-        
+
         // Struct containing a nested mapping can't be constructed though memory
 
         // t.reader[_index] = tx.origin;         // WORKS can be initialised by storage reference to struct
-                                                // tx.origin : sender's address of the transaction as transactions can originate only from Externally Owned Account (EOA)                                             
+        // tx.origin : sender's address of the transaction as transactions can originate only from Externally Owned Account (EOA)
         // Todo({reader[_index]: tx.origin;})  // Error
     }
 
     // Arrays
     uint[] public dynamicSized; // length of a dynamic array is stored at the first slot of array and followed by its elements
-    uint[2**3] _fixedSized; // array of 8 elements all initialized to 0
+    uint[2 ** 3] _fixedSized; // array of 8 elements all initialized to 0
     uint[][4] _nestedDynamic; // An array of 4 dynamic arrays
     bool[3][] _triDynamic; // Dynamic Array of arrays of length 3
     uint[] public arr = [1, 2, 3]; // pre assigned array
     uint[][] _freeArr; // Dynaic arrays of dynamic array
 
-    function aboutArrays(uint _x, uint _y, uint _value, bool[3] memory _newArr, uint size) external {
+    function aboutArrays(
+        uint _x,
+        uint _y,
+        uint _value,
+        bool[3] memory _newArr,
+        uint size
+    ) external {
         // Creating memory arrays
-        uint[] memory a = new uint[](7);          // Fixed size memory array
-        uint[2][] memory b = new uint[2][](size); // Dynamic memory array 
+        uint[] memory a = new uint[](7); // Fixed size memory array
+        uint[2][] memory b = new uint[2][](size); // Dynamic memory array
         // fixed size array can't be converted/assigned to dynamic memory array
         // uint[] memory x = [uint(1), 3, 4]; // gives Error
-        // Unlike storage arrays memory array size can't be changed i.e. push or pop is invalid 
-        
+        // Unlike storage arrays memory array size can't be changed i.e. push or pop is invalid
+
         // assigning to arrays
-        for(uint i =0; i<=7; i++){
-            a[i] = i;               // assigning elements individually
+        for (uint i = 0; i <= 7; i++) {
+            a[i] = i; // assigning elements individually
         }
-        _triDynamic.push(_newArr);   // pushes array of 3 element to a Dynamic array
+        _triDynamic.push(_newArr); // pushes array of 3 element to a Dynamic array
 
         // arrays in struct
-        Todo storage g = todoArr[0];   // reference to 'Todo' in 'g'
+        Todo storage g = todoArr[0]; // reference to 'Todo' in 'g'
         g.steps = a; // changes in 'Todo' also
 
         // Accessing array's elements
         b[_x][_y]; // returns the element at index 'y' in the 'x' array
-        _nestedDynamic[_x];     // returns the array at index 'x'
-        arr.length;     // number of elements in array
+        _nestedDynamic[_x]; // returns the array at index 'x'
+        arr.length; // number of elements in array
 
         // Only dynamic storage arrays are resizable
-        // Adding elements 
-        dynamicSized.push(_value);  // appends new element at end of array
-        dynamicSized.push();        // appends zero-initialized element
+        // Adding elements
+        dynamicSized.push(_value); // appends new element at end of array
+        dynamicSized.push(); // appends zero-initialized element
 
         // Removing elements
-        dynamicSized.pop();         // remove end of array element
-        delete arr;                 // resets all values to default value
+        dynamicSized.pop(); // remove end of array element
+        delete arr; // resets all values to default value
         _triDynamic = new bool[3][](0); // similar to delete array
     }
+
     /** 
         slicing of array[start:end] 
         start default is 0 & end is array's length 
         only works with calldata array as input
     */
-    function slice(uint[] calldata _arr, uint start, uint end) public pure returns(uint[] memory){
+    function slice(
+        uint[] calldata _arr,
+        uint start,
+        uint end
+    ) public pure returns (uint[] memory) {
         return _arr[start:end];
     }
 
@@ -605,15 +676,16 @@ receive()   fallback()
         String represents dynamic array of UTF-8 characters
         manipulation and storage of strings are more complex (parsing & decoding) and costly as compared to that of bytes 
     */
-    function bytesOperations(string calldata _str) public pure returns (uint, bytes1, bool, string memory) {
+    function bytesOperations(
+        string calldata _str
+    ) public pure returns (uint, bytes1, bool, string memory) {
         return (
-                // access byte-representation of string
-                bytes(_str).length,    // length of bytes of UTF-8 representation
-                bytes(_str)[2],        // access element of  UTF-8 representation
-
-                keccak256(abi.encodePacked("foo")) == keccak256(abi.encodePacked("Foo")),   //compare two strings
-
-                string.concat("foo","bar")  // concatenate strings
+            // access byte-representation of string
+            bytes(_str).length, // length of bytes of UTF-8 representation
+            bytes(_str)[2], // access element of  UTF-8 representation
+            keccak256(abi.encodePacked("foo")) ==
+                keccak256(abi.encodePacked("Foo")), //compare two strings
+            string.concat("foo", "bar") // concatenate strings
         );
     }
 
@@ -631,7 +703,7 @@ receive()   fallback()
     */
     mapping(address => uint256) public balances;
 
-/** 
+    /** 
     Operators
         Result type of operation determined based on :
         type of operand to which other operand can be implicitly converted to
@@ -641,51 +713,54 @@ receive()   fallback()
         Ternary Operator
         if <expression> true ? then evaluate <true Expression>: else evaluate <false Expression> 
     */
-    uint _tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0 ); 
+    uint _tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0);
+
     // 1.5 + (true ? 1.5 : 2.5) NOT valid, as _ternary operator doesn't have a rational number type
 
     // Bitwise Operator
-    function bitwiseOperate(uint a, uint c) external pure returns(uint, uint, uint, uint, uint, uint){
-        return(
-                // AND
-                // a     = 1110 = 8 + 4 + 2 + 0 = 14
-                // c     = 1011 = 8 + 0 + 2 + 1 = 11
-                // a & c = 1010 = 8 + 0 + 2 + 0 = 10
-                a&c,     
-                
-                // OR
-                // a     = 1100 = 8 + 4 + 0 + 0 = 12
-                // c     = 1001 = 8 + 0 + 0 + 1 = 9
-                // a | c = 1101 = 8 + 4 + 0 + 1 = 13
-                a|c,     
-
-                // NOT
-                // a  = 00001100 =   0 +  0 +  0 +  0 + 8 + 4 + 0 + 0 = 12
-                // ~a = 11110011 = 128 + 64 + 32 + 16 + 0 + 0 + 2 + 1 = 243
-                ~a,     
-                
-                // XOR -> if bits are same then 0 , if different then 1
-                // a     = 1100 = 8 + 4 + 0 + 0 = 12
-                // c     = 0101 = 0 + 4 + 0 + 1 = 5
-                // a ^ c = 1001 = 8 + 0 + 0 + 1 = 9
-                a^c,
-
-                // shift left
-                // 1 << 0 = 0001 --> 0001 = 1
-                // 1 << 1 = 0001 --> 0010 = 2
-                // 1 << 2 = 0001 --> 0100 = 4
-                // 3 << 2 = 0011 --> 1100 = 12
-                a<<c,    
-
-                // shift right
-                // 8  >> 1 = 1000 --> 0100 = 4
-                // 8  >> 4 = 1000 --> 0000 = 0
-                // 12 >> 1 = 1100 --> 0110 = 6
-                a>>c
+    function bitwiseOperate(
+        uint a,
+        uint c
+    ) external pure returns (uint, uint, uint, uint, uint, uint) {
+        return (
+            // AND
+            // a     = 1110 = 8 + 4 + 2 + 0 = 14
+            // c     = 1011 = 8 + 0 + 2 + 1 = 11
+            // a & c = 1010 = 8 + 0 + 2 + 0 = 10
+            a & c,
+            // OR
+            // a     = 1100 = 8 + 4 + 0 + 0 = 12
+            // c     = 1001 = 8 + 0 + 0 + 1 = 9
+            // a | c = 1101 = 8 + 4 + 0 + 1 = 13
+            a | c,
+            // NOT
+            // a  = 00001100 =   0 +  0 +  0 +  0 + 8 + 4 + 0 + 0 = 12
+            // ~a = 11110011 = 128 + 64 + 32 + 16 + 0 + 0 + 2 + 1 = 243
+            ~a,
+            // XOR -> if bits are same then 0 , if different then 1
+            // a     = 1100 = 8 + 4 + 0 + 0 = 12
+            // c     = 0101 = 0 + 4 + 0 + 1 = 5
+            // a ^ c = 1001 = 8 + 0 + 0 + 1 = 9
+            a ^ c,
+            // shift left
+            // 1 << 0 = 0001 --> 0001 = 1
+            // 1 << 1 = 0001 --> 0010 = 2
+            // 1 << 2 = 0001 --> 0100 = 4
+            // 3 << 2 = 0011 --> 1100 = 12
+            a << c,
+            // shift right
+            // 8  >> 1 = 1000 --> 0100 = 4
+            // 8  >> 4 = 1000 --> 0000 = 0
+            // 12 >> 1 = 1100 --> 0110 = 6
+            a >> c
         );
     }
 
-    function _typeConversion() internal pure returns (uint32 foobar, uint j, uint16 m, bytes1 p){
+    function _typeConversion()
+        internal
+        pure
+        returns (uint32 foobar, uint j, uint16 m, bytes1 p)
+    {
         /** 
             Implicit Conversions
                 compiler auto tries to convert one type to another
@@ -694,27 +769,26 @@ receive()   fallback()
         uint8 foo;
         uint16 bar;
         foobar = foo + bar; // during addition uint8 is implicitly converted to uint16 and then to uint32 during assignment
-        
+
         /** 
             Explicit Conversions
                 if you are confident and forcefully do conversion
                     - converting to a smaller type, higher-order bits are cut off
                     - converting to a larger type, it is padded on the left
         */
-        int  k = -3;
+        int k = -3;
         j = uint(k);
-        
+
         uint32 l = 0x12345678;
         m = uint16(l); // b will be 0x5678 now
         // uint16 c = 0x123456; //error, since it would have to truncate to 0x5678, since v0.8 only conversion allowed if in resulting range
 
         bytes2 n = 0x1234;
         p = bytes1(n); // b will be 0x12
-
     }
 
     // Units works only with literal number
-    function _units() internal pure{
+    function _units() internal pure {
         // Ether units
         assert(1 wei == 1);
         assert(1 gwei == 1e9);
@@ -727,32 +801,59 @@ receive()   fallback()
         assert(1 days == 24 hours);
         assert(1 weeks == 7 days);
         uint t = 5;
-        t * 1 days; // as t days doesn't work 
+        t * 1 days; // as t days doesn't work
     }
 
-    function _blockProperties(uint _blockNumber) internal view returns(bytes32, uint, uint, address, uint, /**uint,*/ uint, uint, uint, uint, uint){
-        return(
-            blockhash(_blockNumber),            // hash of block(one of the 256 most recent blocks)
-            block.basefee,                      // current block's base fee
+    function _blockProperties(
+        uint _blockNumber
+    )
+        internal
+        view
+        returns (
+            bytes32,
+            uint,
+            uint,
+            address,
+            uint,
+            /**uint,*/ uint,
+            uint,
+            uint,
+            uint,
+            uint
+        )
+    {
+        return (
+            blockhash(_blockNumber), // hash of block(one of the 256 most recent blocks)
+            block.basefee, // current block's base fee
             block.chainid,
-            block.coinbase,                     // current block miner’s address
-            block.difficulty,                   // depreceated for EVM versions previous Paris
-         // block.prevrandao(_blockNumber),     // random number provided by the beacon chain (EVM >= Paris)
-            block.gaslimit,                     // current block's gas limit
+            block.coinbase, // current block miner’s address
+            block.difficulty, // depreceated for EVM versions previous Paris
+            // block.prevrandao(_blockNumber),     // random number provided by the beacon chain (EVM >= Paris)
+            block.gaslimit, // current block's gas limit
             block.number,
-            block.timestamp,                    // timestamp as seconds of when block is mined
-            gasleft(),                          // remaining gas
-            tx.gasprice                         // gas price of transaction
+            block.timestamp, // timestamp as seconds of when block is mined
+            gasleft(), // remaining gas
+            tx.gasprice // gas price of transaction
         );
     }
 
-    function _encodeDecode(uint f, uint[3] memory g, bytes memory h) internal pure
-    returns(bytes memory, bytes memory, bytes memory, bytes32)
+    function _encodeDecode(
+        uint f,
+        uint[3] memory g,
+        bytes memory h
+    )
+        internal
+        pure
+        returns (bytes memory, bytes memory, bytes memory, bytes32)
     {
         // Encoding
         bytes memory encodedData = abi.encode(f, g, h); // encodes given arguments
-        
-        abi.encodePacked(f, g, h);      /** 
+
+        abi.encodePacked(
+            f,
+            g,
+            h
+        ); /** 
                                             This method has no padding, thus one variable can merge into other
                                             resulting in Hash collision , 
                                             only usefull if types and length of parameters are known
@@ -762,19 +863,18 @@ receive()   fallback()
                                         */
 
         // Decoding
-            uint _f;
-            uint[3] memory _g;
-            bytes memory _h;
-            (_f, _g, _h) = abi.decode(encodedData, (uint, uint[3], bytes)); // decodes the encoded bytes data back to original arguments
-            assert(_f==f);
+        uint _f;
+        uint[3] memory _g;
+        bytes memory _h;
+        (_f, _g, _h) = abi.decode(encodedData, (uint, uint[3], bytes)); // decodes the encoded bytes data back to original arguments
+        assert(_f == f);
 
-        return(
+        return (
             // encodes arguments from the second and prepends the given four-byte selector
-            abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5),  // arguments type is not checked
-            abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10),  // typo error & arguments is not validated
-
+            abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5), // arguments type is not checked
+            abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10), // typo error & arguments is not validated
             // ensures any typo and arguments types match the function signature
-            abi.encodeCall(IERC20.transfer, (address(0), 12)),  
+            abi.encodeCall(IERC20.transfer, (address(0), 12)),
             /**
                 ^ zero address (address(0)) private key is unknown 
                 thus Ether and tokens sent to this address cannot be retrieved and setting access control roles to this address also won’t work  
@@ -790,12 +890,15 @@ receive()   fallback()
         );
     }
 
-    function contractInfo() external pure returns (string memory, string memory, bytes4) {
+    function contractInfo()
+        external
+        pure
+        returns (string memory, string memory, bytes4)
+    {
         return (
             // Name of Contract / Interface.
             type(Token).name,
             type(IERC20).name,
-
             // EIP-165 interface identifier of the given interface
             type(IERC20).interfaceId
 
@@ -814,12 +917,12 @@ receive()   fallback()
                                                                                 - constructor code or 
                                                                                 - any internal functions call through it
     */
-    constructor(bytes32 _salt) payable{
+    constructor(bytes32 _salt) payable {
         // "msg" is a special global variable that contains allow access to the blockchain.
         // msg.sender is always the address where the current (external) function call came from.
         owner = msg.sender;
-        senderBalance = owner.balance;  // .balance is used to query the balance of address in Wei
-        balances[owner] = 100;  // assigning value to mapping "balances"
+        senderBalance = owner.balance; // .balance is used to query the balance of address in Wei
+        balances[owner] = 100; // assigning value to mapping "balances"
         _createContract(_salt);
     }
 
@@ -831,10 +934,10 @@ receive()   fallback()
             Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
             Multiple modifiers in functions are evaluated in the order presented 
     */
-    modifier onlyOwner(/**can receive arguments*/) {
+    modifier onlyOwner() /**can receive arguments*/ {
         require(msg.sender == owner, "Not Owner");
-        _;  // The function body is inserted where the underscore is placed(can be multiple), 
-        // any logic mentioned after underscore is executed afterwards 
+        _; // The function body is inserted where the underscore is placed(can be multiple),
+        // any logic mentioned after underscore is executed afterwards
     }
 
     // Events allow clients to react to specific state change
@@ -853,16 +956,21 @@ receive()   fallback()
         All parameters without the indexed attribute are ABI-encoded into the data part of the log
         Filtering of events can also be done via the address of contract
     */
-    event Log(string func, uint indexed gas);  
+    event Log(string func, uint indexed gas);
 
     /** 
         'anonymous' events can support up to 4 indexed parameters
             - does not stores event's signature as topic
             - not possible to filter for anonymous events by name, but only by the contract address 
     */
-    event Privacy(string indexed rand1, string indexed rand2, string indexed rand3, string indexed rand4) anonymous;
+    event Privacy(
+        string indexed rand1,
+        string indexed rand2,
+        string indexed rand3,
+        string indexed rand4
+    ) anonymous;
 
-    bytes32 _eventSelector = Log.selector;   // stores keccak256 hash of non-anonymous event signature
+    bytes32 _eventSelector = Log.selector; // stores keccak256 hash of non-anonymous event signature
 
     // Errors allow custom names and data for failure situations.
     // Are used in revert statement & are cheaper than using string in revert
@@ -879,43 +987,53 @@ receive()   fallback()
             salt & 
             creation bytecode of the created contract and the constructor arguments.
         */
-        address preComputecAddress = address(uint160(uint(keccak256(abi.encodePacked(
-            bytes1(0xff),
-            address(this),
-            _salt,
-            keccak256(abi.encodePacked(
-                type(Token).creationCode,
-                abi.encode(3e6)
-            ))
-        )))));
+        address preComputecAddress = address(
+            uint160(
+                uint(
+                    keccak256(
+                        abi.encodePacked(
+                            bytes1(0xff),
+                            address(this),
+                            _salt,
+                            keccak256(
+                                abi.encodePacked(
+                                    type(Token).creationCode,
+                                    abi.encode(3e6)
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
 
         // Create2 opcode is method to deploy a new contract with a deterministic address
-        address c = address(new Token{value: msg.value, salt : _salt}(3e6));
+        address c = address(new Token{value: msg.value, salt: _salt}(3e6));
 
         assert(address(c) == preComputecAddress);
     }
 
     // Modifier usage let only the creator of the contract "owner" can call this function
     function set(uint256 _value) public onlyOwner {
-        if(_value < 10) revert ("Low value provided");
+        if (_value < 10) revert("Low value provided");
         _storedData = _value;
 
         // Block scoping
         uint insideout = 5;
         {
-            insideout = 35;         // will assign to the outer variable
-            uint insideout;         // Warning : Shadow declaration but it's visibility is limited only to this block
-            insideout = 1000;       
+            insideout = 35; // will assign to the outer variable
+            uint insideout; // Warning : Shadow declaration but it's visibility is limited only to this block
+            insideout = 1000;
             assert(insideout == 1000);
         }
-        assert(insideout == 35);  // will check for outer variable 
+        assert(insideout == 35); // will check for outer variable
 
         // Stored event emitted
         emit Stored(msg.sender, _value);
     }
 
     // Payable Function requires Calling this function along with some Ether (as msg.value)
-    function transferringFunds(address payable _to) external payable{
+    function transferringFunds(address payable _to) external payable {
         /** 
             'transfer' fails if sender don't have enough balance or Transaction rejected by receiver 
             reverts on failure & stops execution
@@ -957,8 +1075,10 @@ receive()   fallback()
             - bypasses type checking, function existence check, and argument packing
             - on "revert" cause entire transaction to be reverted (including any changes made prior to low-level call)
     */
-    function lowLevelCall(address payable _contract) external payable returns(bool success, bytes memory data){
-        // call method
+    function lowLevelCall(
+        address payable _contract
+    ) external payable returns (bool success, bytes memory data) {
+        // call method , forwards all remaining gas by default
         (success, data) = _contract.call{value: msg.value, gas: 5000}(
             abi.encodeWithSignature("dummy(string,uint256)", "hello there", 200)
         );
@@ -971,7 +1091,7 @@ receive()   fallback()
             Prior to v0.5.0 delegatecall is called callcode
         */
         (success, data) = _contract.delegatecall(
-            abi.encodeWithSignature("setVar(uint256)", 35)  
+            abi.encodeWithSignature("setVar(uint256)", 35)
         );
         /** 
             ^ If state variables are accessed via a low-level delegatecall, 
@@ -980,10 +1100,12 @@ receive()   fallback()
     }
 
     // query the deployed code for any smart contract
-    function accessCode(address _contractAddr) external view returns(bytes memory, bytes32){
+    function accessCode(
+        address _contractAddr
+    ) external view returns (bytes memory, bytes32) {
         return (
-            _contractAddr.code,     // gets the EVM bytecode of code
-            _contractAddr.codehash  // Keccak-256 hash of that code
+            _contractAddr.code, // gets the EVM bytecode of code
+            _contractAddr.codehash // Keccak-256 hash of that code
         );
     }
 
@@ -996,7 +1118,7 @@ receive()   fallback()
             - internal : can only be accessed from within the current contract or contracts deriving from it & neither exposed via ABI
             - private : similar to internal but not accessible in derived contracts 
     */
-    function canUSeeMe() public view returns(uint){
+    function canUSeeMe() public view returns (uint) {
         /** 
             _tk._anon() , _tk._mulPriv() will not be accessible due to private visibility and 
             also as this contract doesn't derived from contract Token, _tk._addPriv() (internal func.) will also not be accessible 
@@ -1004,19 +1126,17 @@ receive()   fallback()
         return _tk.getPriv();
     }
 
-
-    function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable{
+    function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable {
         // while external contract call we can specify value & gas
-        _tk.updateSupply{value : msg.value, gas : 3000}(5);
+        _tk.updateSupply{value: msg.value, gas: 3000}(5);
         /** 
             NOTE : calling contractInstance.{value, gas} w/o () at end , 
             will not call function resulting in loss of value & gas 
         */
 
         //arguments can be given by name, in any order, if they are enclosed in { }
-        slice({end:_y, _arr: _data, start:_x});
+        slice({end: _y, _arr: _data, start: _x});
     }
-
 
     /** Functions Mutability :
         - view : functions which can read state & environment variables but cannot modify it
@@ -1033,24 +1153,30 @@ receive()   fallback()
         - pure : functions can neither read or modify state or environment variables (except msg.sig & msg.data),
                     these functions can also use revert as its not considered 'state modification'
     */
-    
-    // Contract can have multiple functions of the same name but with different parameter types called 'overloading' 
-    function twins(uint256 j) public view returns(uint k){
+
+    // Contract can have multiple functions of the same name but with different parameter types called 'overloading'
+    function twins(uint256 j) public view returns (uint k) {
         k = j * block.timestamp;
     }
+
     // Returns parameters are not taken into consideration for overload resolution
-    function twins(uint8 j) public pure returns(uint k){
+    function twins(uint8 j) public pure returns (uint k) {
         k = j * 2;
     }
 
-    function arithmeticFlow(uint a, uint b) public pure returns(uint u, uint o) {
+    function arithmeticFlow(
+        uint a,
+        uint b
+    ) public pure returns (uint u, uint o) {
         // This subtraction will wrap on underflow.
-        unchecked {  u = a - b; }
+        unchecked {
+            u = a - b;
+        }
 
-        o = a - b;    // will revert on underflow
+        o = a - b; // will revert on underflow
         return (u, o);
     }
-    
+
     /** 
         Solidity throws an exception if an condition evaluates to false
         resulting in revert to previous state via rolling back all changes made to the state so far.
@@ -1063,10 +1189,9 @@ receive()   fallback()
                 - return values from calls to other functions
         */
         require(msg.value % 2 == 0, "Value sent not Even");
-    
+
         // A direct revert can be triggered using the revert statement and the revert function.
-        if(msg.value < 1 ether ) 
-        revert LowValueProvided(msg.value);
+        if (msg.value < 1 ether) revert LowValueProvided(msg.value);
         // revert can also be used like revert("description") or revert CustomError(args)
 
         uint balBeforeTransfer = address(this).balance;
@@ -1082,7 +1207,6 @@ receive()   fallback()
                 - check for overflow/underflow
         */
         assert(address(this).balance == balBeforeTransfer - msg.value / 2); // it will fail only if there is any exception while transferring funds
-        
 
         /** 
             Error(string) is used for regular error conditions
@@ -1099,7 +1223,6 @@ receive()   fallback()
 
                 - If your contract receives Ether via a public getter function.
         */
-        
 
         /** 
             Panic(uint256) is used for errors that should not be present in bug-free code
@@ -1126,7 +1249,6 @@ receive()   fallback()
                 0x51: If you call a zero-initialized variable of internal function type.
         */
 
-
         /** 
             Cases when it can either cause an Error or a Panic (or whatever else was given):
                 - If a .transfer() fails.
@@ -1142,20 +1264,24 @@ receive()   fallback()
         whenever a "revert" call is executed an exception is generated that propgates up the function call stack 
         until caught by try/catch.
     */
-    function tryNcatch(address _extContract, address _recipient) public returns(bool){
-        try IERC20(_extContract).transfer(_recipient, 100) returns(bool success){
-            return(success);
-        }
-        // while creating new contract -> try new Token(_totalSupply) returns (Token t) 
-        catch Error(string memory desc) {
+    function tryNcatch(
+        address _extContract,
+        address _recipient
+    ) public returns (bool) {
+        try IERC20(_extContract).transfer(_recipient, 100) returns (
+            bool success
+        ) {
+            return (success);
+        } catch Error(
+            string memory desc // while creating new contract -> try new Token(_totalSupply) returns (Token t)
+        ) {
             // This is executed in case revert("string description")
             emit Log(desc, gasleft());
             return (false);
         } catch Panic(uint /**errorCode*/) {
             // executed in case of a panic
             return (false);
-        } 
-        catch (bytes memory /**lowLevelData*/) {
+        } catch (bytes memory /**lowLevelData*/) {
             // executed in case revert() was used.
             return (false);
         }
@@ -1168,8 +1294,8 @@ receive()   fallback()
         ether can still be sent to the removed contract but would be lost
     */
     function boom() external {
-        // some other code .... 
-        // if boom() reverts before selfdestruct, it "undo" the destruction 
+        // some other code ....
+        // if boom() reverts before selfdestruct, it "undo" the destruction
         /** 
             EIP-6049: Deprecate SELFDESTRUCT opcode and warns against its use. 
             A breaking change is likely to come in the future 
@@ -1183,7 +1309,7 @@ receive()   fallback()
     }
 
     // accessing library
-    function testRoot(uint256 _num) public pure returns(uint){
+    function testRoot(uint256 _num) public pure returns (uint) {
         return Root.sqrt(_num);
     }
 
@@ -1191,48 +1317,57 @@ receive()   fallback()
         Inline assembly is way to access EVM at low level(via OPCODES) by passing important safety features & checks of solidity
         it uses Yul as it's language 
     */
-    function assemblyTinker(address _addr) public returns (bool){
+    function assemblyTinker(address _addr) public returns (bool) {
         uint256 size;
         // retrieve the size of the code, through assembly
-        assembly {      // variables declared outside assembly block can be manipulated inside
+        assembly {
+            // variables declared outside assembly block can be manipulated inside
             // assign to variable by :=
-            size := extcodesize(_addr)  // extcodesize is opcode for length of the contract bytecode(in bytes) at addr
-            
+            size := extcodesize(_addr) // extcodesize is opcode for length of the contract bytecode(in bytes) at addr
+
             // no semicolon or new line required
-            let a := mload(0x40)  // reads and assign (u)int256 from memory at location 0x40
-            mstore(a, 2)          // writes (u)int256 value 2 as memory to variable 'a'
-            sstore(a, 10)         // writes (u)int256 value 2 as storage to variable 'a'
+            let a := mload(0x40) // reads and assign (u)int256 from memory at location 0x40
+            mstore(a, 2) // writes (u)int256 value 2 as memory to variable 'a'
+            sstore(a, 10) // writes (u)int256 value 2 as storage to variable 'a'
 
             // Supports for loops, if and switch statements and function calls.
-            if eq(size, 0) {revert(0,0)}
+            if eq(size, 0) {
+                revert(0, 0)
+            }
 
             {
-                function switchPower(base, exponent) -> result
-                {
+                function switchPower(base, exponent) -> result {
                     switch exponent
-                    case 0 { result := 1 }
-                    case 1 { result := base }
-                    default
-                    {
+                    case 0 {
+                        result := 1
+                    }
+                    case 1 {
+                        result := base
+                    }
+                    default {
                         result := switchPower(mul(base, base), div(exponent, 2))
                         switch mod(exponent, 2)
-                            case 1 { result := mul(base, result) }
+                        case 1 {
+                            result := mul(base, result)
+                        }
                     }
                 }
             }
 
             {
-                function forPower(base, exponent) -> result
-                {
+                function forPower(base, exponent) -> result {
                     result := 1
                     // variable declarations by let
-                    for { let i := 0 } lt(i, exponent) { i := add(i, 1) }   // lt opcode is for comparing if i<exponent
-                    {
+                    for {
+                        let i := 0
+                    } lt(i, exponent) {
+                        i := add(i, 1)
+                    } {
+                        // lt opcode is for comparing if i<exponent
                         result := mul(result, base)
                     }
                 }
             }
-
         }
         return (size > 0);
     }
@@ -1271,8 +1406,13 @@ receive()   fallback()
             -  second element of fifth parameter
             -  third element of fifth parameter
     */
-    function selectorJSL(uint32 par1, bytes3[2] memory, bytes memory, bool, uint[] memory) external pure returns(bool r)
-    {
+    function selectorJSL(
+        uint32 par1,
+        bytes3[2] memory,
+        bytes memory,
+        bool,
+        uint[] memory
+    ) external pure returns (bool r) {
         r = par1 > 32 ? true : false;
     }
 }
