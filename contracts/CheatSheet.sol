@@ -259,6 +259,7 @@ receive()   fallback()
 */
     // Fallback & receive functions must be external.
     // Both can rely on just 2300 gas being available to prevent re-entry
+    // as this gas is not enough to mofify any state
     receive() external payable {
         emit Log("receive", gasleft());
     }
