@@ -1303,6 +1303,9 @@ receive()   fallback()
         */
         selfdestruct(payable(owner));
         /** 
+            When the SELFDESTRUCT opcode is called, ether of the callee are sent to the address on the stack, 
+            and execution is immediately halted and functions blocking the receipt of Ether will not be executed.
+
             self destruct forcefully send eth to contract even if:
                 - contract has no payable , receive or fallback functions
                 - contract has revert() in receive()
