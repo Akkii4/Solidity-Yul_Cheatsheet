@@ -10,6 +10,7 @@
         Versioning is to ensure that the contract is not compatible with a new (breaking) compiler version, to avoid behaving differently
     - another e.g. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and 
         floating pragma `^` represents it neither compiles on compiler 0.x.0(where x > 4).
+        Locking the pragma (for e.g. by not using ^ ahead of pragma) ensures that contracts do not accidentally get deployed using any other compiler version
 */
 pragma solidity >=0.4.16 <0.9.0;
 // ^ Source code is written for Solidity version 0.4.16, or a newer version of the language up to, but not including version 0.9.0
