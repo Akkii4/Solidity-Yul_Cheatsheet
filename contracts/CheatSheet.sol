@@ -781,10 +781,12 @@ receive()   fallback()
         int k = -3;
         j = uint(k);
 
+        // when uint is converted to a smaller uint the smallest bytes are taken (from right)
         uint32 l = 0x12345678;
         m = uint16(l); // b will be 0x5678 now
         // uint16 c = 0x123456; //error, since it would have to truncate to 0x5678, since v0.8 only conversion allowed if in resulting range
 
+        // when byte is converted to a smaller byte its taken from the left
         bytes2 n = 0x1234;
         p = bytes1(n); // b will be 0x12
     }
