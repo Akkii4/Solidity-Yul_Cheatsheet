@@ -1380,6 +1380,8 @@ receive()   fallback()
     }
 
     /** 
+        Function parsed data is represented as 4 + 32*N where N is the number of arguments in the function
+        
         Function signature is a string that consists of the function's name and the types of its input parameters. 
             also used to distinguish function from another with the same name but different parameters.
             e.g. a function "transfer" with two input parameters address & uint256, signature is "transfer(address,uint256)".
@@ -1398,20 +1400,39 @@ receive()   fallback()
         for eg. calling following function with params. 
             (53, ["abc", "def"], "dave", true, [1,2,3]) we would pass total 388 bytes as follows :
 
-            -  function selector. first 4 bytes of function signature
-                // rest all arguments will be padded to 32 bytes
-            -  uint32 value 53 as first parameter
-            -  bytes3 value "abc" (left-aligned) as first part of second parameter
-            -  bytes3 value "def" (left-aligned) as second part of second parameter
-            -  location of data part of third parameter (dynamic type), measured in bytes
+            - prefix we discard
+                0x
+            -  function selector/ Method ID (first 4 bytes of selector)
+                566145fd
+        NOTE : All arguments will be padded to 32 bytes, each arguments are seperated by 64 characters(32 bytes)
+            -  uint32  "53" as first parameter 
+                0000000000000000000000000000000000000000000000000000000000000035
+            -  bytes3  "abc" (left-aligned) as first part of second parameter
+                6465660000000000000000000000000000000000000000000000000000000000
+            -  "def" (left-aligned) as second part of second parameter
+                6162630000000000000000000000000000000000000000000000000000000000
+            -  dynamic byte, location of data part of third parameter (dynamic type), measured in bytes from the start of argument block
+                00000000000000000000000000000000000000000000000000000000000000c0 // 192th Byte
             -  Boolean ‘true’ as fourth parameter
-            -  location of data part of fifth parameter (dynamic type)
+                0000000000000000000000000000000000000000000000000000000000000001
+            -  dynamic array, location of data part of fifth parameter (dynamic type), measured in bytes
+                0000000000000000000000000000000000000000000000000000000000000100 // 256th Byte
             -  data part of third argument, starts with length of byte array, in this case, 4
+                0000000000000000000000000000000000000000000000000000000000000004
             -  data of third argument UTF-8 (equal to ASCII in this case) encoding of "dave", padded on right to 32 bytes
+                6461766500000000000000000000000000000000000000000000000000000000
             -  data part of fifth argument, starts with length of array, in this case, 3
+                0000000000000000000000000000000000000000000000000000000000000003
             -  first element of fifth parameter
+                0000000000000000000000000000000000000000000000000000000000000001
             -  second element of fifth parameter
+                0000000000000000000000000000000000000000000000000000000000000002
             -  third element of fifth parameter
+                0000000000000000000000000000000000000000000000000000000000000003
+
+    0    4        36          68         100          132    164           196          228           260           292       324       356      388
+    0x-ID|-uint32-|-bytes3[0]-|-bytes3[1]-|-bytes(loc)-|-bool-|-uint[](loc)-|-bytes(len)-|-bytes(data)-|-uint[](len)-|-uint[0]-|-uint[1]-|-uint[2] 
+         ^start of the arguments block......................................^(192th Byte location......^(256th Byte location).....
     */
     function selectorJSL(
         uint32 par1,
