@@ -696,7 +696,7 @@ receive()   fallback()
         every possible key is mapped to a value whose byte-representation is all zeros,
 
         Not possible to obtain a list of all keys or values of a mapping, 
-        as keecak256 hash of keys is used to look up value
+        as keccak256 hash of keys is used to look up value
 
         only allowed as state variables but can be passed as parameters only for library functions 
 
