@@ -1101,6 +1101,8 @@ receive()   fallback()
             ^ If state variables are accessed via a low-level delegatecall, 
             the storage layout of the two contracts must be in same order for the called contract to correctly access the storage variables of the calling contract by name. 
         */
+
+        // STATICCALL opcode is used when view/pure functions are called such that modifications to the state are prevented
     }
 
     // query the deployed code for any smart contract
