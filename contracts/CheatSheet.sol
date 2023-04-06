@@ -243,8 +243,8 @@ library Root {
 /// @custom:custom-name tag's explanation
 contract CheatSheet {
     // All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
-    // contract instance of "Token"
-    Token _tk;
+    // contract instance of "Token" to interact with it
+    Token _tk; // variable of contract type & can be Explicitily converted to and from the address payable type
 
     /**
     fallback() or receive ()?
