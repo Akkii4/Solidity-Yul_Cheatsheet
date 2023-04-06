@@ -224,6 +224,7 @@ library Root {
         uint256 a,
         uint256 b
     ) external pure returns (bool, uint256) {
+        // after v0.8 unchecked does not let code revert and allows over/under flow arithmetic operations inside it's block
         unchecked {
             if (a == 0) return (true, 0);
             uint256 c = a * b;
