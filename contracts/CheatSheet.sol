@@ -213,8 +213,10 @@ library Root {
     }
 
     /** 
-        A library can be attached to a type inside a contract (only active within that contract:
-            - "using Root for uint256;"
+        A library can be attached to a data type inside a contract (only active within that contract:
+            - using Root for uint256            attaches all functions of Root to uint256
+            - using Root for *                  attaches all functions of Root to all types
+            - using { Root.sqrt } for uint256   attaches just sqrt functions of Root to uint256
         These functions will receive the object they are called on as their first parameter.
      */
     /// @return Documents the return variables of a contract’s function
