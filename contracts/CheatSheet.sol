@@ -1094,7 +1094,7 @@ receive()   fallback()
         /** 
             Explicit conversion allowed 
             from address to address payable &
-            from uint160 to address 
+            from uint160, bytes20, contract types to address 
         */
         payable(owner).transfer(address(this).balance); // querying current contract balance in Wei
     }
