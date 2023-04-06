@@ -307,10 +307,10 @@ receive()   fallback()
     uint public immutable senderBalance;
 
     /** 
-    Variable Packing
-    Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
-    Packing reduces storage slot usage but increases opcodes necessary to read/write to them.
-*/
+        Variable Packing
+        Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
+        Packing reduces storage slot usage but increases opcodes necessary to read/write to them.
+    */
     uint248 _right; // 31 bytes, Doesn't fit into the previous slot, thus starts with a new one
     uint8 _left; // 1 byte, There's still 1 byte left out of 32 byte slot
     //^ one storage slot will be packed from right to left with the above two variables (lower-order aligned)
@@ -324,9 +324,9 @@ receive()   fallback()
     //  keccak(h(k) + p) with h() padding value to 32 bytes or hashing reference types.
 
     // Bytes and Strings are stored like array elements and data area is computed using a keccak256 hash of the slot's position.
-    //   Bytes are stored in continuous memory locations while strings are stored as a sequence of pointers to memory locations
-    //   For values less than 32 bytes, elements are stored in higher-order bytes (left aligned) and the lowest-order byte stores value (length * 2).
-    //   whereas bytes of 32 bytes or more, the main slot stores (length * 2 + 1) and the data is stored as usual in keccak256(p).
+    // Bytes are stored in continuous memory locations while strings are stored as a sequence of pointers to memory locations
+    // For values less than 32 bytes, elements are stored in higher-order bytes (left aligned) and the lowest-order byte stores value (length * 2).
+    // whereas bytes of 32 bytes or more, the main slot stores (length * 2 + 1) and the data is stored as usual in keccak256(p).
 
     // In case of inheritance, order of variables is starting with the most base-ward contract & do share same slot
 
@@ -339,7 +339,7 @@ receive()   fallback()
     */
 
     // There's no packing in memory or function arguments as they are always padded to 32 bytes
-    //Example, following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
+    // Example, following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
     uint8[4] _slotA;
 
     // Following struct occupies 96 bytes (3 slots of 32 bytes) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
@@ -384,9 +384,9 @@ receive()   fallback()
     }
 
     /** 
-    Value Types : These variables are always be passed by value, 
-    i.e. they are always copied when used as function arguments or in assignments.
-*/
+        Value Types : These variables are always be passed by value, 
+        i.e. they are always copied when used as function arguments or in assignments.
+    */
     // Integers exists in sizes(from 8 up to 256 bits) in steps of 8
     // uint and int are aliases for uint256 and int256, respectively
     uint256 _storedData; // unsigned integer of 256 bits
@@ -445,10 +445,10 @@ receive()   fallback()
             // Also Hexadecimal literals that pass the address checksum test are considered as address
             0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
             /** 
-            Division on integer literals e.g. 5/2
-            prior to version 0.4.0 is equal to  2
-            but now it's rational number 2.5
-        */
+                Division on integer literals e.g. 5/2
+                prior to version 0.4.0 is equal to  2
+                but now it's rational number 2.5
+            */
             5 / 2 + 1 + 0.5, //  = 4
             // whereas uint x = 1;
             //         uint y = 5/2 + x + 0.5  returns compiler error, as operators works only on common value types
@@ -466,8 +466,8 @@ receive()   fallback()
             unicode"Hi there 👋",
             //Random Hexadecimal literal behave just like string literal
             hex"00112233_44556677",
-            //array literals are comma-separated list of one or more expressions
-            // typed by that of its first element & all its elements can be converted this type
+            //  array literals are comma-separated list of one or more expressions
+            //  typed by that of its first element & all its elements can be converted this type
             [int(1), -1]
         );
     }
@@ -520,9 +520,9 @@ receive()   fallback()
     }
 
     /** 
-    Reference Types : Values can be modified through multiple different names unlike Value type
-    always have to define the data locations for the variables
-*/
+        Reference Types : Values can be modified through multiple different names unlike Value type
+        always have to define the data locations for the variables
+    */
 
     /** 
         Solidity stores data as :
@@ -533,8 +533,11 @@ receive()   fallback()
             3. calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
         Prior to v0.6.9 data location was limited to calldata in external functions
     */
-    function dataLocations(uint[] memory memoryArray) public {
-        dynamicSized = memoryArray; // Assignments between storage, memory & calldata always creates independent copies
+    function dataLocations(
+        uint[] memory memoryArray,
+        uint[3] memory secArray
+    ) public {
+        dynamicSized = memoryArray; // Assignments between storage & memory or from calldata always creates independent copies
         uint[] storage z = dynamicSized; // Assignments to a local storage from storage ,creates reference.
         z.pop(); // modifies array dynamicSized through y
 
@@ -551,9 +554,7 @@ receive()   fallback()
             it would need to create a new temporary / unnamed array in storage, 
             but storage is "statically" allocated
             // z = memoryArray;
-        /*
 
-        /** 
             Cannot "delete z" as
             referencing global storage objects can only be made from existing local storage objects.
             // delete z
