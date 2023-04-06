@@ -854,18 +854,15 @@ receive()   fallback()
         // Encoding
         bytes memory encodedData = abi.encode(f, g, h); // encodes given arguments
 
-        abi.encodePacked(
-            f,
-            g,
-            h
-        ); /** 
-                                            This method has no padding, thus one variable can merge into other
-                                            resulting in Hash collision , 
-                                            only usefull if types and length of parameters are known
-                                            e.g. encodePacked(AAA, BBB) -> AAABBB
-                                                             (AA, ABBB) -> AAABBB
-                                            use abi.encode to solve it
-                                        */
+        /** 
+                This method has no padding, thus one variable can merge into other
+                resulting in Hash collision , 
+                only usefull if types and length of parameters are known
+                e.g. encodePacked   (AAA, BBB) -> AAABBB
+                                    (AA, ABBB) -> AAABBB
+                use abi.encode to solve it
+        */
+        abi.encodePacked(f, g, h);
 
         // Decoding
         uint _f;
