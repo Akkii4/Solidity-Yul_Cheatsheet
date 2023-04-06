@@ -542,11 +542,11 @@ receive()   fallback()
         z.pop(); // modifies array "dynamicSized" through "z"
 
         // Assignment from memory to memory only create references
-        uint[3] memory k = secArray;
-        uint[3] memory j = k;
+        uint[3] memory kl = secArray;
+        uint[3] memory j = kl;
         // change to one memory variable are visible in all other memory variable reffering same data
         delete j[1];
-        assert(k[1] == j[1]);
+        assert(kl[1] == j[1]);
 
         /** 
             delete
@@ -811,8 +811,8 @@ receive()   fallback()
                     - converting to a smaller type, higher-order bits are cut off
                     - converting to a larger type, it is padded on the left
         */
-        int k = -3;
-        j = uint(k);
+        int kt = -3;
+        j = uint(kt);
 
         // when uint is converted to a smaller uint the smallest bytes are taken (from right)
         uint32 l = 0x12345678;
@@ -1191,13 +1191,13 @@ receive()   fallback()
     */
 
     // Contract can have multiple functions of the same name but with different parameter types called 'overloading'
-    function twins(uint256 j) public view returns (uint k) {
-        k = j * block.timestamp;
+    function twins(uint256 j) public view returns (uint km) {
+        km = j * block.timestamp;
     }
 
     // Returns parameters are not taken into consideration for overload resolution
-    function twins(uint8 j) public pure returns (uint k) {
-        k = j * 2;
+    function twins(uint8 j) public pure returns (uint km) {
+        km = j * 2;
     }
 
     function arithmeticFlow(
