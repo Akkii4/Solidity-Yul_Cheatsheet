@@ -409,10 +409,7 @@ receive()   fallback()
 
     // address holds 20 byte(160 bits) value and is suitable for storing addresses of contracts, or external accounts.
     address public owner;
-    /**  
-        Equivalent to -> function owner() external view returns (address) { return owner; }
-        thus, can be accessed externally via this.owner()
-    */
+    // ^ Equivalent to -> function owner() public view returns (address) { return owner; }
     // address with transfer and send functionality to receive Ether
     address payable public treasury;
 
