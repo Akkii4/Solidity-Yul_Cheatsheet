@@ -1332,11 +1332,7 @@ receive()   fallback()
     function boom() external {
         // some other code ....
         // if boom() reverts before selfdestruct, it "undo" the destruction
-        /** 
-            EIP-6049: Deprecate SELFDESTRUCT opcode and warns against its use. 
-            A breaking change is likely to come in the future 
-        */
-        selfdestruct(payable(owner));
+        selfdestruct(payable(owner)); // Warning : SELFDESTRUCT is deprecated opcode
         /** 
             When the SELFDESTRUCT opcode is called, ether of the callee are sent to the address on the stack, 
             and execution is immediately halted and functions blocking the receipt of Ether will not be executed.
