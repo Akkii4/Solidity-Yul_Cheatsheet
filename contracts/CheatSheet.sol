@@ -541,6 +541,13 @@ receive()   fallback()
         uint[] storage z = dynamicSized; // Assignments to a local storage from storage ,creates reference.
         z.pop(); // modifies array "dynamicSized" through "z"
 
+        // Assignment from memory to memory only create references
+        uint[3] memory k = secArray;
+        uint[3] memory j = k;
+        // change to one memory variable are visible in all other memory variable reffering same data
+        delete j[1];
+        assert(k[1] == j[1]);
+
         /** 
             delete
                 Resets to the default value of that type
@@ -603,6 +610,11 @@ receive()   fallback()
                 User({addr: msg.sender, task: "foo"})
             )
         );
+        /** 
+        4. adds new element to end of array and then set the value of a particular field in that element
+            leaving all other fields to there default 
+        */
+        todoArr.push().numTodo = 45;
 
         // accessing struct
         t.owner; // returns the value stored 'owner'
@@ -653,7 +665,7 @@ receive()   fallback()
 
         // Only dynamic storage arrays are resizable
         // Adding elements
-        dynamicSized.push(_value); // appends new element at end of array
+        dynamicSized.push(_value); // appends new element at end of array , equivalent dynamicSized.push() = _value;
         dynamicSized.push(); // appends zero-initialized element
 
         // Removing elements
