@@ -538,6 +538,7 @@ receive()   fallback()
 
     /** 
         Reference Types : Values can be modified through multiple different names unlike Value type
+            when passed as an argument or returned in a function, a reference to the value is passed or returned, not a copy.
         always have to define the data locations for the variables
     */
 
