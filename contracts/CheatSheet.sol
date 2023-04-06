@@ -422,6 +422,23 @@ receive()   fallback()
         return _x && (_y || _z);
     }
 
+    // bytesN is value data type Fixed size byte array of size N bytes (range : 1 to 32)
+    // bytes store every data as hexadecimal format (0x...)
+    bytes2 public k;
+
+    function fixedByte() public returns (bytes1) {
+        // hex is 4 bits , thus 2 hex characters makes 1 bytes
+        k = 0x5661;
+        k = "ab"; // stored as 0x6162
+
+        bytes3 j = hex"32"; // stored as 0x320000
+        j = "abc";
+        // j[0] = "d" Fixed bytes array cannot be
+
+        //can access particular element of byte array
+        return (k[0]);
+    }
+
     // Fixed point numbers aren't yet supported and thus can only be declared
     fixed _xFix;
     ufixed _yUfx;
@@ -687,20 +704,48 @@ receive()   fallback()
         return _arr[start:end];
     }
 
-    /**
-        String represents dynamic array of UTF-8 characters
-        manipulation and storage of strings are more complex (parsing & decoding) and costly as compared to that of bytes 
-    */
+    // dynamic sized bytes array and string are special arrays of Reference type
+    // bytes represents arbitary length raw byte data
+    // bytes are similar to bytes1[] but tightly packed (w/o padding)
+    bytes _tps;
+
+    // String represents dynamic array of UTF-8 characters
+    string _kmp;
+
+    function bytesNstring(
+        bytes memory _bc,
+        string memory _tmc
+    ) public returns (uint) {
+        _tps = _bc;
+        _kmp = _tmc;
+
+        // like array only storage bytes can be resized
+        _tps.push(0x61);
+        _tps.push("b");
+        /**
+            only 1 byte can be pushed at a time
+            Error: 
+                _tps.push('bcd');
+                _tps.push(0x6162);
+         */
+        _tps.pop();
+
+        return _tps.length;
+    }
+
     function bytesOperations(
-        string calldata _str
-    ) public pure returns (uint, bytes1, bool, string memory) {
+        string calldata _str,
+        bytes2 sm
+    ) public pure returns (uint, bytes1, bool, string memory, bytes memory) {
         return (
-            // access byte-representation of string
+            // string length & element cannot be accessed directly thus accessing byte-representation of string
             bytes(_str).length, // length of bytes of UTF-8 representation
             bytes(_str)[2], // access element of  UTF-8 representation
             keccak256(abi.encodePacked("foo")) ==
                 keccak256(abi.encodePacked("Foo")), //compare two strings
-            string.concat("foo", "bar") // concatenate strings
+            // concatenate
+            string.concat("foo", "bar"),
+            bytes.concat(bytes(_str), sm)
         );
     }
 
