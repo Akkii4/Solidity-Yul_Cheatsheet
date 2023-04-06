@@ -732,6 +732,26 @@ receive()   fallback()
 
     // 1.5 + (true ? 1.5 : 2.5) NOT valid, as _ternary operator doesn't have a rational number type
 
+    // pre and post fix increment and decrement operators are used to increase or decrease the value of a variable by 1.
+    function postPreFix()
+        external
+        pure
+        returns (uint r, uint s, uint t, uint u)
+    {
+        uint p = 10;
+        //PostFix : returns the value of the variable before it has been incremented/decremented
+        r = p++; // 10
+        // now p = 11
+        s = p--; // 11
+
+        uint q = 20;
+
+        //PreFix : returns the value of the variable after it has been incremented/decremented
+        t = ++q; // 21
+        // now q = 21
+        u = --q; // 20
+    }
+
     // Bitwise Operator
     function bitwiseOperate(
         uint a,
