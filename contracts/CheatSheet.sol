@@ -551,8 +551,8 @@ receive()   fallback()
 
         /**  
             Assigning memory to local storage doesn't work as
-            it would need to create a new temporary / unnamed array in storage, 
-            but storage is "statically" allocated
+            it would need to create a new temporary / unnamed array in global storage, 
+            but storage is allocated at compile time & not runtime
             // z = memoryArray;
 
             Cannot "delete z" as
