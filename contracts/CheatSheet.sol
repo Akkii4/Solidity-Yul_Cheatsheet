@@ -991,7 +991,7 @@ receive()   fallback()
             salt & 
             creation bytecode of the created contract and the constructor arguments.
         */
-        address preComputecAddress = address(
+        address preComputeAddress = address(
             uint160(
                 uint(
                     keccak256(
@@ -1014,7 +1014,7 @@ receive()   fallback()
         // Create2 opcode is method to deploy a new contract with a deterministic address
         address c = address(new Token{value: msg.value, salt: _salt}(3e6));
 
-        assert(address(c) == preComputecAddress);
+        assert(address(c) == preComputeAddress);
     }
 
     // Modifier usage let only the creator of the contract "owner" can call this function
