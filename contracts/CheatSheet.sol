@@ -539,14 +539,14 @@ receive()   fallback()
     ) public {
         dynamicSized = memoryArray; // Assignments between storage & memory or from calldata always creates independent copies
         uint[] storage z = dynamicSized; // Assignments to a local storage from storage ,creates reference.
-        z.pop(); // modifies array dynamicSized through y
+        z.pop(); // modifies array "dynamicSized" through "z"
 
         /** 
             delete
                 Resets to the default value of that type
                 doesn't works on mappings (unless deleting a individual key)
         */
-        delete dynamicSized; // clears the array dynamicSized & y
+        delete dynamicSized; // clears the array "dynamicSized" & "z"
         delete dynamicSized[2]; // resets third element of array w/o changing length
 
         /**  
