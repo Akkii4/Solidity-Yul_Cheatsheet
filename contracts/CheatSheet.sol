@@ -664,7 +664,7 @@ receive()   fallback()
         uint[2][] memory b = new uint[2][](size); // Dynamic memory array
         // fixed size array can't be converted/assigned to dynamic memory array
         // uint[] memory x = [uint(1), 3, 4]; // gives Error
-        // Unlike storage arrays memory array size can't be changed i.e. push or pop is invalid
+        // Unlike storage arrays memory or fixed size array can't be resized i.e. push or pop is invalid
 
         // assigning to arrays
         for (uint i = 0; i <= 7; i++) {
