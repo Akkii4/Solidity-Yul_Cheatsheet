@@ -1197,7 +1197,7 @@ receive()   fallback()
             - external : these calls create an actual EVM message call, 
                 they can be called from other contracts and via transactions; 
                 and can be accessed internally via this.extFunc()
-            - public : can be either called internally or via message calls.
+            - public : can be either called internally eg. pubFunc() or via message calls(externally) like this.pubFunc() 
             - internal : can only be accessed from within the current contract or contracts deriving from it & neither exposed via ABI
             - private : similar to internal but not accessible in derived contracts 
     */
