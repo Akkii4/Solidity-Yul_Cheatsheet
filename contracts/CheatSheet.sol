@@ -1042,6 +1042,7 @@ receive()   fallback()
         'anonymous' events can support up to 4 indexed parameters
             - does not stores event's signature as topic
             - not possible to filter for anonymous events by name, but only by the contract address 
+            - should be used when contract has only one event such that all logs are known to be from this event 
     */
     event Privacy(
         string indexed rand1,
