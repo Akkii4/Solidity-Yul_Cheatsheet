@@ -536,6 +536,34 @@ receive()   fallback()
             );
     }
 
+    /**
+        Function Types is a variable that is pointing to a function 
+         and parameter of these variable can be used to pass a function as an argument to another function 
+         or return a function from a function call.
+
+        variants : 
+            - Internal : can only be called inside the current contract(including internal library and inherited functions)
+                internal/private/public functions are assignable to internal function type 
+            - External : calls originated from other contract, containing  address and a function signature 
+                external/public functions are assignable to external function type (excluding libraries function as they use delegatecall)
+
+        Conversion function type A is implicitly convertible to a function type B if :
+            * their parameter, return types & visibility are identical
+            * state mutability of A is more restrictive than the state mutability of B. 
+                - pure functions can be converted to view and non-payable functions
+                - view functions can be converted to non-payable functions
+                - payable functions can be converted to non-payable functions
+
+        External functions and function types with calldata parameters are incompatible with each other atleast one should have memory parameters
+    */
+
+    // External & public functions has members
+    function f() public payable returns (bytes4) {
+        assert(this.f.address == address(this)); //address of the contract where function is located
+        this.transferringFunds{gas: 10, value: 800}(payable(address(0))); // specifies amount of gas or ether sent to a function
+        return this.f.selector; // returns function selector
+    }
+
     /** 
         Reference Types : Values can be modified through multiple different names unlike Value type
             when passed as an argument or returned in a function, a reference to the value is passed or returned, not a copy.
