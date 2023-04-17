@@ -793,10 +793,10 @@ receive()   fallback()
     mapping(address => uint256) public balances;
 
     /** 
-    Operators
-        Result type of operation determined based on :
-        type of operand to which other operand can be implicitly converted to
-*/
+        Operators
+            Result type of operation determined based on :
+            type of operand to which other operand can be implicitly converted to
+    */
 
     /** 
         Ternary Operator
