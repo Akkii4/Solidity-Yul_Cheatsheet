@@ -44,7 +44,9 @@ Changing optimiser's parameter effects :
 
   - the way constants like large numbers or strings are stored
 
-12. All data necessary for view/pure function call can be fetched from the provider itself (Infura or your locally running node) which does all calculations off-chain without need to broadcast a transaction to the network resulting in no gas consumption, as long as they are called externally and not from another contract or anonther state changing function.
+12. All data necessary for view/pure function call can be fetched from the provider itself (Infura or your locally running node) 
+which does all calculations off-chain without need to broadcast a transaction to the network resulting in no gas consumption, 
+as long as they are called externally and not from another contract or anonther state changing function.
 ```
 
 _New points are added whenever something interesting strikes_
