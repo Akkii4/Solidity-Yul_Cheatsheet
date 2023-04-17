@@ -796,6 +796,9 @@ receive()   fallback()
         Operators
             Result type of operation determined based on :
             type of operand to which other operand can be implicitly converted to
+
+       '==' operator is not directly compatible with dynamically-sized types, as the length of these arrays can vary.
+        It can only be used to compare values of certain types, such as integers and fixed-size byte arrays. 
     */
 
     /** 
