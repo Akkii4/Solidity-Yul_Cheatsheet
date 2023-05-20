@@ -47,6 +47,8 @@ Changing optimiser's parameter effects :
 12. All data necessary for view/pure function call can be fetched from the provider itself (Infura or your locally running node) 
 which does all calculations off-chain without need to broadcast a transaction to the network resulting in no gas consumption, 
 as long as they are called externally and not from another contract or anonther state changing function.
+
+13. Ethereum's Block Gas limit is of 30 million gas as of 2023.
 ```
 
 _New points are added whenever something interesting strikes_
