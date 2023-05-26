@@ -100,8 +100,8 @@ contract Token is Tesseract {
     function transfer(address, uint) external {}
 
     /** 
-        `virtual` means the function & modifiers can change its behaviour in derived class
-        `override` means this function, modifier or state variables has changed its behaviour from the base class 
+        `virtual` means the function & modifiers can change its behavior in derived class
+        `override` means this function, modifier or state variables has changed its behavior from the base class 
         private function or state variables can't be marked as virtual or override
     */
     function retVal(uint a) public virtual override returns (uint) {
@@ -244,7 +244,7 @@ library Root {
 contract CheatSheet {
     // All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
     // contract instance of "Token" to interact with it
-    Token _tk; // variable of contract type & can be Explicitily converted to and from the address payable type
+    Token _tk; // variable of contract type & can be Explicitly converted to and from the address payable type
 
     /**
     fallback() or receive ()?
@@ -263,7 +263,7 @@ receive()   fallback()
 */
     // Fallback & receive functions must be external.
     // Both can rely on just 2300 gas being available to prevent re-entry
-    // as this gas is not enough to mofify any state
+    // as this gas is not enough to modify any state
     receive() external payable {
         emit Log("receive", gasleft());
     }
@@ -554,7 +554,7 @@ receive()   fallback()
                 - view functions can be converted to non-payable functions
                 - payable functions can be converted to non-payable functions
 
-        External functions and function types with calldata parameters are incompatible with each other atleast one should have memory parameters
+        External functions and function types with calldata parameters are incompatible with each other at least one should have memory parameters
     */
 
     // External & public functions has members
@@ -590,7 +590,7 @@ receive()   fallback()
         // Assignment from memory to memory only create references
         uint[3] memory kl = secArray;
         uint[3] memory j = kl;
-        // change to one memory variable are visible in all other memory variable reffering same data
+        // change to one memory variable are visible in all other memory variable referring same data
         delete j[1];
         assert(kl[1] == j[1]);
 
@@ -667,7 +667,7 @@ receive()   fallback()
 
         // Struct containing a nested mapping can't be constructed though memory
 
-        // t.reader[_index] = tx.origin;         // WORKS can be initialised by storage reference to struct
+        // t.reader[_index] = tx.origin;         // WORKS can be initialized by storage reference to struct
         // tx.origin : sender's address of the transaction as transactions can originate only from Externally Owned Account (EOA)
         // Todo({reader[_index]: tx.origin;})  // Error
     }
@@ -678,7 +678,7 @@ receive()   fallback()
     uint[][4] _nestedDynamic; // An array of 4 dynamic arrays
     bool[3][] _triDynamic; // Dynamic Array of arrays of length 3
     uint[] public arr = [1, 2, 3]; // pre assigned array
-    uint[][] _freeArr; // Dynaic arrays of dynamic array
+    uint[][] _freeArr; // Dynamic arrays of dynamic array
 
     function aboutArrays(
         uint _x,
@@ -734,7 +734,7 @@ receive()   fallback()
     }
 
     // dynamic sized bytes array and string are special arrays of Reference type
-    // bytes represents arbitary length raw byte data
+    // bytes represents arbitrary length raw byte data
     // bytes are similar to bytes1[] but tightly packed (w/o padding)
     bytes _tps;
 
@@ -779,7 +779,7 @@ receive()   fallback()
     }
 
     /** 
-        Mappings are like hash tables which are virtually initialised such that 
+        Mappings are like hash tables which are virtually initialized such that 
         every possible key is mapped to a value whose byte-representation is all zeros,
 
         Not possible to obtain a list of all keys or values of a mapping, 
@@ -941,7 +941,7 @@ receive()   fallback()
             block.basefee, // current block's base fee
             block.chainid,
             block.coinbase, // current block miner’s address
-            block.difficulty, // depreceated for EVM versions previous Paris
+            block.difficulty, // deprecated for EVM versions previous Paris
             // block.prevrandao(_blockNumber),     // random number provided by the beacon chain (EVM >= Paris)
             block.gaslimit, // current block's gas limit
             block.number,
@@ -966,7 +966,7 @@ receive()   fallback()
         /** 
                 This method has no padding, thus one variable can merge into other
                 resulting in Hash collision , 
-                only usefull if types and length of parameters are known
+                only useful if types and length of parameters are known
                 e.g. encodePacked   (AAA, BBB) -> AAABBB
                                     (AA, ABBB) -> AAABBB
                 use abi.encode to solve it
@@ -1023,7 +1023,7 @@ receive()   fallback()
 
     /** 
         Constructor(is optional) code only runs when the contract is created
-        State variables are initialised before the constructor code is executed
+        State variables are initialized before the constructor code is executed
         After execution of constructor the final code deployed on chain does not include :
                                                                                 - constructor code or 
                                                                                 - any internal functions call through it
@@ -1038,7 +1038,7 @@ receive()   fallback()
     }
 
     /** 
-        - Modifiers can be used to change the behaviour of functions 
+        - Modifiers can be used to change the behavior of functions 
             in a declarative way(abstract away control flow for logic)
 
         - Overloading (same modifier name with different parameters) is not possible.
@@ -1063,7 +1063,7 @@ receive()   fallback()
     event Stored(address sender, uint256 value);
 
     /** 
-        for filtering certain logs 'indexed'(stores parameter as "topics") attribute can be added in-upto 3 params
+        for filtering certain logs 'indexed'(stores parameter as "topics") attribute can be added up to 3 params
         All parameters without the indexed attribute are ABI-encoded into the data part of the log
         Filtering of events can also be done via the address of contract
     */
@@ -1375,7 +1375,7 @@ receive()   fallback()
 
     /** 
         A failure in an external call or while creating contract can be caught using a try/catch statement
-        whenever a "revert" call is executed an exception is generated that propgates up the function call stack 
+        whenever a "revert" call is executed an exception is generated that propagates up the function call stack 
         until caught by try/catch.
     */
     function tryNcatch(
@@ -1510,7 +1510,7 @@ receive()   fallback()
                 0x
             -  function selector/ Method ID (first 4 bytes of selector)
                 566145fd
-        NOTE : All arguments will be padded to 32 bytes, each arguments are seperated by 64 characters(32 bytes)
+        NOTE : All arguments will be padded to 32 bytes, each arguments are separated by 64 characters(32 bytes)
             -  uint32  "53" as first parameter 
                 0000000000000000000000000000000000000000000000000000000000000035
             -  bytes3  "abc" (left-aligned) as first part of second parameter
