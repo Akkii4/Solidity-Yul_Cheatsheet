@@ -241,7 +241,7 @@ library Root {
 /// @notice Explain the functionality
 /// @dev any extra details for the developer
 /// @custom:custom-name tag's explanation
-contract CheatSheet {
+contract SolidityCheatSheet {
     // All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
     // contract instance of "Token" to interact with it
     Token _tk; // variable of contract type & can be Explicitly converted to and from the address payable type
