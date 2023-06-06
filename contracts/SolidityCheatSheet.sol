@@ -2,43 +2,47 @@
 // ^ Tells that source code is licensed under the GPL version 3.0. Machine-readable license
 // It is included as string in the bytecode metadata.
 
-/*  
-    - pragma solidity x.y.z 
-    - "pragma" keyword is used to enable certain compiler features or checks
-        where x.y.z indicates the version of the compiler 
-            a different y in x.y.z indicates breaking changes & z indicates bug fixes.
-        Versioning is to ensure that the contract is not compatible with a new (breaking) compiler version, to avoid behaving differently
-    - another e.g. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and 
-        floating pragma `^` represents it neither compiles on compiler 0.x.0(where x > 4).
-        Locking the pragma (for e.g. by not using ^ ahead of pragma) ensures that contracts do not accidentally get deployed using any other compiler version
+/**
+ * pragma solidity x.y.z 
+ * "pragma" keyword is used to enable certain compiler features or checks
+    where x.y.z indicates the version of the compiler 
+        a different y in x.y.z indicates breaking changes & z indicates bug fixes.
+    Versioning is to ensure that the contract is not compatible with a new (breaking) compiler version, to avoid behaving differently
+ * another e.g. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and 
+    floating pragma `^` represents it neither compiles on compiler 0.x.0(where x > 4).
+    Locking the pragma (for e.g. by not using ^ ahead of pragma) ensures that contracts do not accidentally get deployed using any other compiler version
 */
 pragma solidity >=0.4.16 <0.9.0;
 // ^ Source code is written for Solidity version 0.4.16, or a newer version of the language up to, but not including version 0.9.0
 
-/* 
-    - ABI coder (v2) is able to encode and decode arbitrarily nested arrays and structs, 
-        can also return multi-dimensional arrays & structs in functions.
-    - Default since Solidity 0.8.0 & Has all feature of v1 
+/**
+ * ABI coder (v2) is able to encode and decode arbitrarily nested arrays and structs, 
+    can also return multi-dimensional arrays & structs in functions.
+ * Default since Solidity 0.8.0 & Has all feature of v1 
 */
 pragma abicoder v2;
 
-/* 
-    imports all global symbols from “filename” (and symbols imported there) into current global scope
+/**
+ *  imports all global symbols from “filename” (and symbols imported there) into current global scope
     not recommended as any items added to the “filename” auto appears in the files
 */
 import "./Add.sol";
 
-// & to import specific symbols explicitly
-// equivalent to -> import * as multiplier from "./Mul.sol";
+/**
+ * & to import specific symbols explicitly
+ * equivalent to -> import * as multiplier from "./Mul.sol";
+ */
 import "./Mul.sol" as multiplier;
 
-// using 'as' keyword while importing to avoid naming collision
+/**
+ * External imports are also allowed from github -> import "github/filepath/url"
+ * using 'as' keyword while importing to avoid naming collision
+ */
+//
 import {divide2 as div, name} from "./Div.sol";
 
-// External imports are also allowed from github -> import "github/filepath/url"
-
 /**
-    Functions are the executable units of code, usually defined inside a contract, 
+ * Functions are the executable units of code, usually defined inside a contract, 
     but can also be defined outside of contracts(called Free Functions).
     Free functions cannot have visibility(and are internal by default).
 */
@@ -53,14 +57,14 @@ struct User {
 }
 
 /** 
-    Interfaces are similar to abstract, but :
-        * They cannot have any functions implemented. 
+ * Interfaces are similar to abstract, but :
+    - They cannot have any functions implemented. 
 
-        * They can inherit from other interfaces but not from contracts
+    - They can inherit from other interfaces but not from contracts
 
-        * All declared functions must be external, even if they are public in the contract.
+    - All declared functions must be external, even if they are public in the contract.
 
-        * They cannot declare state variables, modifiers or constructor
+    - They cannot declare state variables, modifiers or constructor
 */
 interface IERC20 {
     enum Type {
@@ -75,8 +79,8 @@ interface IERC20 {
     function transfer(address, uint) external returns (bool);
 }
 
-/** 
-    Contract is marked as abstract when at least one of it's function is not implemented or 
+/**
+ * Contract is marked as abstract when at least one of it's function is not implemented or 
     when you do not intend for the contract to be created directly 
 */
 abstract contract Tesseract {
@@ -99,11 +103,11 @@ contract Token is Tesseract {
 
     function transfer(address, uint) external {}
 
-    /** 
-        `virtual` means the function & modifiers can change its behavior in derived class
-        `override` means this function, modifier or state variables has changed its behavior from the base class 
-        private function or state variables can't be marked as virtual or override
-    */
+    /**
+     * `virtual` means the function & modifiers can change its behavior in derived class
+     * `override` means this function, modifier or state variables has changed its behavior from the base class
+     * private function or state variables can't be marked as virtual or override
+     */
     function retVal(uint a) public virtual override returns (uint) {
         return a + 10;
     }
@@ -134,16 +138,13 @@ contract Coin {
 }
 
 /**
-    Inheritance means that components of the parent contracts are "merged" into the child contract
+ * Inheritance means that components of the parent contracts are "merged" into the child contract
     The parent contracts do not need to be deployed, as everything can be accessed through the child.
     Order of "merging" is that the right most contracts override those on the left.
-
-    The order of inheritance should start from “most base-like”(least derived, usually an
+ * The order of inheritance should start from “most base-like”(least derived, usually an
     interface) to “most derived”.
-
-    Use of 'is' to derive from another contract
-
-    Constructors are executed in the following order: Token, Coin & then Currency
+ * Use of 'is' to derive from another contract
+ * Constructors are executed in the following order: Token, Coin & then Currency
 */
 contract Currency is
     Token(100),
@@ -156,16 +157,16 @@ contract Currency is
     }
 
     /// @inheritdoc Coin Copies all missing tags from the base function (must be followed by the contract name)
-    /** 
-        Functions can be overridden with the same name, number & types of inputs,  
+    /**
+     * Functions can be overridden with the same name, number & types of inputs,  
         change in output parameters causes an error.
-        Override functions can change mutability
-            - external to public
-            - nonpayable to view/pure
-            - view to pure 
+     * Override functions can change mutability
+        - external to public
+        - nonpayable to view/pure
+        - view to pure 
+     * specify the `virtual` keyword again indicates this function can be overridden again.
+     * since Coin is the right most parent contract with this function thus it will internal call Coin.retVal
     */
-    // specify the `virtual` keyword again indicates this function can be overridden again.
-    // since Coin is the right most parent contract with this function thus it will internal call Coin.retVal
     function retVal(
         uint a
     ) public pure virtual override(Token, Coin) returns (uint) {
@@ -183,14 +184,13 @@ contract Currency is
     uint public override getPriv;
 }
 
-/** 
-    Libraries are similar to contracts, but :
+/**
+ * Libraries are similar to contracts, but :
         - no state variable 
         - no inheritance
         - cannot hold ether
         - cannot be destroyed
-
-    A library is embedded into the contract if all library functions are internal 
+ * A library is embedded into the contract if all library functions are internal 
     and EVM uses JUMP for calling its function similar to a internal function calls
 
     Otherwise the library must be deployed to unique address and then need to be linked with calling contract
@@ -212,12 +212,12 @@ library Root {
         // else z = 0 (default value)
     }
 
-    /** 
-        A library can be attached to a data type inside a contract (only active within that contract:
-            - using Root for uint256            attaches all functions of Root to uint256
-            - using Root for *                  attaches all functions of Root to all types
-            - using { Root.sqrt } for uint256   attaches just sqrt functions of Root to uint256
-        These functions will receive the object they are called on as their first parameter.
+    /**
+     * A library can be attached to a data type inside a contract (only active within that contract:
+        - using Root for uint256            attaches all functions of Root to uint256
+        - using Root for *                  attaches all functions of Root to all types
+        - using { Root.sqrt } for uint256   attaches just sqrt functions of Root to uint256
+     * These functions will receive the object they are called on as their first parameter.
      */
     /// @return Documents the return variables of a contract’s function
     function tryMul(
@@ -234,16 +234,19 @@ library Root {
     }
 }
 
-/// NatSpec is for formatting for contract, interface, library, function & event comments which are understood by Solidity compiler.
-
-/// @title Title describing contract/interface
-/// @author Name of author
-/// @notice Explain the functionality
-/// @dev any extra details for the developer
-/// @custom:custom-name tag's explanation
+/**
+ * NatSpec is for formatting for contract, interface, library, function & event comments which are understood by Solidity compiler.
+ * @title Title describing contract/interface
+ * @author Name of author
+ * @notice Explain the functionality
+ * @dev any extra details for the developer
+ * @custom:custom-name tag's explanation
+ */
 contract SolidityCheatSheet {
-    // All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
-    // contract instance of "Token" to interact with it
+    /**
+     * All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
+        contract instance of "Token" to interact with it 
+     */
     Token _tk; // variable of contract type & can be Explicitly converted to and from the address payable type
 
     /**
@@ -261,17 +264,19 @@ receive() exists?  fallback()
       /      \
 receive()   fallback()
 */
-    // Fallback & receive functions must be external.
-    // Both can rely on just 2300 gas being available to prevent re-entry
-    // as this gas is not enough to modify any state
+    /**
+     * Fallback & receive functions must be external.
+     * Both can rely on just 2300 gas being available to prevent re-entry
+        as this gas is not enough to modify any state
+     */
     receive() external payable {
         emit Log("receive", gasleft());
     }
 
-    /** 
-        Fallback are executed if none of other function signature is matched,
-            can even be defined as non-payable to only receive message call
-            fallback can be virtual, override & have modifiers 
+    /**
+     * Fallback are executed if none of other function signature is matched,
+        can even be defined as non-payable to only receive message call
+        fallback can be virtual, override & have modifiers 
     */
     fallback(bytes calldata data) external payable returns (bytes memory) {
         // after v0.8.0, fallback can optionally take bytes as input & also return
@@ -283,37 +288,37 @@ receive()   fallback()
         return res;
     }
 
-    /** 
-        State Variable is like a single slot in a database that are accessible by functions
+    /**
+     * State Variable is like a single slot in a database that are accessible by functions
         and there values are permanently stored in contract storage.
-
-        Visibility : 
+     * Visibility : 
             - public : auto. generates a function that allows to access the state variables even externally
             - internal : can't be accessed externally but only in there defined & derived contracts
             - private : similar to internal but not accessible in derived contracts 
-        
-        private or internal variables only prevents other contracts from accessing the data stored, 
+     * private or internal variables only prevents other contracts from accessing the data stored, 
         but it can still be accessible via blockchain
+    * State variables can also declared as constant or immutable, values can't modified after contract constructed
     */
 
-    // State variables can also declared as constant or immutable, values can't modified after contract constructed
-
-    /**
-        values need to be fixed at compile time 
-        any expression that accesses storage, blockchain data (e.g. block.timestamp, address(this).balance) or 
-        execution data (msg.value or gasleft()) or 
-        makes calls to external contracts is disallowed
+    /** 
+     * constants doesn't take storage space but is included in contract's bytecode
+     * values need to be fixed at compile time 
+     * Not allowed any expression like :
+        - that accesses storage
+        - blockchain data (e.g. block.timestamp, address(this).balance) or 
+        - execution data (msg.value or gasleft()) or 
+        - making calls to external contracts is disallowed
     */
     string public constant THANOS = "I am inevitable";
 
     // values can only be assigned in constructor & cannot be read during construction time
     uint public immutable senderBalance;
 
-    /** 
-        Variable Packing
-        Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
-        Packing reduces storage slot usage but increases opcodes necessary to read/write to them.
-    */
+    /**
+     * Variable Packing
+     * Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
+     * Packing reduces storage slot usage but increases opcodes necessary to read/write to them.
+     */
     uint248 _right; // 31 bytes, Doesn't fit into the previous slot, thus starts with a new one
     uint8 _left; // 1 byte, There's still 1 byte left out of 32 byte slot
     //^ one storage slot will be packed from right to left with the above two variables (lower-order aligned)
