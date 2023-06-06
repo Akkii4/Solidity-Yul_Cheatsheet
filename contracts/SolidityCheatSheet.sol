@@ -192,9 +192,9 @@ contract Currency is
         - cannot be destroyed
  * A library is embedded into the contract if all library functions are internal 
     and EVM uses JUMP for calling its function similar to a internal function calls
-
-    Otherwise the library must be deployed to unique address and then need to be linked with calling contract
-    & thus EVM has to use DELEGATECALL which also prevents libraries from killing 
+ * External library are deployed to unique address and 
+    need to be linked with calling contract at the time of deployment (takes up space in bytecode)
+    & uses DELEGATECALL which also prevents libraries from killing 
     by SELFDESTRUCT() as it would brick contracts using the library.
 */
 library Root {
