@@ -1006,6 +1006,32 @@ receive()   fallback()
         );
     }
 
+    // Loops in solidity
+    function loopingLoop(
+        uint8 val
+    ) external pure returns (uint256 forLooped, uint256 whileLooped) {
+        for (uint i = 0; i <= val; i++) {
+            if (i % 5 == 0) {
+                continue; // skip the remaining block of code and starts the next iteration of the loops
+            }
+            if (i == 20) {
+                break;
+            }
+            forLooped = i;
+        }
+
+        uint j;
+        while (j <= val) {
+            // Runs until the condition is true
+            j++;
+            if (j % 5 == 0) {
+                continue;
+            }
+            if (j == 20) break; // terminates the loop & exits out of the block of present loop code
+            whileLooped = j - 1;
+        }
+    }
+
     function contractInfo()
         external
         pure
