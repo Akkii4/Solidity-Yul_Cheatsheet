@@ -1060,8 +1060,14 @@ receive()   fallback()
                                                                                 - any internal functions call through it
     */
     constructor(bytes32 _salt) payable {
-        // "msg" is a special global variable that contains allow access to the blockchain.
-        // msg.sender is always the address where the current (external) function call came from.
+        /**
+         * "msg" is a special global variable that contains allow access to the blockchain.
+            - msg.sender : is always the address where the current (external) function call came from.
+            - msg.value : The amount of Ether/Wei deposited or withdrawn by the msg.sender.
+            - msg.sig: Returns the first 4 bytes of the call data of any function i.e function signature which helps to identify the function which is being called.
+            - msg.data: Complete calldata.
+            - msg.gas: Remaining gas.
+         */
         owner = msg.sender;
         senderBalance = owner.balance; // .balance is used to query the balance of address in Wei
         balances[owner] = 100; // assigning value to mapping "balances"
