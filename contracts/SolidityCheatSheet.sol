@@ -254,7 +254,7 @@ contract SolidityCheatSheet {
 
     Ether is sent to contract
             |
-    is msg. data empty?
+    is msg.data empty?
             /  \
           yes   no
           /       \
