@@ -173,9 +173,11 @@ contract Currency is
         return super.retVal(a); // ^ Multiple inheritance (Most Derived, least derived Contract)
     }
 
-    /// @notice This function adds 10 to `a`
-    //  ^ if _a is assigned 5 this will be rendered as dynamic comment as : This function adds 10 to 5
-    /// @param _a followed by parameter's name explain it (only for function, event)
+    /**
+     * @notice This function adds 10 to `a`
+     * ^ if _a is assigned 5 this will be rendered as dynamic comment as : This function adds 10 to 5
+     * @param _a followed by parameter's name explain it (only for function, event)
+     */
     function xyz(uint _a) public pure {
         super.retVal(_a); // super keyword calls the function one level higher up in the flattened inheritance hierarchy
     }
@@ -196,6 +198,12 @@ contract Currency is
     need to be linked with calling contract at the time of deployment (takes up space in bytecode)
     & uses DELEGATECALL which also prevents libraries from killing 
     by SELFDESTRUCT() as it would brick contracts using the library.
+
+ * A library can be attached to a data type inside a contract (only active within that contract:
+        - using Root for uint256            attaches all functions of Root to uint256
+        - using Root for *                  attaches all functions of Root to all types
+        - using { Root.sqrt } for uint256   attaches just sqrt functions of Root to uint256
+ * These functions will receive the object they are called on as their first parameter.
 */
 library Root {
     function sqrt(uint y) internal pure returns (uint z) {
@@ -212,14 +220,6 @@ library Root {
         // else z = 0 (default value)
     }
 
-    /**
-     * A library can be attached to a data type inside a contract (only active within that contract:
-        - using Root for uint256            attaches all functions of Root to uint256
-        - using Root for *                  attaches all functions of Root to all types
-        - using { Root.sqrt } for uint256   attaches just sqrt functions of Root to uint256
-     * These functions will receive the object they are called on as their first parameter.
-     */
-    /// @return Documents the return variables of a contract’s function
     function tryMul(
         uint256 a,
         uint256 b
@@ -276,7 +276,7 @@ receive()   fallback()
     /**
      * Fallback are executed if none of other function signature is matched,
         can even be defined as non-payable to only receive message call
-        fallback can be virtual, override & have modifiers 
+     * fallback can be virtual, override & have modifiers 
     */
     fallback(bytes calldata data) external payable returns (bytes memory) {
         // after v0.8.0, fallback can optionally take bytes as input & also return
@@ -319,35 +319,39 @@ receive()   fallback()
      * Multiple state variables depending on their type(that needs less than 32 bytes) can be packed into one slot
      * Packing reduces storage slot usage but increases opcodes necessary to read/write to them.
      */
+
     uint248 _right; // 31 bytes, Doesn't fit into the previous slot, thus starts with a new one
     uint8 _left; // 1 byte, There's still 1 byte left out of 32 byte slot
     //^ one storage slot will be packed from right to left with the above two variables (lower-order aligned)
 
-    // Structs and array data always start a new slot!
-
-    // Dynamically-sized array's length is stored as the first slot at location p, it's values start being stores at keccak256(p)
-    //  one element after the other, potentially sharing storage slots if the elements are not longer than 16 bytes.
-
-    // Mappings leave their slot p empty (to avoid clashes), the values corresponding to key k are stored at
-    //  keccak(h(k) + p) with h() padding value to 32 bytes or hashing reference types.
-
-    // Bytes and Strings are stored like array elements and data area is computed using a keccak256 hash of the slot's position.
-    // Bytes are stored in continuous memory locations while strings are stored as a sequence of pointers to memory locations
-    // For values less than 32 bytes, elements are stored in higher-order bytes (left aligned) and the lowest-order byte stores value (length * 2).
-    // whereas bytes of 32 bytes or more, the main slot stores (length * 2 + 1) and the data is stored as usual in keccak256(p).
-
-    // In case of inheritance, order of variables is starting with the most base-ward contract & do share same slot
-
     /**
-        Layout in Memory(Reserves certain areas of memory) :
-            -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
-            - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
-            - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
-        New objects in Solidity are always placed at the free memory pointer and memory is never freed.
-    */
+     * Structs, mappings and array data always start a new slot
+     
+     * Dynamically-sized array's length is stored as the first slot at location p, 
+        it's values start being stores at keccak256(p) one element after the other, 
+        potentially sharing storage slots if the elements are not longer than 16 bytes.
 
-    // There's no packing in memory or function arguments as they are always padded to 32 bytes
-    // Example, following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
+     * Mappings leave their slot p empty (to avoid clashes), 
+        the values corresponding to key k are stored at keccak(h(k) + p) 
+        with h() padding value to 32 bytes or hashing reference types.
+
+     * Bytes and Strings 
+        - stored like array elements and data area is computed using a keccak256 hash of the slot's position.
+        - Bytes are stored in continuous memory locations while strings are stored as a sequence of pointers to memory locations
+        - For values less than 32 bytes, elements are stored in higher-order bytes (left aligned) and the lowest-order byte stores value (length * 2)
+            whereas bytes of 32 bytes or more, the main slot stores (length * 2 + 1) and the data is stored as usual in keccak256(p).
+     
+     * In case of inheritance, order of variables is starting with the most base-ward contract & do share same slot
+
+     * Layout in Memory(Reserves certain areas of memory) :
+        -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
+        - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
+        - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
+     * New objects in Solidity are always placed at the free memory pointer and memory is never freed.
+
+     * There's no packing in memory, calldata or function arguments as they are always padded to 32 bytes
+        e.g., following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
+     */
     uint8[4] _slotA;
 
     // Following struct occupies 96 bytes (3 slots of 32 bytes) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
@@ -370,23 +374,29 @@ receive()   fallback()
         )
     {
         assembly {
-            // returns the slot position in storage at which the variable is stored
-            // both would return the same slot(because of variable packing sharing same slot)
+            /**
+             * returns the slot position in storage at which the variable is stored
+             * both would return the same slot(because of variable packing sharing same slot)
+             */
             leftSlot := _left.slot
             rightSlot := _right.slot
 
-            // fetches value stored at the slot where variable 'right' & 'left'
-            // returned value will be concatenated representation of both values (in bytes)
-            // e.g. bytes32: value 0x0000000000000000000000000000000200000000000000000000000000000001
-            //considering if right = 2 & left = 1
+            /**
+             * fetches value stored at the slot where variable 'right' & 'left'
+                returned value will be concatenated representation of both values (in bytes)
+                e.g. bytes32: value 0x0000000000000000000000000000000200000000000000000000000000000001
+                considering if right = 2 & left = 1
+             */
             value := sload(rightSlot)
 
             // offset tells the exact position (in terms of bytes) in a slot where the variable values start
             leftOffset := _left.offset // will return 31 as the start of variable 'left' will begin where the previous ('right' of 31 bytes) stops
 
-            // To get the value on the leftmost side of the slot, it need to be shifted to right.
-            // During shifting the rightmost value will "fall out" of the slot leaving the leftSide filled with zeros.
-            // leftOffset of 31 bytes (248 bits) that will be shifted:
+            /**
+             * To get the value on the leftmost side of the slot, it need to be shifted to right.
+                During shifting the rightmost value will "fall out" of the slot leaving the leftSide filled with zeros.
+                leftOffset of 31 bytes (248 bits) that will be shifted:
+             */
             leftValue := shr(mul(leftOffset, 8), value) // 0x0000000000000000000000000000000000000000000000000000000000000002
         }
     }
@@ -530,7 +540,7 @@ receive()   fallback()
     */
     type UFixed256x18 is uint256; // Represent a 18 decimal, 256 bit wide fixed point.
 
-    /// custom types only allows wrap and unwrap
+    // custom types only allows wrap and unwrap
     function _customMul(
         UFixed256x18 _x,
         uint256 _y
@@ -1074,13 +1084,13 @@ receive()   fallback()
         _createContract(_salt);
     }
 
-    /** 
-        - Modifiers can be used to change the behavior of functions 
-            in a declarative way(abstract away control flow for logic)
+    /**
+     * Modifiers can be used to change the behavior of functions 
+        in a declarative way(abstract away control flow for logic)
 
-        - Overloading (same modifier name with different parameters) is not possible.
-            Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
-            Multiple modifiers in functions are evaluated in the order presented 
+     * Overloading (same modifier name with different parameters) is not possible.
+        Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
+        Multiple modifiers in functions are evaluated in the order presented 
     */
     modifier onlyOwner() /**can receive arguments*/ {
         require(msg.sender == owner, "Not Owner");
@@ -1198,12 +1208,14 @@ receive()   fallback()
         bool sent = payable(0).send(1 wei); // payable(0) -> 0x0000000000000000000000000000000000000000
         require(sent, "Send failed");
 
-        /** 
-            Call returns a boolean value indicating success or failure.
-            is possible to adjust gas supplied
-            most recommended method to transfer funds.
-        */
-        (bool res, ) = _to.call{gas: 5000, value: msg.value}("");
+        /**
+         * Call returns a boolean value indicating success or failure and a response data if received.
+         * Possible to adjust gas supplied
+         * most recommended method to transfer funds
+         */
+        (bool res, bytes memory data) = _to.call{gas: 5000, value: msg.value}(
+            ""
+        );
         require(res, "Failed to send Ether");
 
         /** 
