@@ -80,9 +80,10 @@ interface IERC20 {
 }
 
 /**
- * Contract is marked as abstract when at least one of it's function is not implemented or 
-    when you do not intend for the contract to be created directly 
-*/
+ * Contract is marked as abstract when at least one of it's function is not implemented
+ * Abstract contracts cannot be deployed on their own but can be inherited by other contracts.
+ * Allows for code reuse and helps to reduce the amount of code duplication in smart contracts.
+ */
 abstract contract Tesseract {
     function retVal(uint256 x) public virtual returns (uint256);
 
@@ -91,7 +92,7 @@ abstract contract Tesseract {
     }
 }
 
-// contract inheriting from abstract contract should implement all non-implemented to avoid them being marked as abstract as well.
+// contract inheriting from abstract contract must implement all non-implemented to avoid itself being marked as abstract.
 contract Token is Tesseract {
     uint public totalSupply;
     uint private _anon = 3;
