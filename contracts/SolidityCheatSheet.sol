@@ -973,7 +973,7 @@ receive()   fallback()
     }
 
     function _encodeDecode(
-        uint f,
+        uint f1,
         uint[3] memory g,
         bytes memory h
     )
@@ -982,7 +982,7 @@ receive()   fallback()
         returns (bytes memory, bytes memory, bytes memory, bytes32)
     {
         // Encoding
-        bytes memory encodedData = abi.encode(f, g, h); // encodes given arguments
+        bytes memory encodedData = abi.encode(f1, g, h); // encodes given arguments
 
         /** 
                 This method has no padding, thus one variable can merge into other
@@ -992,14 +992,14 @@ receive()   fallback()
                                     (AA, ABBB) -> AAABBB
                 use abi.encode to solve it
         */
-        abi.encodePacked(f, g, h);
+        abi.encodePacked(f1, g, h);
 
         // Decoding
         uint _f;
         uint[3] memory _g;
         bytes memory _h;
         (_f, _g, _h) = abi.decode(encodedData, (uint, uint[3], bytes)); // decodes the encoded bytes data back to original arguments
-        assert(_f == f);
+        assert(_f == f1);
 
         return (
             // encodes arguments from the second and prepends the given four-byte selector
