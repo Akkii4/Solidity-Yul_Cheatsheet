@@ -504,6 +504,11 @@ receive()   fallback()
         );
     }
 
+    /**
+     * Container Type : Are the data types which is used to store and organize data.
+     *  Types are : enums , arrays , mappings & Struct
+     */
+
     /** 
         Enums are user-defined type of predefined constants which holds uint8 values (max 256 values)
         First value is default & starts from uint 0
