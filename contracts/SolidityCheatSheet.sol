@@ -426,6 +426,7 @@ receive()   fallback()
     address public owner;
     // ^ Equivalent to -> function owner() public view returns (address) { return owner; }
     // address with transfer and send functionality to receive Ether
+    // Implicit conversions from address payable to address are allowed
     address payable public treasury;
 
     // Boolean holds 1 byte value (0 or 1) possible values are true and false
