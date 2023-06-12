@@ -1093,7 +1093,7 @@ receive()   fallback()
 
     /**
      * Modifiers can be used to change the behavior of functions 
-        in a declarative way(abstract away control flow for logic)
+        in a declarative way(take away control flow for logic)
 
      * Overloading (same modifier name with different parameters) is not possible.
         Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
