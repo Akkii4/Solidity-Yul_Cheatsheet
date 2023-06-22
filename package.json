@@ -2,10 +2,10 @@
   "name": "solidity_cheatsheet",
   "version": "1.0.0",
   "description": "An in-depth reference guide to Solidity",
-  "main": "contracts/CheatSheet.sol",
+  "main": "contracts/SolidityCheatSheet.sol",
   "scripts": {
-    "compile": "solcjs --bin contracts/CheatSheet.sol -o /tmp/",
-    "lint": "solhint 'contracts/CheatSheet.sol'"
+    "compile": "solcjs --bin contracts/SolidityCheatSheet.sol -o /tmp/",
+    "lint": "solhint 'contracts/SolidityCheatSheet.sol'"
   },
   "repository": {
     "type": "git",
