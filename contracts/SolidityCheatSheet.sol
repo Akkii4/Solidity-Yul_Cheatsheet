@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: GPL-3.0
-// ^ Tells that source code is licensed under the GPL version 3.0. Machine-readable license
-// It is included as string in the bytecode metadata.
+/**
+ * SPDX tells that source code is licensed under the GPL version 3.0. Machine-readable license
+ * It is included as string in the bytecode metadata.
+ */
 
 /**
  * pragma solidity x.y.z 
  * "pragma" keyword is used to enable certain compiler features or checks
-    where x.y.z indicates the version of the compiler 
+    - where x.y.z indicates the version of the compiler 
         a different y in x.y.z indicates breaking changes & z indicates bug fixes.
-    Versioning is to ensure that the contract is not compatible with a new (breaking) compiler version, to avoid behaving differently
+    - Versioning is to ensure that the contract is not compatible with a new (breaking) compiler version, to avoid behaving differently
  * another e.g. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and 
-    floating pragma `^` represents it neither compiles on compiler 0.x.0(where x > 4).
-    Locking the pragma (for e.g. by not using ^ ahead of pragma) ensures that contracts do not accidentally get deployed using any other compiler version
+    - floating pragma `^` represents it neither compiles on compiler 0.y.0(where y > 4).
+    - Locking the pragma (for e.g. by not using ^ ahead of pragma) ensures that contracts do not accidentally get deployed using any other compiler version
 */
 pragma solidity >=0.4.16 <0.9.0;
 // ^ Source code is written for Solidity version 0.4.16, or a newer version of the language up to, but not including version 0.9.0
@@ -18,7 +20,7 @@ pragma solidity >=0.4.16 <0.9.0;
 /**
  * ABI coder (v2) is able to encode and decode arbitrarily nested arrays and structs, 
     can also return multi-dimensional arrays & structs in functions.
- * Default since Solidity 0.8.0 & Has all feature of v1 
+ * Default since Solidity 0.8.0 & has all features of v1 
 */
 pragma abicoder v2;
 
@@ -44,7 +46,7 @@ import {divide2 as div, name} from "./Div.sol";
 /**
  * Functions are the executable units of code, usually defined inside a contract, 
     but can also be defined outside of contracts(called Free Functions).
-    Free functions cannot have visibility(and are internal by default).
+    Free function's visibility cannot be set(and are internal by default).
 */
 function outsider(uint256 x) pure returns (uint256) {
     return x * 2;
@@ -54,6 +56,19 @@ function outsider(uint256 x) pure returns (uint256) {
 struct User {
     address addr;
     string task;
+}
+
+/**
+ * Contract is marked as abstract when at least one of it's function is not implemented
+ * Abstract contracts cannot be deployed on their own but can be inherited by other contracts.
+ * Allows for code reuse and helps to reduce the amount of code duplication in smart contracts.
+ */
+abstract contract Tesseract {
+    function retVal(uint256 x) public virtual returns (uint256);
+
+    function getPriv() external view virtual returns (uint) {
+        return 5;
+    }
 }
 
 /** 
@@ -77,19 +92,6 @@ interface IERC20 {
     }
 
     function transfer(address, uint) external returns (bool);
-}
-
-/**
- * Contract is marked as abstract when at least one of it's function is not implemented
- * Abstract contracts cannot be deployed on their own but can be inherited by other contracts.
- * Allows for code reuse and helps to reduce the amount of code duplication in smart contracts.
- */
-abstract contract Tesseract {
-    function retVal(uint256 x) public virtual returns (uint256);
-
-    function getPriv() external view virtual returns (uint) {
-        return 5;
-    }
 }
 
 // contract inheriting from abstract contract must implement all non-implemented to avoid itself being marked as abstract.
@@ -131,10 +133,18 @@ contract Token is Tesseract {
 }
 
 contract Coin {
-    constructor() {}
+    constructor(uint coinAmount) {}
 
-    function retVal(uint a) public pure virtual returns (uint) {
-        return a % 10;
+    function retVal(uint c) public pure virtual returns (uint) {
+        return c % 10;
+    }
+}
+
+contract SpecialCoin is Coin {
+    constructor(uint coinAmount) Coin(coinAmount) {}
+
+    function retVal(uint spC) public pure virtual override returns (uint) {
+        return spC - 10;
     }
 }
 
@@ -142,16 +152,26 @@ contract Coin {
  * Inheritance means that components of the parent contracts are "merged" into the child contract
     The parent contracts do not need to be deployed, as everything can be accessed through the child.
     Order of "merging" is that the right most contracts override those on the left.
- * The order of inheritance should start from “most base-like”(least derived, usually an
-    interface) to “most derived”.
+ *  Example Graph of inheritance :
+         A
+        / \
+       B   C
+      / \ /
+     F  D,E
+    
+    here 'A' is Base contract, 'B' & 'C' inherits from 'A' and 'F' derives from 'B', 
+    while 'D' & 'E' derives both from 'B' and 'C'
+ * The order of inheritance should start from “most base-like”(contract that inherits least, usually an interface) to “most derived” (that inherits other contract most)
+    A -> B,C -> F -> D,E
  * Use of 'is' to derive from another contract
- * Constructors are executed in the following order: Token, Coin & then Currency
+ * Constructors of contracts are executed in the order of their inheritance, e.g. here : Coin, Token & then that of Currency
 */
 contract Currency is
-    Token(100),
-    Coin // If constructor of ^ Base Contract (the derived contract) accepts arguments ...
+    Coin,
+    Token(100), // if arguments is known at time of writitng code, parent's constructor can be called here
+    SpecialCoin
 {
-    constructor() Coin() {} // or through a "modifier" of the derived constructor :
+    constructor(uint _amnt) SpecialCoin(_amnt) {} // if arguments are determined while contract deployement then argument can be passed through a "modifier" of the parent contract
 
     function intTest() public view returns (uint) {
         return _addPriv(5); // access to internal member (from derived to parent contract)
@@ -166,21 +186,14 @@ contract Currency is
         - nonpayable to view/pure
         - view to pure 
      * specify the `virtual` keyword again indicates this function can be overridden again.
-     * since Coin is the right most parent contract with this function thus it will internal call Coin.retVal
+     * during muliple inheritance parents contract are serached from right to left
+     * since SpecialCoin is the right most parent contract with this function thus it will internal call SpecialCoin.retVal
     */
     function retVal(
         uint a
-    ) public pure virtual override(Token, Coin) returns (uint) {
-        return super.retVal(a); // ^ Multiple inheritance (Most Derived, least derived Contract)
-    }
-
-    /**
-     * @notice This function adds 10 to `a`
-     * ^ if _a is assigned 5 this will be rendered as dynamic comment as : This function adds 10 to 5
-     * @param _a followed by parameter's name explain it (only for function, event)
-     */
-    function xyz(uint _a) public pure {
-        super.retVal(_a); // super keyword calls the function one level higher up in the flattened inheritance hierarchy
+    ) public pure virtual override(Coin, Token, SpecialCoin) returns (uint) {
+        // super keyword calls the function one level higher up in the flattened inheritance hierarchy
+        return super.retVal(a);
     }
 
     // Public state variables can override external getter functions of the variable
@@ -195,11 +208,10 @@ contract Currency is
         - cannot be destroyed
  * A library is embedded into the contract if all library functions are internal 
     and EVM uses JUMP for calling its function similar to a internal function calls
- * External library are deployed to unique address and 
-    need to be linked with calling contract at the time of deployment (takes up space in bytecode)
-    & uses DELEGATECALL which also prevents libraries from killing 
-    by SELFDESTRUCT() as it would brick contracts using the library.
-
+ * External library :
+        - are deployed to unique address and 
+        - need to be linked with calling contract at the time of deployment (takes up space in bytecode)
+        - uses DELEGATECALL which also prevents libraries from killing by SELFDESTRUCT() as it would brick contracts using the library.
  * A library can be attached to a data type inside a contract (only active within that contract:
         - using Root for uint256            attaches all functions of Root to uint256
         - using Root for *                  attaches all functions of Root to all types
@@ -244,11 +256,13 @@ library Root {
  * @custom:custom-name tag's explanation
  */
 contract SolidityCheatSheet {
+    // All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.)
+
     /**
-     * All identifiers (contract names, function names and variable names) are restricted to the ASCII character set(0-9,A-Z,a-z & special chars.).
-        contract instance of "Token" to interact with it 
+     * contract instance of "Token" to interact with it
+     * variable of contract type can be Explicitly converted to and from the address payable type
      */
-    Token _tk; // variable of contract type & can be Explicitly converted to and from the address payable type
+    Token _tk;
 
     /**
     fallback() or receive ()?
@@ -298,21 +312,21 @@ receive()   fallback()
             - private : similar to internal but not accessible in derived contracts 
      * private or internal variables only prevents other contracts from accessing the data stored, 
         but it can still be accessible via blockchain
-    * State variables can also declared as constant or immutable, values can't modified after contract constructed
+    * State variables can also declared as constant or immutable, values can't modified after contract is constructed
     */
 
     /** 
      * constants doesn't take storage space but is included in contract's bytecode
      * values need to be fixed at compile time 
-     * Not allowed any expression like :
-        - that accesses storage
-        - blockchain data (e.g. block.timestamp, address(this).balance) or 
-        - execution data (msg.value or gasleft()) or 
-        - making calls to external contracts is disallowed
+     * Not allowed any expression :
+            - that accesses storage
+            - blockchain data (e.g. block.timestamp, address(this).balance) or 
+            - execution data (msg.value or gasleft()) or 
+            - making calls to external contracts is disallowed
     */
     string public constant THANOS = "I am inevitable";
 
-    // values can only be assigned in constructor & cannot be read during construction time
+    // value can assigned to immuatble variable in constructor but isn't accessible during time of contract's construction
     uint public immutable senderBalance;
 
     /**
@@ -450,9 +464,9 @@ receive()   fallback()
 
         bytes3 j = hex"32"; // stored as 0x320000
         j = "abc";
-        // j[0] = "d" Fixed bytes array cannot be
+        // j[0] = "d"; Single bytes in Fixed sized bytes array cannot be modified
 
-        //can access particular element of byte array
+        // can access particular element of byte array
         return (k[0]);
     }
 
@@ -476,46 +490,50 @@ receive()   fallback()
         )
     {
         return (
-            // Also Hexadecimal literals that pass the address checksum test are considered as address
+            // Hexadecimal literals that pass the address checksum test are considered as address
             0xdCad3a6d3569DF655070DEd06cb7A1b2Ccd1D3AF,
             /** 
-                Division on integer literals e.g. 5/2
-                prior to version 0.4.0 is equal to  2
-                but now it's rational number 2.5
+             * Division on integer literals e.g. 5/2 prior to version 0.4.0 is equal to 2 but now it's rational number 2.5
+             * but consider an e.g. where,
+                uint x = 1;
+                uint y = 5/2 + x + 0.5;  
+                this will returns compiler error, as operators works only on common value types
             */
             5 / 2 + 1 + 0.5, //  = 4
-            // whereas uint x = 1;
-            //         uint y = 5/2 + x + 0.5  returns compiler error, as operators works only on common value types
-
-            // decimals fractional formed by . with at least one number after decimal point
-            // .1, 1.3 but not 1.
-            -.2e10, //Scientific notation of type MeE ~= M * 10**E
-            // Underscores have no meaning(just eases human readability)
+            /**
+             * decimals fractional formed by . with at least one number after decimal point
+             * .1, 1.3 are correct but not 1.
+             * Scientific notation of type MeE means M * 10**E
+             */
+            -.2e10,
+            // Underscores have no meaning (just eases human readability)
             1_2e3_0, // = 12*10**30
-            // string literal represented in " " OR ' '
+            // string literal can be represented in " " or ' '
             "yo"
             "lo", // can be split = "yolo"
             "abc\\def", // also supports various escape characters
             //unicode
-            unicode"Hi there 👋",
+            unicode"Made by Akshit 👨‍💻 with ❤️",
             //Random Hexadecimal literal behave just like string literal
             hex"00112233_44556677",
-            //  array literals are comma-separated list of one or more expressions
-            //  typed by that of its first element & all its elements can be converted this type
-            [int(1), -1]
+            /**
+             * array literals are comma-separated list of one or more expressions
+             * typed by that of its first element & all its elements can be converted to this type
+             */
+            [int(1), -1] // int type array literal
         );
     }
 
     /**
      * Container Type : Are the data types which is used to store and organize data.
-     *  Types are : enums , arrays , mappings & Struct
+     * e.g. are enums, arrays, mappings & Struct
      */
 
-    /** 
-        Enums are user-defined type of predefined constants which holds uint8 values (max 256 values)
-        First value is default & starts from uint 0
-        They can be stored even outside of Contract & in libraries as well
-    */
+    /**
+     * Enums are user-defined type of predefined constants which holds uint8 values (max 256 values)
+     * First value is default & starts from 0
+     * They can even be stored outside of Contract & in libraries as well
+     */
     enum Status {
         Manufacturer,
         Wholesaler,
@@ -524,10 +542,10 @@ receive()   fallback()
     }
     Status public status;
 
-    /** 
-        As enums are not stored in ABI
-        thus in ABI 'updateStatus()' will have its input type as uint8 
-    */
+    /**
+     * enums are not stored in ABI
+     * thus in ABI 'updateStatus()' will have its input type as uint8
+     */
     function updateStatus(Status _status) public {
         status = _status;
     }
@@ -540,44 +558,45 @@ receive()   fallback()
         );
     }
 
-    /** 
-        User Defined Value Types allows creating a zero cost abstraction over an elementary value type
-        type C is V , C is new type & V is elementary type
-        type conversion , operators aren't allowed 
-    */
-    type UFixed256x18 is uint256; // Represent a 18 decimal, 256 bit wide fixed point.
+    /**
+     * User Defined Value Types allows creating a zero cost abstraction over an elementary value type
+     * type C is V , C is new type & V is elementary type
+     * type conversion, operators aren't allowed
+     */
+    type UFixed256x18 is uint256; // Represent a 18 decimal, 256 bit wide fixed point
 
-    // custom types only allows wrap and unwrap
+    /**
+     * custom types only allows wrap and unwrap
+     * wrap converts underlying type -> custom type
+     * unwrap converts custom type -> underlying type
+     */
     function _customMul(
         UFixed256x18 _x,
         uint256 _y
     ) internal pure returns (UFixed256x18) {
-        return
-            UFixed256x18.wrap( // wrap (convert underlying type -> custom type)
-                UFixed256x18.unwrap(_x) * _y // unwrap (convert custom type -> underlying type)
-            );
+        return UFixed256x18.wrap(UFixed256x18.unwrap(_x) * _y);
     }
 
     /**
-        Function Types is a variable that is pointing to a function 
-         and parameter of these variable can be used to pass a function as an argument to another function 
-         or return a function from a function call.
+     * Function Types is a variable that is pointing to a function 
+        and parameter of these variable can be used to pass a function as an argument to another function 
+        or return a function from a function call.
 
-        variants : 
-            - Internal : can only be called inside the current contract(including internal library and inherited functions)
-                internal/private/public functions are assignable to internal function type 
-            - External : calls originated from other contract, containing  address and a function signature 
-                external/public functions are assignable to external function type (excluding libraries function as they use delegatecall)
+     * variants : 
+        - Internal : can only be called inside the current contract(including internal library and inherited functions)
+            internal/private/public functions are assignable to internal function type 
+        - External : calls originated from other contract, containing address and a function signature 
+            external/public functions are assignable to external function type (excluding libraries function as they use delegatecall)
 
-        Conversion function type A is implicitly convertible to a function type B if :
-            * their parameter, return types & visibility are identical
-            * state mutability of A is more restrictive than the state mutability of B. 
-                - pure functions can be converted to view and non-payable functions
-                - view functions can be converted to non-payable functions
-                - payable functions can be converted to non-payable functions
+     * Conversion function type A is implicitly convertible to a function type B if :
+        - their parameter, return types & visibility are identical
+        - state mutability of A is more restrictive than the state mutability of B. 
+            - pure functions can be converted to view and non-payable functions
+            - view functions can be converted to non-payable functions
+            - payable functions can be converted to non-payable functions
 
-        External functions and function types with calldata parameters are incompatible with each other at least one should have memory parameters
-    */
+     * External functions and function types with calldata parameters are incompatible with each other at least one should have memory parameters
+     */
 
     // External & public functions has members
     function f() public payable returns (bytes4) {
@@ -586,60 +605,16 @@ receive()   fallback()
         return this.f.selector; // returns function selector
     }
 
-    /** 
-        Reference Types : Values can be modified through multiple different names unlike Value type
-            when passed as an argument or returned in a function, a reference to the value is passed or returned, not a copy.
+    /**
+     * Reference Types : Values can be modified through multiple different names unlike Value type
+        when passed as an argument or returned in a function, a reference to the value is passed or returned and not a copy.
         always have to define the data locations for the variables
     */
 
-    /** 
-        Solidity stores data as :
-            1. storage - stored on blockchain as 256-bit to 256-bit key-value store 
-            2. memory - is a linear byte-array, addressable at a byte-level 
-                    - is modifiable & exists while a function is being called 
-                    - can store either 1 or 32 bytes at a time in memory, but can only read in chunks of 32 bytes
-            3. calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
-        Prior to v0.6.9 data location was limited to calldata in external functions
-    */
-    function dataLocations(
-        uint[] memory memoryArray,
-        uint[3] memory secArray
-    ) public {
-        dynamicSized = memoryArray; // Assignments between storage & memory or from calldata always creates independent copies
-        uint[] storage z = dynamicSized; // Assignments to a local storage from storage ,creates reference.
-        z.pop(); // modifies array "dynamicSized" through "z"
-
-        // Assignment from memory to memory only create references
-        uint[3] memory kl = secArray;
-        uint[3] memory j = kl;
-        // change to one memory variable are visible in all other memory variable referring same data
-        delete j[1];
-        assert(kl[1] == j[1]);
-
-        /** 
-            delete
-                Resets to the default value of that type
-                doesn't works on mappings (unless deleting a individual key)
-        */
-        delete dynamicSized; // clears the array "dynamicSized" & "z"
-        delete dynamicSized[2]; // resets third element of array w/o changing length
-
-        /**  
-            Assigning memory to local storage doesn't work as
-            it would need to create a new temporary / unnamed array in global storage, 
-            but storage is allocated at compile time & not runtime
-            // z = memoryArray;
-
-            Cannot "delete z" as
-            referencing global storage objects can only be made from existing local storage objects.
-            // delete z
-        */
-    }
-
-    /** 
-        Structs is a group of multiple related variables ,
-        can be passed as parameters only for library functions 
-    */
+    /**
+     * Structs is a group of multiple related variables
+     * can even be passed as parameters in functions
+     */
     struct Todo {
         uint[] steps;
         bool initialized;
@@ -651,13 +626,15 @@ receive()   fallback()
     Todo[] public todoArr; // arrays of struct
 
     function onStruct(uint[] memory _arr, uint _index) external {
-        // Initializing
+        // Initializing structs values
+
         // 1. initializing individually as reference
         Todo storage t = todoArr[_index];
         t.steps = _arr;
         t.initialized = true;
         t.owner = msg.sender;
         t.user = User(msg.sender, "foo");
+
         // 2. key: value mapping by creating a struct in memory
         todoArr.push(
             Todo({
@@ -665,42 +642,36 @@ receive()   fallback()
                 initialized: true,
                 owner: msg.sender,
                 numTodo: _index,
-                user: User(msg.sender, "foo")
+                user: User({addr: msg.sender, task: "foo"})
             })
         );
+
         // 3. passing as arguments through struct memory
         todoArr.push(
-            Todo(
-                _arr,
-                true,
-                msg.sender,
-                _index,
-                User({addr: msg.sender, task: "foo"})
-            )
+            Todo(_arr, true, msg.sender, _index, User(msg.sender, "foo"))
         );
-        /** 
-        4. adds new element to end of array and then set the value of a particular field in that element
-            leaving all other fields to there default 
-        */
+
+        // 4. adds new element to end of array and then set the value of a particular field in that element leaving all other fields to there default
         todoArr.push().numTodo = 45;
 
         // accessing struct
         t.owner; // returns the value stored 'owner'
 
-        // Struct containing a nested mapping can't be constructed though memory
-
-        // t.reader[_index] = tx.origin;         // WORKS can be initialized by storage reference to struct
-        // tx.origin : sender's address of the transaction as transactions can originate only from Externally Owned Account (EOA)
-        // Todo({reader[_index]: tx.origin;})  // Error
+        /**
+         * Struct containing a nested mapping can't be constructed though memory
+         * t.reader[_index] = tx.origin;         mapping can be initialized by storage reference to struct
+                              ^ gives source sender's address of the transaction as transactions can originate only from Externally Owned Account (EOA)
+         * Todo({reader[_index]: tx.origin;})  will give Error
+         */
     }
 
     // Arrays
     uint[] public dynamicSized; // length of a dynamic array is stored at the first slot of array and followed by its elements
     uint[2 ** 3] _fixedSized; // array of 8 elements all initialized to 0
-    uint[][4] _nestedDynamic; // An array of 4 dynamic arrays
-    bool[3][] _triDynamic; // Dynamic Array of arrays of length 3
+    uint[][4] _nestedDynamic; // an array of 4 dynamic arrays
+    bool[3][] _triDynamic; // Dynamic Array of a fixed sized arrays each of length 3
     uint[] public arr = [1, 2, 3]; // pre assigned array
-    uint[][] _freeArr; // Dynamic arrays of dynamic array
+    uint[][] _freeArr; // Dynamic array of multi dynamic arrays
 
     function aboutArrays(
         uint _x,
@@ -712,52 +683,58 @@ receive()   fallback()
         // Creating memory arrays
         uint[] memory a = new uint[](7); // Fixed size memory array
         uint[2][] memory b = new uint[2][](size); // Dynamic memory array
-        // fixed size array can't be converted/assigned to dynamic memory array
-        // uint[] memory x = [uint(1), 3, 4]; // gives Error
-        // Unlike storage arrays memory or fixed size array can't be resized i.e. push or pop is invalid
+        /**
+         * fixed size array can't be converted/assigned to dynamic memory array
+         * uint[] memory x = [uint(1), 3, 4];  gives Error
+         * Unlike storage arrays, memory or fixed size array can't be resized i.e. push or pop is invalid
+         */
 
         // assigning to arrays
         for (uint i = 0; i <= 7; i++) {
             a[i] = i; // assigning elements individually
         }
-        _triDynamic.push(_newArr); // pushes array of 3 element to a Dynamic array
+        _triDynamic.push(_newArr); // pushes a array of 3 element to a Dynamic array
 
         // arrays in struct
-        Todo storage g = todoArr[0]; // reference to 'Todo' in 'g'
+        Todo storage g = todoArr[0]; // reference of 'Todo' in 'g'
         g.steps = a; // changes in 'Todo' also
 
         // Accessing array's elements
         b[_x][_y]; // returns the element at index 'y' in the 'x' array
         _nestedDynamic[_x]; // returns the array at index 'x'
-        arr.length; // number of elements in array
+        arr.length; // returns number of elements of an array
 
         // Only dynamic storage arrays are resizable
-        // Adding elements
+
+        // adding elements
         dynamicSized.push(_value); // appends new element at end of array , equivalent dynamicSized.push() = _value;
         dynamicSized.push(); // appends zero-initialized element
 
-        // Removing elements
+        // removing elements
         dynamicSized.pop(); // remove end of array element
-        delete arr; // resets all values to default value
+        delete arr; // removes all elements of array
         _triDynamic = new bool[3][](0); // similar to delete array
     }
 
-    /** 
-        slicing of array[start:end] 
-        start default is 0 & end is array's length 
-        only works with calldata array as input
-    */
+    /**
+     * slicing of array[start:end]
+     * 'start' default is 0 & 'end' is upto array's length
+     * only works with calldata array as input
+     */
     function slice(
         uint[] calldata _arr,
-        uint start,
-        uint end
+        uint startIndex,
+        uint endIndex
     ) public pure returns (uint[] memory) {
-        return _arr[start:end];
+        return _arr[startIndex:endIndex];
     }
 
-    // dynamic sized bytes array and string are special arrays of Reference type
-    // bytes represents arbitrary length raw byte data
-    // bytes are similar to bytes1[] but tightly packed (w/o padding)
+    // Special arrays of Reference type are dynamic sized bytes array and string
+
+    /**
+     * bytes represents arbitrary length raw byte data
+     * bytes are similar to bytes1[] but tightly packed (w/o padding)
+     */
     bytes _tps;
 
     // String represents dynamic array of UTF-8 characters
@@ -770,16 +747,18 @@ receive()   fallback()
         _tps = _bc;
         _kmp = _tmc;
 
-        // like array only storage bytes can be resized
+        // like array, only storage bytes can be resized
         _tps.push(0x61);
         _tps.push("b");
+
+        _tps.pop();
+
         /**
-            only 1 byte can be pushed at a time
-            Error: 
+         * only 1 byte can be pushed at a time
+         * Error: 
                 _tps.push('bcd');
                 _tps.push(0x6162);
          */
-        _tps.pop();
 
         return _tps.length;
     }
@@ -791,7 +770,7 @@ receive()   fallback()
         return (
             // string length & element cannot be accessed directly thus accessing byte-representation of string
             bytes(_str).length, // length of bytes of UTF-8 representation
-            bytes(_str)[2], // access element of  UTF-8 representation
+            bytes(_str)[2], // access element of UTF-8 representation
             keccak256(abi.encodePacked("foo")) ==
                 keccak256(abi.encodePacked("Foo")), //compare two strings
             // concatenate
@@ -800,52 +779,85 @@ receive()   fallback()
         );
     }
 
-    /** 
-        Mappings are like hash tables which are virtually initialized such that 
-        every possible key is mapped to a value whose byte-representation is all zeros,
-
-        Not possible to obtain a list of all keys or values of a mapping, 
-        as keccak256 hash of keys is used to look up value
-
-        only allowed as state variables but can be passed as parameters only for library functions 
-
-        Key Type can be inbuilt value types, bytes, string, enum but not user-defined, mappings, arrays or struct
-        Value can of any type
+    /**
+     * Mappings are like hash tables which are virtually initialized such that, 
+        every possible key is mapped to a value whose byte-representation is all zeros.
+     * Not possible to obtain a list of all keys or values of a mapping, 
+        as keccak256 hash of keys is used to look up value.
+     * only allowed as state variables but can be passed as parameters only for library functions 
+     * Key Type can be inbuilt value types, bytes, string, enum but not user-defined, mappings, arrays or struct
+     * while the Values of mappings can be of any type
     */
     mapping(address => uint256) public balances;
 
-    /** 
-        Operators
-            Result type of operation determined based on :
-            type of operand to which other operand can be implicitly converted to
+    /**
+     * Solidity stores data as :
+        1. storage - stored on blockchain as 256-bit to 256-bit key-value store 
+        2. memory 
+            - is a linear byte-array, addressable at a byte-level 
+            - is modifiable & exists while a function is being called 
+            - can store either 1 or 32 bytes at a time in memory, but can only read in chunks of 32 bytes
+        3. calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
+     * Prior to v0.6.9 data location was limited to calldata in external functions
+     */
+    function dataLocations(
+        uint[] memory memoryArray,
+        uint[3] memory secArray
+    ) public {
+        dynamicSized = memoryArray; // Assignments between storage & memory or from calldata always creates independent copies
+        uint[] storage z = dynamicSized; // Assignments to a local storage from global storage, creates reference.
+        z.pop(); // also modifies array "dynamicSized" via "z"
 
-       '==' operator is not directly compatible with dynamically-sized types, as the length of these arrays can vary.
-        It can only be used to compare values of certain types, such as integers and fixed-size byte arrays. 
-    */
+        // Assignment from memory to memory only create references
+        uint[3] memory kl = secArray;
+        uint[3] memory j = kl;
+        // change to one memory variable are visible in all other memory variable referring same data
+        delete j[1];
+        assert(kl[1] == j[1]);
 
-    /** 
-        Ternary Operator
-        if <expression> true ? then evaluate <true Expression>: else evaluate <false Expression> 
-    */
+        /**
+         * delete resets to the default value of that type
+         * it doesn't works on mappings (unless deleting a individual key)
+         */
+        delete dynamicSized; // clears the array "dynamicSized" & "z"
+        delete dynamicSized[2]; // resets third element of array w/o changing its length
+
+        /**
+         * Assigning memory to local storage doesn't work as
+            it would need to create a new temporary/unnamed array in global storage, 
+            but storage is allocated at compile time & not runtime.
+            z = memoryArray; gives out error
+
+         * Cannot "delete z" as referencing global storage objects can only be made from existing local storage objects.
+        */
+    }
+
+    /**
+     * Operators result type of operation determined based on type of operand to which other operand can be implicitly converted to
+     * '==' operator is not directly compatible with dynamically-sized types, as the length of these arrays can vary.
+     * equality operator can only be used to compare values of certain types, such as integers and fixed-size byte arrays.
+     */
+
+    // Ternary Operator : if <expression> true ? then evaluate <true Expression>: else evaluate <false Expression>
     uint _tern = 2 + (block.timestamp % 2 == 0 ? 1 : 0);
 
-    // 1.5 + (true ? 1.5 : 2.5) NOT valid, as _ternary operator doesn't have a rational number type
+    // _tern = 1.5 + (true ? 1.5 : 2.5); is NOT valid, as rational number aren't convertible to uint
 
-    // pre and post fix increment and decrement operators are used to increase or decrease the value of a variable by 1.
+    // pre and post fix increment or decrement operators are used to increase or decrease the value of a variable by 1.
     function postPreFix()
         external
         pure
         returns (uint r, uint s, uint t, uint u)
     {
         uint p = 10;
-        //PostFix : returns the value of the variable before it has been incremented/decremented
+        // PostFix : returns the value of the variable before it has been incremented/decremented
         r = p++; // 10
         // now p = 11
         s = p--; // 11
+        // now p = 10
 
         uint q = 20;
-
-        //PreFix : returns the value of the variable after it has been incremented/decremented
+        // PreFix : returns the value of the variable after it has been incremented/decremented
         t = ++q; // 21
         // now q = 21
         u = --q; // 20
@@ -857,35 +869,47 @@ receive()   fallback()
         uint c
     ) external pure returns (uint, uint, uint, uint, uint, uint) {
         return (
-            // AND
-            // a     = 1110 = 8 + 4 + 2 + 0 = 14
-            // c     = 1011 = 8 + 0 + 2 + 1 = 11
-            // a & c = 1010 = 8 + 0 + 2 + 0 = 10
+            /**
+             * AND
+             * a     = 1110 = 8 + 4 + 2 + 0 = 14
+             * c     = 1011 = 8 + 0 + 2 + 1 = 11
+             * a & c = 1010 = 8 + 0 + 2 + 0 = 10
+             */
             a & c,
-            // OR
-            // a     = 1100 = 8 + 4 + 0 + 0 = 12
-            // c     = 1001 = 8 + 0 + 0 + 1 = 9
-            // a | c = 1101 = 8 + 4 + 0 + 1 = 13
+            /**
+             * OR
+             * a     = 1100 = 8 + 4 + 0 + 0 = 12
+             * c     = 1001 = 8 + 0 + 0 + 1 = 9
+             * a | c = 1101 = 8 + 4 + 0 + 1 = 13
+             */
             a | c,
-            // NOT
-            // a  = 00001100 =   0 +  0 +  0 +  0 + 8 + 4 + 0 + 0 = 12
-            // ~a = 11110011 = 128 + 64 + 32 + 16 + 0 + 0 + 2 + 1 = 243
+            /**
+             * NOT
+             * a  = 00001100 =   0 +  0 +  0 +  0 + 8 + 4 + 0 + 0 = 12
+             * ~a = 11110011 = 128 + 64 + 32 + 16 + 0 + 0 + 2 + 1 = 243
+             */
             ~a,
-            // XOR -> if bits are same then 0 , if different then 1
-            // a     = 1100 = 8 + 4 + 0 + 0 = 12
-            // c     = 0101 = 0 + 4 + 0 + 1 = 5
-            // a ^ c = 1001 = 8 + 0 + 0 + 1 = 9
+            /**
+             * XOR -> if bits are same then 0, if different then 1
+             * a     = 1100 = 8 + 4 + 0 + 0 = 12
+             * c     = 0101 = 0 + 4 + 0 + 1 = 5
+             * a ^ c = 1001 = 8 + 0 + 0 + 1 = 9
+             */
             a ^ c,
-            // shift left
-            // 1 << 0 = 0001 --> 0001 = 1
-            // 1 << 1 = 0001 --> 0010 = 2
-            // 1 << 2 = 0001 --> 0100 = 4
-            // 3 << 2 = 0011 --> 1100 = 12
+            /**
+             * shift left
+             * 1 << 0 = 0001 --> 0001 = 1
+             * 1 << 1 = 0001 --> 0010 = 2
+             * 1 << 2 = 0001 --> 0100 = 4
+             * 3 << 2 = 0011 --> 1100 = 12
+             */
             a << c,
-            // shift right
-            // 8  >> 1 = 1000 --> 0100 = 4
-            // 8  >> 4 = 1000 --> 0000 = 0
-            // 12 >> 1 = 1100 --> 0110 = 6
+            /**
+             * shift right
+             * 8  >> 1 = 1000 --> 0100 = 4
+             * 8  >> 4 = 1000 --> 0000 = 0
+             * 12 >> 1 = 1100 --> 0110 = 6
+             */
             a >> c
         );
     }
@@ -895,32 +919,40 @@ receive()   fallback()
         pure
         returns (uint32 foobar, uint j, uint16 m, bytes1 p)
     {
-        /** 
-            Implicit Conversions
-                compiler auto tries to convert one type to another
-                conversion is possible if makes sense semantically & no information is lost
+        /**
+         * Implicit Conversions
+            - compiler auto tries to convert one type to another
+            - conversion is possible if makes sense semantically & no information is lost
         */
         uint8 foo;
         uint16 bar;
         foobar = foo + bar; // during addition uint8 is implicitly converted to uint16 and then to uint32 during assignment
 
-        /** 
-            Explicit Conversions
-                if you are confident and forcefully do conversion
-                    - converting to a smaller type, higher-order bits are cut off
-                    - converting to a larger type, it is padded on the left
+        /**
+         * Explicit Conversions
+            - if you are confident and forcefully do conversion
+            - converting to a smaller type, higher-order bits are cut off
+            - converting to a larger type, it is padded on the left
         */
         int kt = -3;
         j = uint(kt);
 
-        // when uint is converted to a smaller uint the smallest bytes are taken (from right)
+        // when uint is converted to a smaller size uint the high order bytes are cut off and only taken from right end
         uint32 l = 0x12345678;
-        m = uint16(l); // b will be 0x5678 now
-        // uint16 c = 0x123456; //error, since it would have to truncate to 0x5678, since v0.8 only conversion allowed if in resulting range
+        m = uint16(l); // m will be 0x5678 now
 
-        // when byte is converted to a smaller byte its taken from the left
+        // If an integer is explicitly converted to a larger type, it is padded on the left (i.e., at the higher order end)
+        uint32 t = uint32(m); // t would become 0x00005678
+
+        // uint16 c = uint16(0x123456); gives out error, since it would have to truncate to 0x3456 and since v0.8 only hexadecimal to integer conversion allowed if in resulting range
+
+        // when byte is converted to a smaller size byte its taken from the left end
         bytes2 n = 0x1234;
         p = bytes1(n); // b will be 0x12
+
+        // If a fixed-size bytes type is explicitly converted to a larger type, it is padded on the right.
+        bytes2 za = 0x1234;
+        bytes4 zb = bytes4(za); // b will be 0x12340000
     }
 
     // Units works only with literal number
@@ -961,12 +993,12 @@ receive()   fallback()
         return (
             blockhash(_blockNumber), // hash of block(one of the 256 most recent blocks)
             block.basefee, // current block's base fee
-            block.chainid,
+            block.chainid, // returns the ID of the blockchain that the current transaction is executing on
             block.coinbase, // current block miner’s address
             block.difficulty, // deprecated for EVM versions previous Paris
-            // block.prevrandao(_blockNumber),     // random number provided by the beacon chain (EVM >= Paris)
+            // block.prevrandao(_blockNumber),     random number provided by the beacon chain (EVM >= Paris)
             block.gaslimit, // current block's gas limit
-            block.number,
+            block.number, // block number in which the current transaction is mined
             block.timestamp, // timestamp as seconds of when block is mined
             gasleft(), // remaining gas
             tx.gasprice // gas price of transaction
