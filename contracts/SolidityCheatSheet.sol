@@ -66,7 +66,7 @@ struct User {
 abstract contract Tesseract {
     function retVal(uint256 x) public virtual returns (uint256);
 
-    function getPriv() external view virtual returns (uint) {
+    function get() external view virtual returns (uint) {
         return 5;
     }
 }
@@ -119,7 +119,7 @@ contract Token is Tesseract {
         totalSupply = _x + msg.value;
     }
 
-    function _addPriv(uint val) internal view returns (uint) {
+    function _add(uint val) internal view returns (uint) {
         return _anon + val;
     }
 
@@ -127,7 +127,7 @@ contract Token is Tesseract {
         return _anon * val;
     }
 
-    function getPriv() external view virtual override returns (uint) {
+    function get() external view virtual override returns (uint) {
         return _anon;
     }
 }
@@ -174,7 +174,7 @@ contract Currency is
     constructor(uint _amnt) SpecialCoin(_amnt) {} // if arguments are determined while contract deployement then argument can be passed through a "modifier" of the parent contract
 
     function intTest() public view returns (uint) {
-        return _addPriv(5); // access to internal member (from derived to parent contract)
+        return _add(5); // access to internal member (from derived to parent contract)
     }
 
     /// @inheritdoc Coin Copies all missing tags from the base function (must be followed by the contract name)
@@ -197,7 +197,7 @@ contract Currency is
     }
 
     // Public state variables can override external getter functions of the variable
-    uint public override getPriv;
+    uint public override get;
 }
 
 /**
@@ -420,9 +420,12 @@ receive()   fallback()
         Value Types : These variables are always be passed by value, 
         i.e. they are always copied when used as function arguments or in assignments.
     */
-    // Integers exists in sizes(from 8 up to 256 bits) in steps of 8
-    // uint and int are aliases for uint256 and int256, respectively
-    uint256 _storedData; // unsigned integer of 256 bits
+
+    /**
+     * Integers exists in sizes(from 8 up to 256 bits) in steps of 8
+     * uint and int are aliases for uint256 and int256, respectively
+     */
+    uint256 _storedData; // unsigned(only positive) integer of 256 bits
 
     // access the minimum and maximum value representable by the integer type
     function integersRange() external pure returns (uint, uint, int, int) {
@@ -437,11 +440,16 @@ receive()   fallback()
         );
     }
 
-    // address holds 20 byte(160 bits) value and is suitable for storing addresses of contracts, or external accounts.
-    address public owner;
-    // ^ Equivalent to -> function owner() public view returns (address) { return owner; }
-    // address with transfer and send functionality to receive Ether
-    // Implicit conversions from address payable to address are allowed
+    /**
+     * Address holds 20 byte(160 bits) value and is suitable for storing addresses of contracts, or external accounts.
+     * address(0) aka zero addresses private key is unknown
+     * thus Ether and tokens sent to this address cannot be retrieved and setting access control roles to this address also won’t work
+     */
+    address public owner; // ^ Equivalent to -> function owner() public view returns (address) { return owner; }
+    /**
+     * address with transfer and send functionality to receive Ether
+     * Implicit conversions from address payable to address are allowed
+     */
     address payable public treasury;
 
     // Boolean holds 1 byte value (0 or 1) possible values are true and false
@@ -453,8 +461,10 @@ receive()   fallback()
         return _x && (_y || _z);
     }
 
-    // bytesN is value data type Fixed size byte array of size N bytes (range : 1 to 32)
-    // bytes store every data as hexadecimal format (0x...)
+    /**
+     * bytesN is value data type Fixed size byte array of size N bytes (range : 1 to 32)
+     * bytes store every data as hexadecimal format (0x...)
+     */
     bytes2 public k;
 
     function fixedByte() public returns (bytes1) {
@@ -1017,13 +1027,12 @@ receive()   fallback()
         // Encoding
         bytes memory encodedData = abi.encode(f1, g, h); // encodes given arguments
 
-        /** 
-                This method has no padding, thus one variable can merge into other
-                resulting in Hash collision , 
-                only useful if types and length of parameters are known
-                e.g. encodePacked   (AAA, BBB) -> AAABBB
-                                    (AA, ABBB) -> AAABBB
-                use abi.encode to solve it
+        /**
+         * This method has no padding, thus one variable can merge into other resulting in Hash collision, 
+            only useful if types and length of parameters are known
+            e.g. encodePacked   (AAA, BBB) -> AAABBB
+                                (AA, ABBB) -> AAABBB
+            use abi.encode to solve it
         */
         abi.encodePacked(f1, g, h);
 
@@ -1035,22 +1044,16 @@ receive()   fallback()
         assert(_f == f1);
 
         return (
-            // encodes arguments from the second and prepends the given four-byte selector
+            // encodes arguments from the second parameter and prepends the given four-byte selector
             abi.encodeWithSelector(this.bitwiseOperate.selector, 12, 5), // arguments type is not checked
             abi.encodeWithSignature("bitwiseOperate(uint,uint)", 14, 10), // typo error & arguments is not validated
-            // ensures any typo and arguments types match the function signature
-            abi.encodeCall(IERC20.transfer, (address(0), 12)),
-            /**
-                ^ zero address (address(0)) private key is unknown 
-                thus Ether and tokens sent to this address cannot be retrieved and setting access control roles to this address also won’t work  
-            */
-
+            abi.encodeCall(IERC20.transfer, (address(0), 12)), // ensures any typo and arguments types match the function signature
             // Hashing
             keccak256(abi.encodePacked("Solidity"))
-            /** 
-                similarly :
-                    - sha256(bytes memory)
-                    - ripemd160(bytes memory) 
+            /**
+             * similarly :
+                - sha256(bytes memory)
+                - ripemd160(bytes memory) 
             */
         );
     }
@@ -1093,29 +1096,30 @@ receive()   fallback()
             // EIP-165 interface identifier of the given interface
             type(IERC20).interfaceId
 
-            // used to build custom creation routines, especially by using the create2 opcode.
-            // type(Test).creationCode,
-
-            // Runtime bytecode of contract that deployed through constructor(assembly code) of other contract.
-            // type(Test).runtimeCode
+            /**
+             * type(Test).creationCode :
+                    deployed contract creation/deployement time bytecode, especially which are created using the create2 opcode.
+             * type(Test).runtimeCode :
+                    runtime bytecode of contract that deployed through constructor(assembly code) of other contract.
+             */
         );
     }
 
-    /** 
-        Constructor(is optional) code only runs when the contract is created
-        State variables are initialized before the constructor code is executed
-        After execution of constructor the final code deployed on chain does not include :
+    /**
+     * Constructor(is optional) code only runs during the contract deployment
+     * State variables are initialized before the constructor code is executed
+     * After execution of constructor the final code deployed on chain does not include :
                                                                                 - constructor code or 
                                                                                 - any internal functions call through it
     */
     constructor(bytes32 _salt) payable {
         /**
-         * "msg" is a special global variable that contains allow access to the blockchain.
-            - msg.sender : is always the address where the current (external) function call came from.
-            - msg.value : The amount of Ether/Wei deposited or withdrawn by the msg.sender.
-            - msg.sig: Returns the first 4 bytes of the call data of any function i.e function signature which helps to identify the function which is being called.
-            - msg.data: Complete calldata.
-            - msg.gas: Remaining gas.
+         * "msg" is a special global variable that allow access to the blockchain data
+         * msg.sender: is always the address where the current (external) function call came from.
+         * msg.value: The amount of Ether/Wei deposited or withdrawn by the msg.sender.
+         * msg.sig: Returns the first 4 bytes of the call data of any function i.e function signature which helps to identify the function which is being called.
+         * msg.data: Complete calldata.
+         * msg.gas: Remaining gas.
          */
         owner = msg.sender;
         senderBalance = owner.balance; // .balance is used to query the balance of address in Wei
@@ -1127,36 +1131,38 @@ receive()   fallback()
      * Modifiers can be used to change the behavior of functions 
         in a declarative way(take away control flow for logic)
 
-     * Overloading (same modifier name with different parameters) is not possible.
-        Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
-        Multiple modifiers in functions are evaluated in the order presented 
+     * Modifier Overloading (same modifier name with different parameters) is not possible.
+     * Like functions, modifiers can be overridden via derived contract(if marked 'virtual')
+     * Multiple modifiers in functions are evaluated in the order presented (left to right)
     */
-    modifier onlyOwner() /**can receive arguments*/ {
+    modifier onlyOwner() /** can even pass arguments */ {
         require(msg.sender == owner, "Not Owner");
         _; // The function body is inserted where the underscore is placed(can be multiple),
-        // any logic mentioned after underscore is executed afterwards
+        // any logic mentioned after underscore is executed afterwards full function code is executed
     }
 
-    // Events allow clients to react to specific state change
-    // Web app can listen for these events, the listener receives the arguments sender and value, to track transactions.
-    // E.g. Listeners using web3js :
-    // ContractName.Stored().watch({}, '', function(error, result) {
-    // if (!error) {
-    //     console.log("Number stored: " + result.args.value +
-    //         " stored by " + result.args.sender +".");
-    //     }
-    // })
+    /**
+     * Events allow clients to react to specific state change
+     * Web app can listen for these events, the listener receives the arguments sender and value, to track transactions.
+     * E.g. Listeners using web3js :
+        ContractName.Stored().watch({}, '', function(error, result) {
+        if (!error) {
+             console.log("Number stored: " + result.args.value +
+                 " stored by " + result.args.sender +".");
+             }
+         })
+     */
     event Stored(address sender, uint256 value);
 
-    /** 
-        for filtering certain logs 'indexed'(stores parameter as "topics") attribute can be added up to 3 params
-        All parameters without the indexed attribute are ABI-encoded into the data part of the log
-        Filtering of events can also be done via the address of contract
-    */
+    /**
+     * for filtering certain logs 'indexed'(stores parameter as "topics") attribute can be added up to 3 params
+     * All parameters without the indexed attribute are ABI-encoded into the data part of the log
+     * Filtering of events can also be done via the address of contract
+     */
     event Log(string func, uint indexed gas);
 
-    /** 
-        'anonymous' events can support up to 4 indexed parameters
+    /**
+     * 'anonymous' events can support up to 4 indexed parameters
             - does not stores event's signature as topic
             - not possible to filter for anonymous events by name, but only by the contract address 
             - should be used when contract has only one event such that all logs are known to be from this event 
@@ -1170,20 +1176,22 @@ receive()   fallback()
 
     bytes32 _eventSelector = Log.selector; // stores keccak256 hash of non-anonymous event signature
 
-    // Errors allow custom names and data for failure situations.
-    // Are used in revert statement & are cheaper than using string in revert
+    /**
+     * Custom Errors allow customised names and data for failure situations.
+     * Are used in revert statement & are cheaper than using string in revert
+     */
     error LowValueProvided(uint value);
 
     function _createContract(bytes32 _salt) internal {
-        // Send ether along with the new contract "Token" creation and passing in args to it's constructor
+        // Send ether along with the new contract "Token" creation and () means passing arguments to the contract's constructor
         _tk = new Token{value: msg.value}(3e6);
 
-        /** 
-            contract address is computed from creating contract address and nonce 
-            while if salt value is given, address is computed from :
-            creating contract address, 
-            salt & 
-            creation bytecode of the created contract and the constructor arguments.
+        /**
+         * contract address is computed from creating contract address and nonce 
+         * while if salt value is given, address is computed from :
+            - creating contract address, 
+            - salt & 
+            - creation bytecode of the created contract and it's constructor arguments.
         */
         address preComputeAddress = address(
             uint160(
@@ -1230,75 +1238,74 @@ receive()   fallback()
         emit Stored(msg.sender, _value);
     }
 
-    // Payable Function requires Calling this function along with some Ether (as msg.value)
+    // Payable Function requires calling the function along with some Ether (as msg.value)
     function transferringFunds(address payable _to) external payable {
-        /** 
-            'transfer' fails if sender don't have enough balance or Transaction rejected by receiver 
-            reverts on failure & stops execution
-            transfer/send has 2300 gas limit to prevent re-entrancy attack
-        */
+        /**
+         * 'transfer' fails if sender don't have enough balance or if transaction rejected by receiver
+         * reverts on failure & stops execution
+         * transfer/send has 2300 gas limit to prevent re-entrancy attack
+         */
         treasury.transfer(1 wei);
 
-        /** 
-            'send' returns a boolean value indicating success or failure.
-            doesn't stops execution
-            transfer of tokens via 'send' can failed if call stack depth reaches 1024 & also if recipient run out of gas 
-        */
+        /**
+         * 'send' returns a boolean value indicating success or failure.
+         * doesn't stops execution
+         * transfer of tokens via 'send' can failed if call stack depth reaches 1024 or if the recipient run out of gas
+         */
         bool sent = payable(0).send(1 wei); // payable(0) -> 0x0000000000000000000000000000000000000000
         require(sent, "Send failed");
 
         /**
          * Call returns a boolean value indicating success or failure and a response data if received.
          * Possible to adjust gas supplied
-         * most recommended method to transfer funds
+         * most recommended method to transfer funds, if handled carefully due to complexities of response and gas
          */
         (bool res, bytes memory data) = _to.call{gas: 5000, value: msg.value}(
             ""
         );
         require(res, "Failed to send Ether");
 
-        /** 
-            Explicit conversion allowed 
-            from address to address payable &
-            from uint160, bytes20, contract types to address 
+        /**
+         * Explicit conversion allowed : 
+            - from address to address payable &
+            - from uint160, bytes20, contract types to address 
         */
-        payable(owner).transfer(address(this).balance); // querying current contract balance in Wei
+        payable(owner).transfer(address(this).balance); // querying current contract balance in wei
     }
 
-    /** 
-        low level function to interact with other contract especially with
+    /**
+     * low level call to interact with other contract especially with
         the source code of the called contract is not available in the calling contract
-        
-        ether and custom gas amount can be sent along
-
-        low level calls are not recommended : 
+     *  ether and custom gas amount can be sent along
+     *  low level calls are not recommended as: 
             - bypasses type checking, function existence check, and argument packing
             - on "revert" cause entire transaction to be reverted (including any changes made prior to low-level call)
     */
     function lowLevelCall(
         address payable _contract
     ) external payable returns (bool success, bytes memory data) {
-        // call method , forwards all remaining gas by default
+        // call method to modify any state in calling contract, forwards all remaining gas by default
         (success, data) = _contract.call{value: msg.value, gas: 5000}(
             abi.encodeWithSignature("dummy(string,uint256)", "hello there", 200)
         );
 
+        // STATICCALL opcode is used when view/pure functions are called such that modifications to the state are prevented
+
         /**
-            delegatecall to other contract execute it's function but preserves calling contract's state (storage, contract address & balance)
-            i.e. delegatecall from contract A to B : while the code executed is that of contract B, but execution happens in the context of contract A. 
+         * delegatecall to other contract execute it's function but preserves calling contract's state (storage, contract address & balance)
+         * i.e. delegatecall from contract A to B : while the code executed is that of contract B, but execution happens in the context of contract A. 
                 Such that any reads or writes to storage affect the storage of A, not B.
-            The purpose of delegatecall is to use library code which is stored in another contract as well as used in proxy pattern.
-            Prior to v0.5.0 delegatecall is called callcode
+         * The purpose of delegatecall is to use library code which is stored in another contract as well as used in proxy pattern.
+         * Prior to v0.5.0 delegatecall is called callcode
         */
         (success, data) = _contract.delegatecall(
             abi.encodeWithSignature("setVar(uint256)", 35)
         );
-        /** 
-            ^ If state variables are accessed via a low-level delegatecall, 
-            the storage layout of the two contracts must be in same order for the called contract to correctly access the storage variables of the calling contract by name. 
+        /**
+         * ^ If state variables are modified via a low-level delegatecall, 
+            the storage layout of the two contracts must be in same order for the called contract,
+            to correctly access the storage variables of the calling contract by name. 
         */
-
-        // STATICCALL opcode is used when view/pure functions are called such that modifications to the state are prevented
     }
 
     // query the deployed code for any smart contract
@@ -1306,114 +1313,118 @@ receive()   fallback()
         address _contractAddr
     ) external view returns (bytes memory, bytes32) {
         return (
-            _contractAddr.code, // gets the EVM bytecode of code
-            _contractAddr.codehash // Keccak-256 hash of that code
+            _contractAddr.code, // gets the bytecode of contract
+            _contractAddr.codehash // Keccak-256 hash of contract's code
         );
     }
 
-    /** 
-        Function Visibility : 
-            - external : these calls create an actual EVM message call, 
-                they can be called from other contracts and via transactions; 
-                and can be accessed internally via this.extFunc()
-            - public : can be either called internally eg. pubFunc() or via message calls(externally) like this.pubFunc() 
-            - internal : can only be accessed from within the current contract or contracts deriving from it & neither exposed via ABI
-            - private : similar to internal but not accessible in derived contracts 
+    /**
+     * Function Visibility : 
+        - external : these calls create an actual EVM message call, 
+            they can be called from other contracts and via transactions; 
+            and can be accessed internally via this.extFunc()
+        - public : can be either called internally eg. pubFunc() or via message calls(externally) like this.pubFunc() 
+        - internal : can only be accessed from within the current contract or contracts deriving from it & neither exposed via ABI
+        - private : similar to internal but not accessible in derived contracts 
     */
     function canUSeeMe() public view returns (uint) {
-        /** 
-            _tk._anon() , _tk._mulPriv() will not be accessible due to private visibility and 
-            also as this contract doesn't derived from contract Token, _tk._addPriv() (internal func.) will also not be accessible 
-        */
-        return _tk.getPriv();
+        /**
+         * _tk._anon() , _tk._mulPriv() will not be accessible due to private visibility and
+         * also as this contract doesn't derives from contract Token, _tk._add() (internal func.) will also not be accessible
+         */
+        return _tk.get();
     }
 
     function funcCalls(uint[] calldata _data, uint _x, uint _y) public payable {
-        // while external contract call we can specify value & gas
-        _tk.updateSupply{value: msg.value, gas: 3000}(5);
-        /** 
-            NOTE : calling contractInstance.{value, gas} w/o () at end , 
-            will not call function resulting in loss of value & gas 
+        /**
+         * in external contract call, we can specify value & gas
+         * NOTE : calling contractInstance.{value, gas} w/o () at end, 
+            will not call the function, resulting in loss of value & gas 
         */
+        _tk.updateSupply{value: msg.value, gas: 3000}(5);
 
-        //arguments can be given by name, in any order, if they are enclosed in { }
-        slice({end: _y, _arr: _data, start: _x});
+        // arguments can be given by name in any order, if they are enclosed in { }
+        slice({endIndex: _y, _arr: _data, startIndex: _x});
     }
 
     /** Functions Mutability :
-        - view : functions which can read state & environment variables but cannot modify it
-                    Following are considered as state modifying :
-                        - Writing to state variables 
-                        - Emitting events 
-                        - Creating other contracts 
-                        - Using selfdestruct 
-                        - Sending Ether via calls 
-                        - Calling any function not marked view or pure 
-                        - Using low-level calls 
-                        - Using inline assembly that contains certain opcodes.
-
-        - pure : functions can neither read or modify state or environment variables (except msg.sig & msg.data),
-                    these functions can also use revert as its not considered 'state modification'
+     * view : functions which can read state & environment variables but cannot modify it
+     * Following are considered as state modifying :
+        - Writing to state variables 
+        - Emitting events 
+        - Creating other contracts 
+        - Using selfdestruct 
+        - Sending Ether via calls 
+        - Calling any function not marked view or pure 
+        - Using low-level calls 
+        - Using inline assembly that contains certain opcodes.
+      * pure : functions can neither read or modify state and even can't access environment variables (except msg.sig & msg.data),
+                these functions can also use revert as its not considered 'state modification'
     */
 
-    // Contract can have multiple functions of the same name but with different parameter types called 'overloading'
+    /**
+     * Contract can have multiple functions of the same name but with different parameter types called 'overloading'
+     * Returns parameters are not taken into consideration for overload resolution
+     */
     function twins(uint256 j) public view returns (uint km) {
         km = j * block.timestamp;
     }
 
-    // Returns parameters are not taken into consideration for overload resolution
     function twins(uint8 j) public pure returns (uint km) {
         km = j * 2;
+        // function code could also be the same as that of it's overloaded twin
     }
 
     function arithmeticFlow(
         uint a,
         uint b
     ) public pure returns (uint u, uint o) {
-        // This subtraction will wrap on underflow.
+        // This subtraction will wrap (allows) on underflow.
         unchecked {
             u = a - b;
         }
 
         o = a - b; // will revert on underflow
-        return (u, o);
     }
 
-    /** 
-        Solidity throws an exception if an condition evaluates to false
-        resulting in revert to previous state via rolling back all changes made to the state so far.
-    */
+    /**
+     * Solidity throws an exception if an condition evaluates to false,
+     * resulting in revert to previous state via rolling back all changes made to the state so far.
+     */
     function errorFound(address payable addr) public payable {
-        /** 
-            Require validates :
+        /**
+         * Require validates for :
                 - invalid inputs
-                - conditions that cannot be detected until execution time
-                - return values from calls to other functions
+                - conditions that cannot be detected until time of execution
+                - return values from calls made to other functions
         */
-        require(msg.value % 2 == 0, "Value sent not Even");
+        require(msg.value % 2 == 0, "Value sent is not even");
 
-        // A direct revert can be triggered using the revert statement and the revert function.
+        /**
+         * A direct revert can be triggered using the revert statement or the revert function.
+         * revert statement -: revert CustomError(args)
+         * revert function -:  revert() or revert("error description")
+         */
         if (msg.value < 1 ether) revert LowValueProvided(msg.value);
-        // revert can also be used like revert("description") or revert CustomError(args)
 
         uint balBeforeTransfer = address(this).balance;
         addr.transfer(msg.value / 2);
 
-        /** 
-            Assert should be used at end of function to prevent severe error ,
+        /**
+         * Assert should be used at end of function to prevent severe error,
             especially at statement which should never evaluate to 'false' under normal circumstances in bug free code
 
-            Assert used for:
-                - checking Internal errors & invariants
-                - validate contract state after making changes
-                - check for overflow/underflow
+         * Assert used for:
+            - checking Internal errors & invariants
+            - validate contract state after making changes
+            - check for overflow/underflow
         */
         assert(address(this).balance == balBeforeTransfer - msg.value / 2); // it will fail only if there is any exception while transferring funds
 
-        /** 
-            Error(string) is used for regular error conditions
-                Error exception is generated :
-                - require() and revert() uses 0xfd(REVERT) error code , this refunds any unused gas until now 
+        /**
+         * Error(string) is used for regular error conditions
+         * Error exception is generated :
+                - require() and revert() uses 0xfd(REVERT) error code, this refunds any unused gas until now 
 
                 - If require(statement) evaluates to false.
 
@@ -1426,9 +1437,9 @@ receive()   fallback()
                 - If your contract receives Ether via a public getter function.
         */
 
-        /** 
-            Panic(uint256) is used for errors that should not be present in bug-free code
-                Panic error generated with error code:
+        /**
+         * Panic(uint256) is used for errors that should not be present in bug-free code
+         * Panic error generated with error code :
                 0x00: Used for generic compiler inserted panics.
 
                 0x01: If you call assert with an argument that evaluates to false.
@@ -1451,8 +1462,8 @@ receive()   fallback()
                 0x51: If you call a zero-initialized variable of internal function type.
         */
 
-        /** 
-            Cases when it can either cause an Error or a Panic (or whatever else was given):
+        /**
+         * Cases when it can either cause an Error or a Panic (or whatever else was given):
                 - If a .transfer() fails.
 
                 - If calling a function via a message call fails 
@@ -1461,11 +1472,10 @@ receive()   fallback()
         */
     }
 
-    /** 
-        A failure in an external call or while creating contract can be caught using a try/catch statement
-        whenever a "revert" call is executed an exception is generated that propagates up the function call stack 
-        until caught by try/catch.
-    */
+    /**
+     * A failure in an external call or while creating contract can be caught using a try/catch statement
+     * whenever a "revert" call is executed an exception is generated that propagates up the function call stack until caught by try/catch.
+     */
     function tryNcatch(
         address _extContract,
         address _recipient
@@ -1489,23 +1499,25 @@ receive()   fallback()
         }
     }
 
-    /** 
-        sends contract ether balance to the designated address 
-        then removes contract code from the blockchain
-        but can be retained as it's part of the blockchain's history
-        ether can still be sent to the removed contract but would be lost
-    */
+    /**
+     * Selfdestruct :
+     * sends contract ether balance to the designated address
+     * then removes contract code from the blockchain
+     * but can be retained as it's part of the blockchain's history
+     * ether can still be sent to the removed contract but would be lost
+     */
     function boom() external {
         // some other code ....
-        // if boom() reverts before selfdestruct, it "undo" the destruction
+
+        // if boom() reverts before selfdestruct, it undo the destruction
         selfdestruct(payable(owner)); // Warning : SELFDESTRUCT is deprecated opcode
         /** 
-            When the SELFDESTRUCT opcode is called, ether of the callee are sent to the address on the stack, 
+         * When the SELFDESTRUCT opcode is called, ether from the callee contract are sent to the address on the stack, 
             and execution is immediately halted and functions blocking the receipt of Ether will not be executed.
 
-            self destruct forcefully send eth to contract even if:
-                - contract has no payable , receive or fallback functions
-                - contract has revert() in receive()
+         * self destruct forcefully send eth to a contract even if:
+            - the receiving contract has no payable, receive or fallback functions
+            - the receiving contract has revert() in receive()
         */
     }
 
@@ -1514,17 +1526,17 @@ receive()   fallback()
         return Root.sqrt(_num);
     }
 
-    /** 
-        Inline assembly is way to access EVM at low level(via OPCODES) by passing important safety features & checks of solidity
-        it uses Yul as it's language 
-    */
+    /**
+     * Inline assembly is way to access EVM at low level(via OPCODES) by passing important safety features & checks of solidity
+     * it uses Yul as it's language
+     */
     function assemblyTinker(address _addr) public returns (bool) {
         uint256 size;
         // retrieve the size of the code, through assembly
         assembly {
             // variables declared outside assembly block can be manipulated inside
             // assign to variable by :=
-            size := extcodesize(_addr) // extcodesize is opcode for length of the contract bytecode(in bytes) at addr
+            size := extcodesize(_addr) // extcodesize is opcode for length of the contract bytecode(in bytes) store at address _addr
 
             // no semicolon or new line required
             let a := mload(0x40) // reads and assign (u)int256 from memory at location 0x40
@@ -1573,32 +1585,40 @@ receive()   fallback()
         return (size > 0);
     }
 
-    /** 
-        Function parsed data is represented as 4 + 32*N where N is the number of arguments in the function
+    /**
+     * Function Encoded Paramaters
+     * Function signature is a string that consists of the function's name and the types of its input parameters. 
+            also used to distinguish between overloaded function.
+            e.g. a function "transfer" with two input parameters address & uint256, signature is calculated: "transfer(address,uint256)".
         
-        Function signature is a string that consists of the function's name and the types of its input parameters. 
-            also used to distinguish function from another with the same name but different parameters.
-            e.g. a function "transfer" with two input parameters address & uint256, signature is "transfer(address,uint256)".
-        
-        Function selector is a first(left aligned) four-byte of keccak256 hash of function's signature 
+     * Function selector is a first(left aligned) four-byte of keccak256 hash of function's signature 
             used to identify a specific function in a contract. 
-
-        Function's selector and signature are used together to call a specific function within a contract. 
-            as the function selector is included in the data field of the transaction when a call is made to contract 
-        The contract uses the function selector to determine which function should be executed, 
+     * Function's selector and signature are used together to call a specific function within a contract. 
+     * Function selector is included in the data field of the transaction when a call is made to contract.
+     * The contract uses the function selector to determine which function should be executed, 
             and then checks the signature of the function to ensure that the correct input parameters have been provided.
-        
-        Argument encoding the process of encoding function arguments into byte array that serves as input data input data to contract's function call
-            this input data is later decoded by the contract and are passed to functions in correct format
 
-        for eg. calling following function with params. 
+     * Function parsed data is represented as :
+            - 4 + 32*N where N is the number of arguments in the function in case of static variables 
+            - Static variables are uints, ints, address, bool, bytes1 to bytes32 (including function selector), and tuples (however they can have dynamic variables in them)
+            
+            - while if dynamic variables are also present 4 + 32*N + 2*(32*D) , here D is number of dynamic variables
+            - Dynamic variables are non-fixed-size types, including bytes, string, and dynamic arrays, as well as fixed sized arrays.
+            - Dynamic variables encoding are represented by :
+                - offset : first 32 bytes representing location of where the variable begins from
+                - length : second 32 bytes representing length of the variable
+        
+     * Argument encoding : Process of encoding function arguments into byte array that serves as input data to contract's function call,
+            this input data is later decoded by the contract and are passed to functions in correct format.
+
+        for eg. calling following function with arguments : 
             (53, ["abc", "def"], "dave", true, [1,2,3]) we would pass total 388 bytes as follows :
 
             - prefix we discard
                 0x
             -  function selector/ Method ID (first 4 bytes of selector)
                 566145fd
-        NOTE : All arguments will be padded to 32 bytes, each arguments are separated by 64 characters(32 bytes)
+        NOTE : All arguments will be padded to 32 bytes, each arguments are 64 characters(32 bytes) long
             -  uint32  "53" as first parameter 
                 0000000000000000000000000000000000000000000000000000000000000035
             -  bytes3  "abc" (left-aligned) as first part of second parameter
@@ -1626,7 +1646,7 @@ receive()   fallback()
 
     0    4        36          68         100          132    164           196          228           260           292       324       356      388
     0x-ID|-uint32-|-bytes3[0]-|-bytes3[1]-|-bytes(loc)-|-bool-|-uint[](loc)-|-bytes(len)-|-bytes(data)-|-uint[](len)-|-uint[0]-|-uint[1]-|-uint[2] 
-         ^start of the arguments block......................................^(192th Byte location......^(256th Byte location).....
+         ^start of the arguments block......................................^(192th Byte location).....^(256th Byte location).....
     */
     function selectorJSL(
         uint32 par1,
@@ -1646,6 +1666,6 @@ receive()   fallback()
 /// single line NatSpec comment
 
 /**
-This is a
-multi-line comment.
-*/
+ * This is a
+ * multi-line comment.
+ */
