@@ -1284,7 +1284,10 @@ receive()   fallback()
     function lowLevelCall(
         address payable _contract
     ) external payable returns (bool success, bytes memory data) {
-        // call method to modify any state in calling contract, forwards all remaining gas by default
+        /**
+         * function containing call method should be combined with re-entrancy guard, and also all state changes should be made before this
+         * call method to modify any state in calling contract, forwards all remaining gas by default if gas isn't set
+         */
         (success, data) = _contract.call{value: msg.value, gas: 5000}(
             abi.encodeWithSignature("dummy(string,uint256)", "hello there", 200)
         );
