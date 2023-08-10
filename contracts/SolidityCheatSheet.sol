@@ -11,7 +11,7 @@
         a different y in x.y.z indicates breaking changes & z indicates bug fixes.
     - Versioning is to ensure that the contract is not compatible with a new (breaking) compiler version, to avoid behaving differently
  * another e.g. pragma solidity ^0.4.16; -> doesn't compile with a compiler earlier than version 0.4.16, and 
-    - floating pragma `^` represents it neither compiles on compiler 0.y.0(where y > 4).
+    - floating pragma `^` represents it doesn't compiles on compiler 0.y.0(where y > 4).
     - Locking the pragma (for e.g. by not using ^ ahead of pragma) ensures that contracts do not accidentally get deployed using any other compiler version
 */
 pragma solidity >=0.4.16 <0.9.0;
@@ -31,7 +31,7 @@ pragma abicoder v2;
 import "./Add.sol";
 
 /**
- * & to import specific symbols explicitly
+ * to import specific symbols explicitly
  * equivalent to -> import * as multiplier from "./Mul.sol";
  */
 import "./Mul.sol" as multiplier;
@@ -52,7 +52,10 @@ function outsider(uint256 x) pure returns (uint256) {
     return x * 2;
 }
 
-// struct can be declared outside contract
+/**
+ * struct can also be declared outside contract
+ * these struct and free function can be inherited in contracts(even from contract in another file)
+ */
 struct User {
     address addr;
     string task;
@@ -346,9 +349,8 @@ receive()   fallback()
         it's values start being stores at keccak256(p) one element after the other, 
         potentially sharing storage slots if the elements are not longer than 16 bytes.
 
-     * Mappings leave their slot p empty (to avoid clashes), 
-        the values corresponding to key k are stored at keccak(h(k) + p) 
-        with h() padding value to 32 bytes or hashing reference types.
+     * Mappings leave their slot p(mapping slot in the contract's storage) empty (to avoid clashes), 
+        the values corresponding to key k are stored at slot location : keccak(h(k), p)
 
      * Bytes and Strings 
         - stored like array elements and data area is computed using a keccak256 hash of the slot's position.
@@ -359,12 +361,13 @@ receive()   fallback()
      * In case of inheritance, order of variables is starting with the most base-ward contract & do share same slot
 
      * Layout in Memory(Reserves certain areas of memory) :
-        -First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations
+        - First 64 bytes (0x00 to 0x3f) used for storing temporarily data while performing hash calculations, if needed more than 64 bytes they can be placed temporarly in free memory as well
         - Next 32 bytes (0x40 to 0x5f) also known as "free memory pointer" keeps track of next available location in memory where new data can be stored
         - Next 32 bytes (0x60 to 0x7f) is a zero slot that is used as starting point for dynamic memory arrays that is initialized with 0 and should never be written to.
-     * New objects in Solidity are always placed at the free memory pointer and memory is never freed.
-
-     * There's no packing in memory, calldata or function arguments as they are always padded to 32 bytes
+     * Zero slot is used as initial value for dynamic memory arrays and should never be written to
+     * New objects in Solidity are always placed at the free memory pointer (initially points to 0x80) and memory is never freed(once memory is expanded can't be deleted).
+     * free memory pointer is updated by noting how much data is to be written to the new location and adding these two gives new free location 
+     * There's no packing in memory, calldata or function arguments as they are always padded to 32 bytes(including bytes1[]) except for bytes and strings
         e.g., following array occupies 32 bytes (1 slot) in storage, but 128 bytes (4 items with 32 bytes each) in memory.
      */
     uint8[4] _slotA;
@@ -424,6 +427,9 @@ receive()   fallback()
     /**
      * Integers exists in sizes(from 8 up to 256 bits) in steps of 8
      * uint and int are aliases for uint256 and int256, respectively
+     * Signed integer stores sign in it's first bit to represent whether number is +ve or -ve
+     * thus int can only store numbers up to one bit less than the unsigned version.
+     * i.e. int8 can store upto 2^(8-1)-1 = 127 while uint8 can store 2^8 - 1 = 255
      */
     uint256 _storedData; // unsigned(only positive) integer of 256 bits
 
@@ -431,12 +437,12 @@ receive()   fallback()
     function integersRange() external pure returns (uint, uint, int, int) {
         return (
             //uintX range
-            type(uint8).max, // 2**8 - 1
+            type(uint8).max, // (2**8) - 1
             type(uint16).min, // 0
             // int : Signed Integer
             // intX range
-            type(int32).max, // (2**32)/2 - 1
-            type(int64).min // (2**64)/2 * -1
+            type(int32).max, // 2**(32-1) - 1
+            type(int64).min // -2**(64-1)
         );
     }
 
@@ -678,10 +684,12 @@ receive()   fallback()
     // Arrays
     uint[] public dynamicSized; // length of a dynamic array is stored at the first slot of array and followed by its elements
     uint[2 ** 3] _fixedSized; // array of 8 elements all initialized to 0
+    uint[] public arr = [1, 2, 3]; // pre assigned array
+    // Multidimensional / Nested Arrays are Declared Backwards but use as forward
     uint[][4] _nestedDynamic; // an array of 4 dynamic arrays
     bool[3][] _triDynamic; // Dynamic Array of a fixed sized arrays each of length 3
-    uint[] public arr = [1, 2, 3]; // pre assigned array
     uint[][] _freeArr; // Dynamic array of multi dynamic arrays
+    uint[2][1] _multiDim; // A multidimensional array of fixed length 1 of array of size 2; i.e. [[x,y]]
 
     function aboutArrays(
         uint _x,
@@ -724,6 +732,9 @@ receive()   fallback()
         dynamicSized.pop(); // remove end of array element
         delete arr; // removes all elements of array
         _triDynamic = new bool[3][](0); // similar to delete array
+
+        _multiDim[0][1] = 5;
+        // _multiDim[1][0] = 5; ERROR - Out of bounds array (as Multidimensional Arrays are Declared Backwards but use as forward)
     }
 
     /**
@@ -797,6 +808,7 @@ receive()   fallback()
      * only allowed as state variables but can be passed as parameters only for library functions 
      * Key Type can be inbuilt value types, bytes, string, enum but not user-defined, mappings, arrays or struct
      * while the Values of mappings can be of any type
+     * 'mapping(key => value) memory tempMap' isn't possible
     */
     mapping(address => uint256) public balances;
 
@@ -806,8 +818,8 @@ receive()   fallback()
         2. memory 
             - is a linear byte-array, addressable at a byte-level 
             - is modifiable & exists while a function is being called 
-            - can store either 1 or 32 bytes at a time in memory, but can only read in chunks of 32 bytes
-        3. calldata - non-modifiable area where function arguments are stored and behaves mostly like memory
+            - can write either 1(8 bits) or 32 bytes at a time in memory, but read and memory expansion in chunks of 32 bytes
+        3. calldata - is part of transaction data, non-modifiable area where function arguments are stored and behaves mostly like memory
      * Prior to v0.6.9 data location was limited to calldata in external functions
      */
     function dataLocations(
@@ -942,12 +954,12 @@ receive()   fallback()
          * Explicit Conversions
             - if you are confident and forcefully do conversion
             - converting to a smaller type, higher-order bits are cut off
-            - converting to a larger type, it is padded on the left
+            - converting to a larger type, '0' are padded towards the high-order bits
         */
         int kt = -3;
         j = uint(kt);
 
-        // when uint is converted to a smaller size uint the high order bytes are cut off and only taken from right end
+        // when uint is converted to a smaller size 'uint' high order bits are cut off
         uint32 l = 0x12345678;
         m = uint16(l); // m will be 0x5678 now
 
@@ -1151,11 +1163,13 @@ receive()   fallback()
                  " stored by " + result.args.sender +".");
              }
          })
+     * Events can be inherited through parent contracts and interfaces and used in child
      */
     event Stored(address sender, uint256 value);
 
     /**
      * for filtering certain logs 'indexed'(stores parameter as "topics") attribute can be added up to 3 params
+     * an event can store 4 topic but non-anonymous events store event.selector as first topic thus limited to 3 topics(indexed params)
      * All parameters without the indexed attribute are ABI-encoded into the data part of the log
      * Filtering of events can also be done via the address of contract
      */
@@ -1174,7 +1188,8 @@ receive()   fallback()
         string indexed rand4
     ) anonymous;
 
-    bytes32 _eventSelector = Log.selector; // stores keccak256 hash of non-anonymous event signature
+    // stores keccak256 hash of non-anonymous event signature & doesn't change whether variables are indexed or not
+    bytes32 _eventSelector = Log.selector;
 
     /**
      * Custom Errors allow customised names and data for failure situations.
@@ -1292,7 +1307,10 @@ receive()   fallback()
             abi.encodeWithSignature("dummy(string,uint256)", "hello there", 200)
         );
 
-        // STATICCALL opcode is used when view/pure functions are called such that modifications to the state are prevented
+        // STATICCALL opcode is used similarly to call except it reverts to any state change(only for view/pure funct.) and also disallow Ether transfer
+        (success, data) = _contract.staticcall{gas: 5000}(
+            abi.encodeWithSignature("userBalance()", msg.sender)
+        );
 
         /**
          * delegatecall to other contract execute it's function but preserves calling contract's state (storage, contract address & balance)
