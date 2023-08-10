@@ -1,7 +1,7 @@
 # Solidity CHEATSHEET
 
 ```
-A complete reference guide to Solidity Programming.
+A complete reference guide to Solidity & Yul assembly Programming.
 ```
 
 ## Check it Out
