@@ -1,4 +1,4 @@
-# Solidity CHEATSHEET
+# Solidity-Yul CHEATSHEET
 
 ```
 A complete reference guide to Solidity & Yul assembly Programming.
