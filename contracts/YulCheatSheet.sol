@@ -14,6 +14,11 @@ contract InlineYul {
     uint8 ran2 = 22;
     uint72 ran3 = 5;
 
+    event UnIndexedEvent(uint256 a, uint256 b, bool c);
+    event IndexedEvent1(uint256 indexed a, uint256 b, bool c);
+    event IndexedEvent2(uint256 indexed a, uint256 indexed b, bool c);
+    event IndexedEvent3(uint256 indexed a, uint256 indexed b, bool indexed c);
+
     /**
      * Basic syntax
      * allowed elements inside assembly's block
@@ -231,6 +236,27 @@ contract InlineYul {
             // keccak256(a,b) -> hash data stored at 'a' upto slot 'a+b'
             mstore(0x00, keccak256(freeMemPtr, 0x60)) // storting the hash data at its dedicated location in the memory(0x00 to 0x3f)
             return(0x00, 0x20)
+        }
+    }
+
+    /**
+     * t1 generally is event Signature while t2,t3... are indexed parameters
+     * while in case of anonymous events no event signature is used and instead 4 indexed parameters can be used
+     * log1(p, s, t1) - emits an event with one topic(indexed) t1 and bytes representation of un-indexed parameters of size s starting from memory slot p
+     * similarly log2(p, s, t1, t2),log3(p, s, t1, t2, t3), log4(p, s, t1, t2, t3, t4)
+     * log0(p, s) - for emitting anonymous events where only bytes representation of un-indexed parameters are passed
+     */
+    function emitEvents() external {
+        assembly {
+            // keccak256("IndexedEvent2(uint256,uint256,bool)")
+            let
+                eventSignature
+            := 0x6c314e1fffffe49db80bbf8fba1926d211a91b20267702af8256a39edf31105b
+            // store all non-indexed params starting from slot 0x80
+            mstore(0x80, 1) // as bool so 1 for true , 0 for false
+
+            // emit the event IndexedEvent2(45, 63, true)
+            log3(0x80, 0x20, eventSignature, 45, 63)
         }
     }
 }
