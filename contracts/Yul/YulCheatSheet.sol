@@ -260,4 +260,54 @@ contract InlineYul {
         }
     }
 
+    function externalStaticCall(
+        address _contract
+    ) external view returns (uint256 mulResult, bool noParamCalled) {
+        assembly {
+            let freeMemPtr := mload(0x40)
+            // store the function selector of mul(uint256, uint256) in memory
+            mstore(freeMemPtr, 0xc8a4ac9c)
+            // store the first argument of calling function in the next memory slot
+            mstore(add(freeMemPtr, 0x20), 5)
+            // store the second argument
+            mstore(add(freeMemPtr, 0x40), 10)
+            // update the free memory pointer
+            mstore(0x40, add(freeMemPtr, 0x60))
+            // memory will look like:
+            //  00000000000000000000000000000000000000000000000000000000cad0899b
+            //  0000000000000000000000000000000000000000000000000000000000000005
+            //  000000000000000000000000000000000000000000000000000000000000000a
+
+            // staticcall : calling external contract function without any state modification
+            // calling the function mul() with two parameters
+            if iszero(
+                staticcall(
+                    gas(), // amount of gas to send
+                    _contract, // call contract address
+                    add(freeMemPtr, 28), // calldata starting pointer in the memory(usually starts from 4 bytes function selector)
+                    0x44, // size of calldata to copy starting from the initial offset (0x04(func. selector) + 2 * 0x20(parameters slots))
+                    0x00, // byte offset in the memory, where to store the return data , received from external call
+                    0x20 // size of return data
+                )
+            ) {
+                revert(0, 0)
+            }
+
+            mulResult := mload(0x00)
+
+            freeMemPtr := mload(0x40)
+            // store the function selector of noParam()
+            mstore(freeMemPtr, 0xc2cfaca2)
+
+            // calling the function mul() with two parameters
+            noParamCalled := staticcall(
+                gas(),
+                _contract,
+                add(freeMemPtr, 28),
+                0x04, // only needs 4 byte function selector as no parameters
+                0x00,
+                0x00 // not copying the returned data
+            )
+        }
+    }
 }
