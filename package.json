@@ -2,10 +2,10 @@
   "name": "solidity_cheatsheet",
   "version": "1.0.0",
   "description": "An in-depth reference guide to Solidity",
-  "main": "contracts/SolidityCheatSheet.sol",
+  "main": "contracts/Solidity/SolidityCheatSheet.sol",
   "scripts": {
-    "compile": "solcjs --bin contracts/SolidityCheatSheet.sol contracts/YulCheatSheet.sol -o /tmp/",
-    "lint": "solhint contracts/SolidityCheatSheet.sol contracts/YulCheatSheet.sol"
+    "compile": "solcjs --bin contracts/Solidity/SolidityCheatSheet.sol contracts/Yul/YulCheatSheet.sol -o /tmp/",
+    "lint": "solhint contracts/Solidity/SolidityCheatSheet.sol contracts/Yul/YulCheatSheet.sol"
   },
   "repository": {
     "type": "git",

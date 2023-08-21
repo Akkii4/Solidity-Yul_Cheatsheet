@@ -8,11 +8,11 @@ pragma solidity ^0.8.17;
  */
 
 contract InlineYul {
-    uint256 random = 256; // slot 0
-    address owner = address(1); // all these 3 elements are in slot 1
-    uint16 numX = 44;
-    uint8 ran2 = 22;
-    uint72 ran3 = 5;
+    uint256 _random = 256; // slot 0
+    address _owner = address(1); // all these 3 elements are in slot 1
+    uint16 _numX = 44;
+    uint8 _ran2 = 22;
+    uint72 _ran3 = 5;
 
     event UnIndexedEvent(uint256 a, uint256 b, bool c);
     event IndexedEvent1(uint256 indexed a, uint256 b, bool c);
@@ -151,7 +151,7 @@ contract InlineYul {
     ) external returns (uint256 x, uint256 varSlot, uint256 varVal) {
         assembly {
             x := sload(storageSlot) // reading a storage variable value stored at particular storage slot
-            varSlot := ran2.slot // returns a slot of a variable named 'rand'
+            varSlot := _ran2.slot // returns a slot of a variable named 'rand'
             varVal := sload(varSlot)
             sstore(storageSlot, 1) // writing value to a storage slot
         }
@@ -163,8 +163,8 @@ contract InlineYul {
         returns (uint256 _slot, uint256 offset)
     {
         assembly {
-            _slot := ran2.slot // returns slot of variable 'ran2' in global storage
-            offset := ran2.offset //returns the starting bytes position of variable 'ran2' in it's slot
+            _slot := _ran2.slot // returns slot of variable 'ran2' in global storage
+            offset := _ran2.offset //returns the starting bytes position of variable 'ran2' in it's slot
         }
     }
 
@@ -200,7 +200,7 @@ contract InlineYul {
 
     // if the return data size is bigger than expected, compiler will decode the first X bytes it expects
     // whereas returning size smaller than expected will result in failure to decode
-    function yulReturn() external returns (uint256, uint256) {
+    function yulReturn() external pure returns (uint256, uint256) {
         assembly {
             mstore(0x80, 1)
             mstore(0xa0, 2)
@@ -211,7 +211,7 @@ contract InlineYul {
         }
     }
 
-    function revertIt() external {
+    function revertIt() external view {
         // equivalent to require(msg.sender != 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2); of Solidity
         assembly {
             if iszero(
@@ -259,4 +259,5 @@ contract InlineYul {
             log3(0x80, 0x20, eventSignature, 45, 63)
         }
     }
+
 }
