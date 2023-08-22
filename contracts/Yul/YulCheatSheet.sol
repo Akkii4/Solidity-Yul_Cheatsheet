@@ -274,9 +274,9 @@ contract InlineYul {
             // update the free memory pointer
             mstore(0x40, add(freeMemPtr, 0x60))
             // memory will look like:
-            //  00000000000000000000000000000000000000000000000000000000cad0899b
-            //  0000000000000000000000000000000000000000000000000000000000000005
-            //  000000000000000000000000000000000000000000000000000000000000000a
+            //  0x80: 00000000000000000000000000000000000000000000000000000000c8a4ac9c
+            //  0xa0: 0000000000000000000000000000000000000000000000000000000000000005
+            //  0xc0: 000000000000000000000000000000000000000000000000000000000000000a
 
             // staticcall : calling external contract function without any state modification
             // calling the function mul() with two parameters
@@ -308,6 +308,124 @@ contract InlineYul {
                 0x00,
                 0x00 // not copying the returned data
             )
+        }
+    }
+
+    // calling an external contract where dynamic data types are passed along with handling dynamic sized return data
+    function staticDynamicCall(
+        address _contract
+    ) external view returns (uint256[] memory) {
+        assembly {
+            let freeMemPtr := mload(0x40)
+            mstore(freeMemPtr, 0x8c5f0b6d)
+            // store the first argument (uint256) in slot 1
+            mstore(add(freeMemPtr, 0x20), 3)
+            // store pointer indicating start of array in calldata
+            // Note : the location is based of the formulated calldata and not memory
+            mstore(add(freeMemPtr, 0x40), 0x40)
+            // store the array length
+            mstore(add(freeMemPtr, 0x60), 3)
+            // start storing the second argument(array elements) : [43,21,78]
+            mstore(add(freeMemPtr, 0x80), 43)
+            mstore(add(freeMemPtr, 0xa0), 21)
+            mstore(add(freeMemPtr, 0xc0), 78)
+            // update the free memory pointer
+            mstore(0x40, add(freeMemPtr, 0xe0))
+            // memory will look like:
+            //  0x80: 000000000000000000000000000000000000000000000000000000008c5f0b6d
+            // calldata begins here                                                     calldata offset
+            //  0xa0: 0000000000000000000000000000000000000000000000000000000000000003      0x00
+            //  0xc0: 0000000000000000000000000000000000000000000000000000000000000040      0x20
+            //  0xe0: 0000000000000000000000000000000000000000000000000000000000000003      0x40
+            // 0x100: 0000000000000000000000000000000000000000000000000000000000000043      0x60
+            // 0x120: 0000000000000000000000000000000000000000000000000000000000000021      0x80
+            // 0x140: 0000000000000000000000000000000000000000000000000000000000000078      0xa0
+
+            if iszero(
+                staticcall(
+                    gas(),
+                    _contract,
+                    add(freeMemPtr, 28),
+                    0xc4,
+                    0x00,
+                    0x00 // not storing the return data here as if the size is unclear
+                )
+            ) {
+                revert(0, 0)
+            }
+
+            // when the return data size is unclear instead of manually defining inside call above we can
+            // store return data like :
+
+            // returndatacopy(t, f, s) copy s bytes from returndata at position f to mem at position t
+            returndatacopy(mload(0x40), 0, returndatasize())
+
+            // returndatasize : size of the last returndata
+            // return the result from memory
+            return(mload(0x40), returndatasize())
+        }
+    }
+
+    function stateChangingCall(address _contract) external payable {
+        assembly {
+            let freeMemPtr := mload(0x40)
+            // store the function selector of transferFunds(address)
+            mstore(freeMemPtr, 0xe39ff19f)
+            // store the first argument of calling function in the next memory slot, address in this case
+            mstore(
+                add(freeMemPtr, 0x20),
+                0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2
+            )
+
+            // call : calling external contract function with state modification and can also send ether along
+            let success := call(
+                gas(),
+                _contract,
+                callvalue(), // send ether along function call
+                add(freeMemPtr, 28),
+                0x24,
+                0x00,
+                0x00 // don't save as no return data
+            )
+            // transfering eth to an address via call
+            // call(gas(), _receiverAddress, selfbalance(), 0, 0, 0, 0) selfbalance is equivalent to current contract balance
+            if iszero(success) {
+                revert(0, 0)
+            }
+        }
+    }
+
+    function _delegate(address implementation) internal virtual {
+        assembly {
+            // Copy msg.data. We take full control of memory in this inline assembly
+            // block because it will not return to Solidity code. We overwrite the
+            // Solidity scratch pad at memory position 0.
+            // calldatasize() size of call data in bytes
+            // calldatacopy(t, f, s) copy s bytes from calldata at position f to mem at position t
+            calldatacopy(0, 0, calldatasize())
+
+            // Call the implementation.
+            // out and outsize are 0 because we don't know the size yet.
+            let result := delegatecall(
+                gas(),
+                implementation,
+                0,
+                calldatasize(),
+                0,
+                0
+            )
+
+            // Copy the returned data.
+            returndatacopy(0, 0, returndatasize())
+
+            switch result
+            // delegatecall returns 0 on error.
+            case 0 {
+                revert(0, returndatasize())
+            }
+            default {
+                return(0, returndatasize())
+            }
         }
     }
 }
