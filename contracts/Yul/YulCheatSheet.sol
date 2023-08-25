@@ -5,6 +5,7 @@ pragma solidity ^0.8.17;
  * Yul is a low-level language that can be compiled to bytecode
  *  and can be used stand-alone(use --strict-assembly) or as inline assembly inside Solidity.
  * Used for granular optimisation.
+ * Yul doesn't have support for control flow or stack manipulation opcodes like : JUMPx, DUP, SWAP
  */
 
 contract InlineYul {
